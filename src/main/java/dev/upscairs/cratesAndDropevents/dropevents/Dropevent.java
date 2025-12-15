@@ -1,9 +1,11 @@
 package dev.upscairs.cratesAndDropevents.dropevents;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -23,6 +25,7 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
     private boolean broadcast;
     private boolean teleportable;
     private String startupCommand;
+    private int minPlayers;
 
     public Dropevent(String name) {
         this.name = name;
@@ -33,6 +36,7 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
         drops = new HashMap<>();
         countdownSec = 120;
         broadcast = true;
+        minPlayers = 0;
     }
 
     public Dropevent(String name, ItemStack representingItem, int dropRange, int eventTimeSec, int dropCount, int countdownSec, boolean broadcast) {
@@ -44,9 +48,10 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
         this.dropCount = dropCount;
         this.countdownSec = countdownSec;
         this.broadcast = broadcast;
+        minPlayers = 0;
     }
 
-    public Dropevent(String name, ItemStack renderItem, int dropRange, int eventTimeSec, HashMap<ItemStack, Integer> drops, int dropCount, int countdownSec, boolean broadcast,  boolean teleportable, String startupCommand) {
+    public Dropevent(String name, ItemStack renderItem, int dropRange, int eventTimeSec, HashMap<ItemStack, Integer> drops, int dropCount, int countdownSec, boolean broadcast,  boolean teleportable, String startupCommand, int minPlayers) {
         this.name = name;
         this.renderItem = renderItem;
 
@@ -58,6 +63,7 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
         this.broadcast = broadcast;
         this.teleportable = teleportable;
         this.startupCommand = startupCommand;
+        this.minPlayers = minPlayers;
     }
 
     public String getName() {
@@ -139,19 +145,6 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
         if(keyToRemove != null) {
             drops.remove(keyToRemove);
         }
-
-        /*
-
-        Bukkit.getLogger().warning("Rewards:");
-
-        for (Map.Entry<ItemStack, Integer> entry : drops.entrySet()) {
-            Bukkit.getLogger().warning(entry.getKey().toString());
-            Bukkit.getLogger().warning("");
-        }
-        Bukkit.getLogger().warning("Remove:");
-        Bukkit.getLogger().warning(item.toString());
-
-        drops.remove(item);*/
     }
 
     private static boolean equalsIgnoringLore(ItemStack a, ItemStack b) {
@@ -192,6 +185,14 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
         this.teleportable = teleportable;
     }
 
+    public int getMinPlayers() {
+        return minPlayers;
+    }
+
+    public void setMinPlayers(int minPlayers) {
+        this.minPlayers = minPlayers;
+    }
+
     public Dropevent clone() {
 
         HashMap<ItemStack, Integer> clonedDrops = new HashMap<>();
@@ -201,7 +202,7 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
 
         return new Dropevent(name, renderItem.clone(), dropRange, eventTimeSec, clonedDrops,
                 dropCount, countdownSec, broadcast, teleportable,
-                startupCommand == null ? null : new String(startupCommand));
+                startupCommand == null ? null : new String(startupCommand), minPlayers);
     }
 
     public void setName(String name) {
@@ -238,6 +239,7 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
             case "duration": eventTimeSec = newValue; return true;
             case "drops": dropCount = newValue; return true;
             case "countdown": countdownSec = newValue; return true;
+            case "minplayers": minPlayers = newValue; return true;
             default: return false;
         }
 
@@ -255,6 +257,7 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
         map.put("broadcast", broadcast);
         map.put("teleportable", teleportable);
         map.put("startupCommand", startupCommand);
+        map.put("minPlayers", minPlayers);
 
         //Drops list
         List<Map<String, Object>> dropsList = new ArrayList<>();
@@ -284,6 +287,9 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
         if (map.containsKey("teleportable")) {
             event.setTeleportable((boolean) map.get("teleportable"));
         }
+
+        if(map.containsKey("minPlayers")) event.setMinPlayers((int) map.get("minPlayers"));
+        else event.setMinPlayers(-1); //Marking old version TODO remove later
 
         Object dropsObj = map.get("drops");
         HashMap<ItemStack, Integer> dropsMap = new HashMap<>();

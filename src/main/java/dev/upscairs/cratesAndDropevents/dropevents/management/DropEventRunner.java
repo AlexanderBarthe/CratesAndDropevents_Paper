@@ -176,8 +176,8 @@ public class DropEventRunner {
 
         if(config.getBoolean("dropevents.simultaneous-limit.active")
             && DropEventManager.getActiveCount() >= config.getInt("dropevents.simultaneous-limit.count")) {
-            hostingPlayer.sendMessage(chatMessageConfig.getColored("dropevent.error.simultaneous-limit"));
-            return false;
+                hostingPlayer.sendMessage(chatMessageConfig.getColored("dropevent.error.simultaneous-limit"));
+                return false;
         }
 
         if(config.getBoolean("dropevents.hopper-prevention")) {
@@ -216,14 +216,13 @@ public class DropEventRunner {
 
         }
 
-        if(config.getBoolean("dropevents.normal-players.start.online-player-condition")
-            && config.getInt("dropevents.normal-players.start.min-online-players") < Bukkit.getOnlinePlayers().size()) {
+        if(dropevent.getMinPlayers() > Bukkit.getOnlinePlayers().size()) {
 
             hostingPlayer.sendMessage(chatMessageConfig
                     .getColored("dropevent.error.player-amount")
                     .replaceText(builder -> { builder
                             .matchLiteral("%p")
-                            .replacement(String.valueOf(config.getInt("dropevents.normal-players.start.min-online-players")));
+                            .replacement(dropevent.getMinPlayers() + "");
             }));
 
             return false;

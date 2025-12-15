@@ -93,12 +93,17 @@ public class DropeventEditGui {
         broadcastItem.setItemMeta(meta);
         gui.setItem(19, broadcastItem);
 
+        ItemStack minPlayerItem = new ItemStack(Material.PLAYER_HEAD);
+        meta = minPlayerItem.getItemMeta();
+        meta.displayName(InvGuiUtils.generateDefaultTextComponent("Min players to start: " + dropevent.getMinPlayers(), "#AA0000").decoration(TextDecoration.BOLD, true));
+        minPlayerItem.setItemMeta(meta);
+        gui.setItem(30, minPlayerItem);
 
         ItemStack lootItem = new ItemStack(Material.CHEST);
         meta = lootItem.getItemMeta();
         meta.displayName(InvGuiUtils.generateDefaultTextComponent("Configure Loot Pool", "#FFAA00").decoration(TextDecoration.BOLD, true));
         lootItem.setItemMeta(meta);
-        gui.setItem(31, lootItem);
+        gui.setItem(32, lootItem);
 
         ItemStack droppedItem = new ItemStack(Material.HOPPER);
         meta = droppedItem.getItemMeta();
@@ -200,7 +205,10 @@ public class DropeventEditGui {
                     case 16:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new EditDropeventNumberGui(dropevent.getCountdownSec(), 0, 999, dropevent, "Countdown", sender).getGui();
-                    case 31:
+                    case 30:
+                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
+                        return new EditDropeventNumberGui(dropevent.getMinPlayers(), 0, 2500, dropevent, "Minplayers", sender).getGui();
+                    case 32:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new DropeventDropsGui(dropevent, sender, plugin).getGui();
                     case 45:

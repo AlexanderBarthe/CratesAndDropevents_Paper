@@ -36,6 +36,7 @@ public class CrateStorage {
 
 
     public static void saveCrate(Crate crate) {
+
         config.set("crates." + crate.getName(), crate);
         saveFile();
     }

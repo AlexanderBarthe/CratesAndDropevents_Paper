@@ -121,8 +121,8 @@ public final class CratesAndDropevents extends JavaPlugin {
         getConfig().addDefault("dropevents.simultaneous-limit.active", false);
         getConfig().addDefault("dropevents.simultaneous-limit.count", 5);
         getConfig().addDefault("dropevents.normal-players.usable", false);
-        getConfig().addDefault("dropevents.normal-players.start.online-player-condition", false);
-        getConfig().addDefault("dropevents.normal-players.start.min-online-players", 10);
+        //Removed: getConfig().addDefault("dropevents.normal-players.start.online-player-condition", false);
+        //Removed: getConfig().addDefault("dropevents.normal-players.start.min-online-players", 10);
         getConfig().addDefault("dropevents.forbidden-worlds", List.of("minecraft:the_nether", "minecraft:the_end"));
         getConfig().addDefault("dropevents.hopper-prevention", false);
         getConfig().addDefault("dropevents.ops-override-restrictions", true);

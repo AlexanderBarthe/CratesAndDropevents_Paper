@@ -83,7 +83,7 @@ public class DEEditSubCommand implements SubCommand {
             return DropeventStorage.getDropeventNames();
         }
         else if(args.length == 3) {
-            return Arrays.asList("renderItem", "range", "duration", "drops", "countdown");
+            return Arrays.asList("renderItem", "range", "duration", "drops", "countdown", "minPlayers");
         }
         else if(args.length == 4 && args[2].equalsIgnoreCase("renderItem")) {
             String partial = args[3].toUpperCase();

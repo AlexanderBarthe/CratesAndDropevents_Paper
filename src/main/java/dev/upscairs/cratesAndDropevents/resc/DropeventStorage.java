@@ -42,6 +42,18 @@ public class DropeventStorage {
      * @param dropevent
      */
     public static void saveDropevent(Dropevent dropevent) {
+
+        //Catching old versions TODO remove later
+        if(dropevent.getMinPlayers() == -1){
+            if (config.getBoolean("dropevents.normal-players.start.online-player-condition")) {
+                dropevent.setMinPlayers(config.getInt("dropevents.normal-players.start.min-online-players"));
+            }
+            else {
+                dropevent.setMinPlayers(0);
+            }
+        }
+
+        //Saving
         config.set("events." + dropevent.getName(), dropevent);
         saveFile();
     }
