@@ -88,7 +88,7 @@ public class CrateEditGui {
         meta = lootItem.getItemMeta();
         meta.displayName(InvGuiUtils.generateDefaultTextComponent("Configure Rewards", "#FFAA00").decoration(TextDecoration.BOLD, true));
         lootItem.setItemMeta(meta);
-        gui.setItem(40, lootItem);
+        gui.setItem(31, lootItem);
 
         ItemStack urlItem = new ItemStack(Material.WRITABLE_BOOK);
         meta = urlItem.getItemMeta();
@@ -109,6 +109,12 @@ public class CrateEditGui {
         displayNameItem.setItemMeta(meta);
         gui.setItem(29, displayNameItem);
 
+        ItemStack pittyItem = new ItemStack(Material.TOTEM_OF_UNDYING);
+        meta = pittyItem.getItemMeta();
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Pitty system: " + (crate.pittySystemActive() ? "on" : "off"), "#00AAAA"));
+        if(crate.pittySystemActive()) meta.setEnchantmentGlintOverride(true);
+        pittyItem.setItemMeta(meta);
+        gui.setItem(33, pittyItem);
 
         ItemStack crateItem;
 
@@ -202,10 +208,15 @@ public class CrateEditGui {
                         if(sender instanceof Player p) p.closeInventory();
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return null;
-                    case 40:
+                    case 31:
                         Bukkit.dispatchCommand(sender, "crates rewards " + crate.getName());
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new PreventCloseGui();
+                    case 33:
+                        crate.setPittySystem(!crate.pittySystemActive());
+                        CrateStorage.saveCrate(crate);
+                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
+                        return new CrateEditGui(crate, false, sender, plugin).getGui();
                     case 46:
                         Bukkit.dispatchCommand(sender, "crates list");
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);

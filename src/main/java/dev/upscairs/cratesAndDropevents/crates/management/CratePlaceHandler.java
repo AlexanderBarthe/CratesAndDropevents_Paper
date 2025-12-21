@@ -51,9 +51,7 @@ public class CratePlaceHandler implements Listener {
 
         player.getInventory().setItem(player.getInventory().getHeldItemSlot(), newItem);
 
-        CrateOpener opener = new CrateOpener();
-
-        opener.openCrate(crate, player, location);
+        CrateOpener.openCrate(crate, player, location);
 
     }
 

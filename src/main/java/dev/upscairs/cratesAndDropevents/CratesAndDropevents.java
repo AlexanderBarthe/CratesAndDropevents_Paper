@@ -1,7 +1,7 @@
 package dev.upscairs.cratesAndDropevents;
 
 import dev.upscairs.cratesAndDropevents.cad_command.CaDCommand;
-import dev.upscairs.cratesAndDropevents.crates.management.DropeventItemHandler;
+import dev.upscairs.cratesAndDropevents.dropevents.management.DropeventItemHandler;
 import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
@@ -128,7 +128,6 @@ public final class CratesAndDropevents extends JavaPlugin {
         getConfig().addDefault("dropevents.ops-override-restrictions", true);
         getConfig().addDefault("dropevents.bossbar-countdown", false);
         getConfig().addDefault("dropevents.starter-dragon", true);
-        getConfig().addDefault("crates.normal-players.view-lootpool", false);
         getConfig().addDefault("gui.play-sounds", true);
 
         getConfig().options().copyDefaults(true);

@@ -1,9 +1,8 @@
-package dev.upscairs.cratesAndDropevents.crates.management;
+package dev.upscairs.cratesAndDropevents.dropevents.management;
 
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
-import dev.upscairs.cratesAndDropevents.dropevents.management.DropEventRunner;
 import dev.upscairs.cratesAndDropevents.resc.DropeventStorage;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

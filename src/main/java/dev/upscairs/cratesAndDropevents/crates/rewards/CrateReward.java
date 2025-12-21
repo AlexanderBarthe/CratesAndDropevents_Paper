@@ -5,8 +5,10 @@ import dev.upscairs.cratesAndDropevents.crates.rewards.payouts.*;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Player;
@@ -22,15 +24,19 @@ public class CrateReward implements ConfigurationSerializable, ListableGuiObject
 
     private List<CrateRewardEvent> sequence;
 
+    private Set<OfflinePlayer> pittiedPlayers;
+
     private Plugin plugin;
 
     public CrateReward(Plugin plugin) {
         this.plugin = plugin;
         this.sequence = new ArrayList<>();
+        this.pittiedPlayers = new HashSet<>();
     }
 
-    public CrateReward(List<CrateRewardEvent> sequence, Plugin plugin) {
+    public CrateReward(List<CrateRewardEvent> sequence, Set<OfflinePlayer> pittiedPlayers, Plugin plugin) {
         this.sequence = new ArrayList<>(sequence);
+        this.pittiedPlayers = new HashSet<>();
         this.plugin = plugin;
     }
 
@@ -54,6 +60,22 @@ public class CrateReward implements ConfigurationSerializable, ListableGuiObject
         sequence.add(event);
     }
 
+    public void addPittiedPlayer(OfflinePlayer player) {
+        pittiedPlayers.add(player);
+    }
+
+    public void removePittiedPlayer(OfflinePlayer player) {
+        pittiedPlayers.remove(player);
+    }
+
+    public Set<OfflinePlayer> getPittiedPlayers() {
+        return pittiedPlayers;
+    }
+
+    public boolean containsPittiedPlayer(OfflinePlayer player) {
+        return pittiedPlayers.contains(player);
+    }
+
     public CrateReward clone() {
 
         List<CrateRewardEvent> clonedSequence = new ArrayList<>();
@@ -61,7 +83,9 @@ public class CrateReward implements ConfigurationSerializable, ListableGuiObject
             clonedSequence.add(element.clone());
         }
 
-        return new CrateReward(clonedSequence, plugin);
+        Set<OfflinePlayer> clonedPittiedPlayers = new HashSet<>(pittiedPlayers);
+
+        return new CrateReward(clonedSequence, clonedPittiedPlayers, plugin);
     }
 
     @Override
@@ -93,6 +117,13 @@ public class CrateReward implements ConfigurationSerializable, ListableGuiObject
             events.add(m);
         }
         out.put("events", events);
+
+        List<String> playerUuids = new ArrayList<>();
+        for (OfflinePlayer player : pittiedPlayers) {
+            playerUuids.add(player.getUniqueId().toString());
+        }
+        out.put("pittiedPlayers", playerUuids);
+
         return out;
     }
 
@@ -101,12 +132,12 @@ public class CrateReward implements ConfigurationSerializable, ListableGuiObject
         Plugin plugin = CratesAndDropevents.getInstance();
 
         Object eventsObj = map.get("events");
-        if (!(eventsObj instanceof List<?> rawList)) {
+        if (!(eventsObj instanceof List<?> rawEventsList)) {
             throw new IllegalArgumentException("Missing or invalid 'events' for CrateReward");
         }
 
         List<CrateRewardEvent> seq = new ArrayList<>();
-        for (Object o : rawList) {
+        for (Object o : rawEventsList) {
             if (!(o instanceof Map<?, ?> m)) continue;
             String type = (String) m.get("type");
             switch (type) {
@@ -132,7 +163,20 @@ public class CrateReward implements ConfigurationSerializable, ListableGuiObject
             }
         }
 
-        return new CrateReward(seq, plugin);
+        //Player pitty
+
+        Object pittiedPlayersObj = map.get("pittiedPlayers");
+        if(!(pittiedPlayersObj instanceof List<?> rawPittiedPlayers)) {
+            throw new IllegalArgumentException("Missing or invalid 'pittiedPlayers' for CrateReward");
+        }
+
+        Set<OfflinePlayer> pittiedPlayers = new HashSet<>();
+        for (Object o : rawPittiedPlayers) {
+            if(!(o instanceof UUID) ) continue;
+            pittiedPlayers.add(Bukkit.getOfflinePlayer((UUID) o));
+        }
+
+        return new CrateReward(seq, pittiedPlayers, plugin);
     }
 
 
