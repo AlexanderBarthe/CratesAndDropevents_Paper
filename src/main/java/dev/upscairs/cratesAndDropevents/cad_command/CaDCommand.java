@@ -1,6 +1,7 @@
 package dev.upscairs.cratesAndDropevents.cad_command;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.cad_command.sub.ConfigSubCommand;
 import dev.upscairs.cratesAndDropevents.cad_command.sub.ReloadSubCommand;
 import dev.upscairs.cratesAndDropevents.cad_command.sub.UpgradeSubCommand;
 import dev.upscairs.cratesAndDropevents.cad_command.sub.VersionSubCommand;
@@ -12,10 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.Plugin;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CaDCommand implements CommandExecutor, TabCompleter {
 
@@ -34,6 +32,7 @@ public class CaDCommand implements CommandExecutor, TabCompleter {
         register(new ReloadSubCommand(p));
         register(new VersionSubCommand(p));
         register(new UpgradeSubCommand(p));
+        register(new ConfigSubCommand(p));
 
     }
 
@@ -64,15 +63,19 @@ public class CaDCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 
         if(!sender.hasPermission("cad.admin")) return Arrays.asList();
 
         if(args.length == 1) {
-            return Arrays.asList("reload", "version", "upgrade");
+            return Arrays.asList("reload", "version", "upgrade", "config");
         }
 
-        return Arrays.asList();
+        SubCommand handler = subcommands.get(args[0]);
+        if(handler == null) return Collections.emptyList();
+
+        return handler.onTabComplete(sender, command, alias, args);
+
     }
 
 
