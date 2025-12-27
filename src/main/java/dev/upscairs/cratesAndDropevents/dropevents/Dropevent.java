@@ -5,6 +5,7 @@ import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
@@ -26,6 +27,8 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
     private boolean teleportable;
     private String startupCommand;
     private int minPlayers;
+
+    public static final NamespacedKey EVENT_KEY = new NamespacedKey(CratesAndDropevents.getInstance(),"DROPEVENT_ITEM");
 
     public Dropevent(String name) {
         this.name = name;

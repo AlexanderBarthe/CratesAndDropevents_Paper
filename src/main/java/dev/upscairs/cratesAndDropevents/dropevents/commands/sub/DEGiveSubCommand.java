@@ -78,7 +78,7 @@ public class DEGiveSubCommand implements SubCommand {
         givenItem.setAmount(count);
 
         //Flag item as dropevent starter
-        NamespacedKey key = ((CratesAndDropevents) plugin).EVENT_KEY;
+        NamespacedKey key = Dropevent.EVENT_KEY;
 
         ItemMeta meta = givenItem.getItemMeta();
         meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, dropevent.getName());

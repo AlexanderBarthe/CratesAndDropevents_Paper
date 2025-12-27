@@ -26,9 +26,6 @@ public final class CratesAndDropevents extends JavaPlugin {
 
     private static ChatMessageConfig chatMessageConfig;
 
-    public final NamespacedKey EVENT_KEY = new NamespacedKey(this,"DROPEVENT_ITEM");
-    public final NamespacedKey CRATE_KEY = new NamespacedKey(this,"CRATE");
-
     private static CratesAndDropevents instance;
 
     @Override
@@ -40,10 +37,8 @@ public final class CratesAndDropevents extends JavaPlugin {
         ConfigurationSerialization.registerClass(Dropevent.class, "Dropevent");
         ConfigurationSerialization.registerClass(Crate.class, "Crate");
 
-
-        DropeventStorage.init(this);
         CrateStorage.init(this);
-
+        DropeventStorage.init(this);
 
         registerCommands();
         registerEvents();
@@ -62,9 +57,8 @@ public final class CratesAndDropevents extends JavaPlugin {
     public void reloadConfigs() {
         reloadConfig();
         registerConfigs();
-        DropeventStorage.init(this);
         CrateStorage.init(this);
-
+        DropeventStorage.init(this);
     }
 
     private void registerCommands() {
@@ -88,7 +82,7 @@ public final class CratesAndDropevents extends JavaPlugin {
     private void registerEvents() {
         getServer().getPluginManager().registerEvents(new EventDragonDropPreventListener(), this);
         getServer().getPluginManager().registerEvents(new DropeventItemHandler(this), this);
-        getServer().getPluginManager().registerEvents(new CratePlaceHandler(this), this);
+        getServer().getPluginManager().registerEvents(new CratePlaceHandler(), this);
         getServer().getPluginManager().registerEvents(new ChatMessageInputHandler(), this);
     }
 
