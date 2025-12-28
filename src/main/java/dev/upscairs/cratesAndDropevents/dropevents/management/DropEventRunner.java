@@ -346,7 +346,8 @@ public class DropEventRunner {
                 .replace("%t", String.valueOf(dropevent.getCountdownSec()))
                 .replace("%w", centerLocation.getWorld().getName())
                 .replace("%n", dropevent.getName())
-                .replace("%l", locationName.isEmpty() ? "" : locationName);
+                .replace("%l", locationName.isEmpty() ? "" : locationName)
+                .replace("%h", hostingPlayer.getName());
 
 
         return MiniMessage.miniMessage().deserialize(s);

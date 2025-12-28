@@ -112,6 +112,7 @@ public final class CratesAndDropevents extends JavaPlugin {
     }
 
     private void setConfigDefaults() {
+        getConfig().addDefault("crates.normal-players.view-lootpool", false);
         getConfig().addDefault("dropevents.simultaneous-limit.active", false);
         getConfig().addDefault("dropevents.simultaneous-limit.count", 5);
         getConfig().addDefault("dropevents.normal-players.usable", false);
