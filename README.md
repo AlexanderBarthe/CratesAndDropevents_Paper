@@ -1,119 +1,106 @@
 # About this plugin
 
-Want to give something back to your players and do it in a creative way? - How about events?
+Want to give something back to your players in a creative way? How about events?
 
-With this plugin, you can give out rewards by using events and crates, with a focus on easy customizability.
+With this plugin you can give out rewards using events and crates, with a focus on easy customization.
 
 
 ## Overview: Crates
 
-Crates are 'boxes' with custom style, which can be opened and give out a variety of rewards. You can create multiple
-Crates, each of them having their own loot pool. You can configure, how rare a reward is and how it should look like.
+Crates are boxes with a custom style that can be opened to give a variety of rewards. You can create multiple crates, each with its own loot pool. You can configure how rare a reward is and what it should look like.
 
-Many things can be configured in the GUI. The base command is `/crate <subcommand>`. The list of subcommands can be seen on the tab completion and should be self-explanatory..
+Many things can be configured in the GUI. The base command is `/crate <subcommand>`. The list of subcommands is available via tab completion and should be self-explanatory.
 To gain an overview `/crate list` is a good starting point.
 
 ### Rewards:
 
-Rewards can range from simple item drops, to complex opening procedures. It is possible to trigger multiple 'events' as a reward. You can:
+Rewards can range from simple item drops to complex opening procedures. It is possible to trigger multiple 'events' as a reward. You can:
 - Drop items
 - Play sounds
 - Send the player a message
 - Run a command (as the server)
 - Add a delay between 'events'
 
-This is how a more sofisticated reward could look like:
+This is how a more sophisticated reward could look:
 
-<p align="center">
-  <video src="resc/crate.mp4" autoplay loop muted playsinline width="800"></video>
-</p>
+https://github.com/user-attachments/assets/62350c5f-44f8-420d-ac46-a0f5bbfb16af
 
-We play a sound and write "Legendary reward" to the player and count down in chat. Then we drop the reward (a Beacon), along with some particles,
-and broadcast, who just pulled a legendary reward. And since we dont want to configure it every time, rewards and whole crates are clonable. (Emerald button)
+We play a sound, send "Legendary reward" to the player and show a chat countdown. Then we drop the reward (a Beacon) with particles and broadcast who pulled the legendary reward. Since we don't want to configure it every time, rewards and entire crates are clonable (Emerald button).
 
-Additionally, since player names and things such as location are dynamic, you can paste a 'replacement code' in chat and command messages. For more info, view 'Replacement codes' at the ent of this Readme.
+Additionally, because player names and locations are dynamic, you can use 'replacement codes' in chat and command messages. For more info, see 'Replacement codes' at the end of this README.
 
 ### View Lootpool:
 
-If the config `crates.normal-players.view-lootpool` is `true`, non-op players are abled to preview, what drop chance
-each reward has by holding a crate in their main hand and running `/crates loot`
+If the config `crates.normal-players.view-lootpool` is `true`, non-op players are able to preview the drop chance of each reward by holding a crate in their main hand and running `/crates loot`.
 
-### Pitty system:
+### Pity system:
 
-For each crate, you can activate a pitty system. It works, as follows:
+For each crate, you can enable a pity system. It works as follows:
 
-If a player is about to pull the same reward in the same rarity class (same drop chance), the pitty system chooses a 
+If a player is about to pull the same reward in the same rarity class (same drop chance), the pity system chooses a 
 random different reward.
+Example: The crate has four possible drops: 70% dirt, 10% diamond, 10% netherite, 10% beacon. A player opens several crates. 
+They first get a diamond, then a few dirt drops (dirt is not subject to pity because it is the only 70% drop). When they are 
+about to get a diamond again, the pity system activates: because they already received the 10% diamond, the system will 
+instead grant a different 10% rarity reward (either netherite or beacon).
 
-Example: Our crate has 4 drops. 70% dirt, 10% diamond, 10% netherite, 10% beacon. A player now opens multiple of those 
-crates. First he pulls a diamond, followed by a couple of dirt drops (which aren't subject to pitty, since they are the 
-only drop with 70% chance). Next he is about to pull a diamond again - Here the pitty system comes in clutch: Due to him 
-pulling the diamond with 10% chance previously, the pitty system now grants him a different drop with the rarity of 10%. 
-So instead of the diamond, he'll pull either the netherite or the beacon - both are possible.
 
 ## Overview: Dropevents
 
-<p align="center">
-  <video src="resc/dropevent.mp4" autoplay loop muted playsinline width="800"></video>
-</p>
+https://github.com/user-attachments/assets/7dcd7485-9c52-4eaa-a115-c947b7e3a998
 
-In a Dropevent random rewards, set by you, drop from the sky and players can compete with each other to get as many, as
-they can. You can configure them to be in a more private, or public environment, by choosing, if the dropevents get 
-announced in chat,  if players are abled to teleport to them and so on.
+In a Dropevent, random rewards that you configure fall from the sky and players can compete to collect as many as they can. You can configure them to be private or public by choosing whether dropevents are announced in chat, whether players can teleport to them, and so on.
 
-The base command is `/dropevent <subcommand>` or `/de <subcommand>`. The list of subcommands can be seen on the tab 
+The base command is `/dropevent <subcommand>` or `/de <subcommand>`. The list of subcommands is available via tab 
 completion and should be self-explanatory.
 To gain an overview `/de list` is a good starting point.
 
 ### Settings:
 
-![img.png](resc/de-settings.png)
+<img width="509" height="372" alt="de-settings" src="https://github.com/user-attachments/assets/5796160e-9529-4007-aaf9-36066ce846f6" />
 
-You get to the settings by clicking on an event in the list GUI or by running `/de info abc`
+Open the settings by clicking an event in the list GUI or by running `/de info abc`
 
 You are able to configure the following:
 - Range: Up to what distance from the start location drops can occur
 - Duration: How long the Dropevent runs for
 - Dropped items: Total amount of items dropped during the event
-- Countdown: Time, how long players have time to prepare for the Dropevent
-- Broadcasting: Whether a customizable broadcast message should announce that a dropevent takes place and potentially 
-where it is and an option to teleport (See next setting)
-- Teleportable: Whether the broadcast message gets appended a 'Teleport' button for players to teleport to the event or 
+- Countdown: How long players have to prepare before the Dropevent starts.
+- Broadcasting: Whether a customizable broadcast announces the Dropevent, optionally showing its location and a teleport option (see next setting).
+- Teleportable: Whether the broadcast message includes a 'Teleport' button for players to teleport to the event or 
 alternatively use `/de tp <code>`. Players can teleport to the location once and only as long as the Dropevent takes place.
-- Render item: Configure how the event appears in the list and how the item, players can obtain to start events 
-themselves, appears.
-- Command on startup: Command that gets run by console once the countdown timer runs out
-- Min. players to start: Restriction, how many players have to be at least online, before the Dropevent can be started
-
-From this page, you can also: Go to the loot pool of the event, start the event (optionally without countdown), clone or delete 
-the event. 
+- Render item: Configure how the event is shown in the list and how the item players can obtain to start events appears.
+- Command on startup: Command executed by the console when the countdown finishes.
+- Min. players to start: Minimum number of online players required before the Dropevent can be started.
+- 
+From this page you also can go to the event's loot pool, start the event (optionally without a countdown), clone the event, or delete it.
 
 ### Loot pool:
 
-In the loot pool, you can configure, what items should be dropped and at what chance. You can set all kinds of items as 
+In the loot pool you can configure which items should be dropped and their drop chances. You can set all kinds of items as 
 drops - for example: Crates.
 
-**Note:** Due to the choice, which item gets dropped being decided randomly, influenced by the chance modifier, it is
-possible for the real count of dropped items of one rarity to slightly deviate from expectation.
+**Note:** Because each drop is chosen randomly and influenced by chance modifiers, the actual number of drops of a given rarity may deviate slightly from the expected value.
 
 ### Event starter item:
 
-Operators can start events in the info screen, aswell as the command `/de start <name>`. Non-op players aren't able to
-start events in these ways. If you want to give them the ability, to do it anyway, you can give out starter items by
-running the command `/de give <player name> <dropevent name> <amount>` (or adding those items to Crates etc.).
-The player holding them can now start an event at their location (if all requirements are met) by crouching + right-clicking.
+Operators can start events from the info screen or with the command `/de start <event name> <optional: location name>`. Non-op players aren't able to
+start events in these ways. To allow non-ops to start events, give them starter items using `/de give <player name> <dropevent name> <amount>` (or adding those items to Crates etc.).
+A player holding a starter item can start an event at their location (if requirements are met) by crouching and right-clicking.
 
-**Warning:** Those items are deactivated by default. To activate them, change the config `dropevents.normal-players.usable` 
+**Warning:** Starter items are disabled by default. To enable them, set `dropevents.normal-players.usable` 
 to `true`.
 
 # More configurations
 
 ### Chat messages:
 
-Most of the messages, the plugin sends to players are editable. You can find and edit the chat message file in 
+Most messages the plugin sends to players are editable. Edit them in 
 `<YourServerFolder>/plugins/CratesAndDropevents/messages.yml`.
 
-File changes have their effect after server restart or running `/cad reload`.
+The messages are in the MiniMessage-Format. For info on styling click [here](https://docs.papermc.io/adventure/minimessage/format/).
+
+File changes take effect after a server restart or after running `/cad reload`.
 
 ### Settings:
 
@@ -122,28 +109,25 @@ They can be changed by running `/cad config <key> <value>`.
 
 **Explanation:**
 - `dropevents.simultaneous-limit.count`: Sets the maximum number of Dropevents that can take place at the same time.
-- `dropevents.simultaneous-limit.active`: Defines, whether the previous setting is actively applied.
+- `dropevents.simultaneous-limit.active`: Defines, whether the previous setting is applied.
 - `dropevents.normal-players.usable`: Defines, whether non-op players are able to use Dropevent starter items.
-- `dropevents.forbidden-worlds`: A list, where Dropevents cannot be started.
-- `dropevents.hopper-prevention`: Checks an area, before a Dropevent starts for hoppers which could potentially pick up 
-dropped items and denies the start if it finds any.
-- `dropevents.ops-override-restrictions`: Defines, whether Ops (or players with permission) are able to start Dropevents,
-even when criteria like player count, dimension, hoppers in area would prevent the start.
-- `dropevents.bossbar-countdown`: Shows a countdown in the countdown phase, when the Dropevent will start.
-- `dropevents.starter-dragon`: Defines, whether a dying dragon (the animation) spawns, when a Dropevent starts.
-- `crates.normal-players.view-lootpool`: Defines, whether normal players can view a Crates loot pool with `/crates loot`.
-- `gui.play-sounds`: Defines, whether gui items play a sound when clicked.
+- `dropevents.forbidden-worlds`: A list of worlds where Dropevents cannot be started.
+- `dropevents.hopper-prevention`: Checks the area for hoppers before the Dropevent starts; if hoppers are found the start is denied.
+- `dropevents.ops-override-restrictions`: If true, Ops (or players with permission) can override restrictions (player count, dimension, hoppers) and start Dropevents.
+- `dropevents.bossbar-countdown`: Shows a bossbar countdown during the pre-start countdown indicating when the Dropevent will start.
+- `dropevents.starter-dragon`: Defines whether a dying dragon (the animation) spawns, when a Dropevent starts.
+- `crates.normal-players.view-lootpool`: Defines whether normal players can view a crate's loot pool with `/crates loot`.
+- `gui.play-sounds`: Defines whether gui items play a sound when clicked.
 
 Note that there are different data types, such as Numbers, True/False values, Lists and so on. If you try to change a 
 setting to a false data type, for example `dropevents.simultaneous-limit.count` to `abc` this will get rejected with the 
 message `Mismatched data types`.
 
-If you edit a List, the value you type in will either be removed, if already present in the list, or added to the list, 
-if absent.
+Editing a list toggles the entered value: if it exists it will be removed; if it doesn't it will be added.
 
 ## Replacement codes
 
-Some chat messages and commands are subject to 'replacement codes', which means you can inject data at a placeholder.
+Some chat messages and commands are subject to 'replacement codes' - placeholders that get replaced with dynamic data.
 
 ### Chat messages:
 
@@ -157,13 +141,13 @@ The following chat elements can use replacement codes:
 
 The following sequences are replaced:
 
-- `%c` with the x, y, and z coordinates of the Dropevent, separated by comma.
-- `%w` with the name of the world, the Dropevent takes place in.
-- `%t` with the countdown of the Dropevent in seconds. It always refers to the max. value, not the current
-- `%n` with the name of the Dropevent.
-- `%l` with the "location name". This name gets defined when starting a Dropevent by command and adding this optional
+- `%c`: The x, y, and z coordinates of the Dropevent, separated by comma.
+- `%w`: The name of the world, the Dropevent takes place in.
+- `%t`: The Dropevent countdown in seconds. This refers to the configured maximum countdown value, not the current remaining time.
+- `%n`: The name of the Dropevent.
+- `%l`: The "location name". This name gets defined when starting a Dropevent by command and adding this optional
 value (`/de start <event name> <location name>`)
-- `%h` with the name of the player who started the Dropevent.
+- `%h`: The name of the player who started the Dropevent.
 
 **Special Case:** `%p`
 
@@ -175,15 +159,15 @@ possible to teleport to this event. This button visually defined in `dropevent.b
 
 **Command on Dropevent startup:**
 
-The command, that gets executed, when a Dropevent starts has the following replacement codes:
-- `%p` replaced with the name of the player starting the event.
-- `%w` replaced with the world key, the Dropevent takes place in.
-- `%l` replaced with the location, where the Dropevent starts.
+The command that runs when a Dropevent starts supports the following replacement codes:
+- `%p`: The name of the player starting the event.
+- `%w`: The world key the Dropevent takes place.
+- `%l`: The location where the Dropevent starts.
 
 **Command Reward:**
 
 Commands in reward sequences of Crates have the following replacement codes:
-- `%p` replaced with the name of the player who opened the Crate.
-- `%w` replaced with the world key, the Crate got opened in.
-- `%l` replaced with the location, where the Crate was placed.
+- `%p`: The name of the player who opened the Crate.
+- `%w`: The world key the Crate got opened.
+- `%l`: The location where the Crate was placed.
 
