@@ -7,6 +7,7 @@ import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.configuration.serialization.SerializableAs;
@@ -31,12 +32,10 @@ public class Crate implements ConfigurationSerializable, ListableGuiObject {
 
     private Map<CrateReward, Integer> rewards = new HashMap<>();
 
+    public static final NamespacedKey CRATE_KEY = new NamespacedKey(CratesAndDropevents.getInstance(),"CRATE");
 
-    private final Plugin plugin;
-
-    public Crate(String name, Plugin plugin) {
+    public Crate(String name) {
         this.name = name;
-        this.plugin = plugin;
         this.pittySystem = false;
 
         crateItem = new ItemStack(InvGuiUtils.generateCustomUrlHeadStack("http://textures.minecraft.net/texture/f1327353e2f6364b437f1e6c4a7e9764ea95e27deec0031eec1142df2f949b3"));
@@ -50,9 +49,8 @@ public class Crate implements ConfigurationSerializable, ListableGuiObject {
 
     }
 
-    public Crate(String name, ItemStack crateItem, boolean pittySystem, Plugin plugin) {
+    public Crate(String name, ItemStack crateItem, boolean pittySystem) {
 
-        this.plugin = plugin;
         this.name = name;
         this.pittySystem = pittySystem;
 
@@ -70,21 +68,19 @@ public class Crate implements ConfigurationSerializable, ListableGuiObject {
 
     }
 
-    public Crate(ItemStack crateItem, Map<CrateReward, Integer> rewards, Plugin plugin) {
+    public Crate(ItemStack crateItem, Map<CrateReward, Integer> rewards) {
         this.crateItem = crateItem;
         this.name = crateItem.getItemMeta().getDisplayName();
         this.rewards = rewards;
-        this.plugin = plugin;
 
         addCrateFlag();
     }
 
-    public Crate(String name, ItemStack crateItem, boolean pittySystem, Map<CrateReward, Integer> rewards, Plugin plugin) {
+    public Crate(String name, ItemStack crateItem, boolean pittySystem, Map<CrateReward, Integer> rewards) {
         this.crateItem = crateItem;
         this.name = name;
         this.pittySystem = pittySystem;
         this.rewards = rewards;
-        this.plugin = plugin;
 
         /*
         ItemMeta meta = crateItem.getItemMeta();
@@ -97,10 +93,7 @@ public class Crate implements ConfigurationSerializable, ListableGuiObject {
 
     private void addCrateFlag() {
         ItemMeta meta = crateItem.getItemMeta();
-        meta.getPersistentDataContainer().set(
-                ((CratesAndDropevents) plugin).CRATE_KEY,
-                PersistentDataType.STRING,
-                name);
+        meta.getPersistentDataContainer().set(CRATE_KEY, PersistentDataType.STRING, name);
         crateItem.setItemMeta(meta);
     }
 
@@ -206,7 +199,7 @@ public class Crate implements ConfigurationSerializable, ListableGuiObject {
             clonedRewards.put(entry.getKey().clone(), entry.getValue());
         }
 
-        return new Crate(this.name, this.crateItem.clone(), pittySystem, clonedRewards, this.plugin);
+        return new Crate(this.name, this.crateItem.clone(), pittySystem, clonedRewards);
     }
 
     @Override
@@ -239,7 +232,7 @@ public class Crate implements ConfigurationSerializable, ListableGuiObject {
         Boolean pittySystem = (Boolean) map.get("pittySystem");
         if(pittySystem == null) pittySystem = false;
 
-        Crate crate = new Crate(name, crateItem, pittySystem, plugin);
+        Crate crate = new Crate(name, crateItem, pittySystem);
 
         Object obj = map.get("rewards");
         if (obj instanceof List<?> list) {

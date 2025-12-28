@@ -1,14 +1,18 @@
 package dev.upscairs.cratesAndDropevents.resc;
 
+import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class DropeventStorage {
@@ -26,12 +30,16 @@ public class DropeventStorage {
         }
         file = new File(plugin.getDataFolder(), fileName);
 
+        boolean createSample = false;
+
         if (!file.exists()) {
             try {
                 file.createNewFile();
+                createSample = true;
             } catch (IOException ignored) {}
         }
         config = YamlConfiguration.loadConfiguration(file);
+        if(createSample) saveDropevent(createExampleCrate());
     }
 
     /**
@@ -132,5 +140,28 @@ public class DropeventStorage {
         try {
             config.save(file);
         } catch (IOException ignored) {}
+    }
+
+    private static Dropevent createExampleCrate() {
+
+        HashMap<ItemStack, Integer> drops = new HashMap<>();
+
+        Crate sampleCrate = CrateStorage.getCrateById("SampleCrate");
+        ItemStack drop = sampleCrate != null ? sampleCrate.getCrateItem() : new ItemStack(Material.DIAMOND);
+
+        drops.put(drop, 1000);
+
+        return new Dropevent(
+                "SampleEvent",
+                new ItemStack(Material.FIREWORK_ROCKET),
+                50,
+                60,
+                drops,
+                240,
+                20,
+                true,
+                true,
+                null,
+                0);
     }
 }

@@ -15,13 +15,6 @@ import org.bukkit.plugin.Plugin;
 
 public class CratePlaceHandler implements Listener {
 
-    private Plugin plugin;
-
-    public CratePlaceHandler(Plugin plugin) {
-        this.plugin = plugin;
-    }
-
-
     @EventHandler
     public void onCratePlace(BlockPlaceEvent event) {
 
@@ -33,7 +26,7 @@ public class CratePlaceHandler implements Listener {
 
 
         ItemMeta meta = usedItem.getItemMeta();
-        String crateName = meta.getPersistentDataContainer().get(((CratesAndDropevents) plugin).CRATE_KEY, PersistentDataType.STRING);
+        String crateName = meta.getPersistentDataContainer().get(Crate.CRATE_KEY, PersistentDataType.STRING);
 
         Crate crate = CrateStorage.getCrateById(crateName);
 

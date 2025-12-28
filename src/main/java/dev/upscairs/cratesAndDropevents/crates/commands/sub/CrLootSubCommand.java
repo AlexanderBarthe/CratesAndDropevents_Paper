@@ -51,7 +51,7 @@ public class CrLootSubCommand implements SubCommand {
         }
 
 
-        String crateName = heldItem.getItemMeta().getPersistentDataContainer().get(plugin.CRATE_KEY, PersistentDataType.STRING);
+        String crateName = heldItem.getItemMeta().getPersistentDataContainer().get(Crate.CRATE_KEY, PersistentDataType.STRING);
         if(crateName == null || crateName.isEmpty()) {
             sender.sendMessage(messageConfig.getColored("crate.error.no-crate-in-hand"));
             return true;

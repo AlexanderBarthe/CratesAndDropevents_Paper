@@ -57,7 +57,7 @@ public class CrCreateSubCommand implements SubCommand {
             return true;
         }
 
-        Crate crate = new Crate(args[1], plugin);
+        Crate crate = new Crate(args[1]);
         CrateStorage.saveCrate(crate);
 
         sender.sendMessage(messageConfig.getColored("crate.success.created"));
