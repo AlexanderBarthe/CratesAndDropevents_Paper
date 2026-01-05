@@ -166,14 +166,14 @@ public class CrateReward implements ConfigurationSerializable, ListableGuiObject
         //Player pitty
 
         Object pittiedPlayersObj = map.get("pittiedPlayers");
-        if(!(pittiedPlayersObj instanceof List<?> rawPittiedPlayers)) {
-            throw new IllegalArgumentException("Missing or invalid 'pittiedPlayers' for CrateReward");
-        }
 
         Set<OfflinePlayer> pittiedPlayers = new HashSet<>();
-        for (Object o : rawPittiedPlayers) {
-            if(!(o instanceof UUID) ) continue;
-            pittiedPlayers.add(Bukkit.getOfflinePlayer((UUID) o));
+
+        if((pittiedPlayersObj instanceof List<?> rawPittiedPlayers)) {
+            for (Object o : rawPittiedPlayers) {
+                if(!(o instanceof UUID) ) continue;
+                pittiedPlayers.add(Bukkit.getOfflinePlayer((UUID) o));
+            }
         }
 
         return new CrateReward(seq, pittiedPlayers, plugin);
