@@ -50,18 +50,6 @@ public class DropeventStorage {
      * @param dropevent
      */
     public static void saveDropevent(Dropevent dropevent) {
-
-        //Catching old versions TODO remove later
-        if(dropevent.getMinPlayers() == -1){
-            if (config.getBoolean("dropevents.normal-players.start.online-player-condition")) {
-                dropevent.setMinPlayers(config.getInt("dropevents.normal-players.start.min-online-players"));
-            }
-            else {
-                dropevent.setMinPlayers(0);
-            }
-        }
-
-        //Saving
         config.set("events." + dropevent.getName(), dropevent);
         saveFile();
     }
@@ -106,8 +94,12 @@ public class DropeventStorage {
             ConfigurationSection section = config.getConfigurationSection("events");
             for (String key : section.getKeys(false)) {
                 Object obj = config.get("events." + key);
-                if (obj instanceof Dropevent) {
-                    list.add((Dropevent) obj);
+                if (obj instanceof Dropevent dropevent) {
+
+                    //Fix if render item is corrupted
+                    if(dropevent.getRenderItem() == null) dropevent.setRenderItem(new ItemStack(Material.FIREWORK_ROCKET));
+
+                    list.add(dropevent);
                 }
             }
         }

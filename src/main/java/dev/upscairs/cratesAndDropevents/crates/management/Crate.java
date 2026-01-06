@@ -263,4 +263,9 @@ public class Crate implements ConfigurationSerializable, ListableGuiObject {
     public ItemStack getRenderItem() {
         return crateItem;
     }
+
+    public void setRenderItem(ItemStack renderItem) {
+        if(!renderItem.getType().equals(Material.PLAYER_HEAD)) return;
+        this.crateItem = renderItem;
+    }
 }

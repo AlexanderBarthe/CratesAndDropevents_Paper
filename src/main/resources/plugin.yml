@@ -15,7 +15,7 @@ commands:
     ussage: /<command>
 permissions:
   cad.admin:
-    description: Grants all other permissions aswell as special rights like stopping all dropevents.
+    description: Grants all other permissions as well as special rights like stopping all dropevents.
     default: op
     children:
       cad.dropevents.edit: true

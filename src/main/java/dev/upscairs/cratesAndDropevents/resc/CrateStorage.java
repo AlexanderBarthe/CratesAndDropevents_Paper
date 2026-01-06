@@ -71,8 +71,12 @@ public class CrateStorage {
         for (String key : section.getKeys(false)) {
             Object obj = config.get("crates." + key);
 
-            if (obj instanceof Crate) {
-                list.add((Crate) obj);
+            if (obj instanceof Crate crate) {
+
+                //Fix if render item is corrupted
+                if(crate.getRenderItem() == null) crate.setRenderItem(new ItemStack(Material.PLAYER_HEAD));
+
+                list.add(crate);
             }
         }
         return list;

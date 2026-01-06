@@ -82,6 +82,8 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
     public ItemStack getRenderItem() {
         ItemStack item = renderItem;
 
+        if(item == null) return null;
+
         item.setAmount(1);
 
         ItemMeta meta = item.getItemMeta();
@@ -292,7 +294,7 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
         }
 
         if(map.containsKey("minPlayers")) event.setMinPlayers((int) map.get("minPlayers"));
-        else event.setMinPlayers(-1); //Marking old version TODO remove later
+        else event.setMinPlayers(0);
 
         Object dropsObj = map.get("drops");
         HashMap<ItemStack, Integer> dropsMap = new HashMap<>();
