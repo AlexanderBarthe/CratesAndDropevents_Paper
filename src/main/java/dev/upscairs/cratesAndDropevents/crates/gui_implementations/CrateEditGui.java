@@ -111,7 +111,7 @@ public class CrateEditGui {
 
         ItemStack pittyItem = new ItemStack(Material.TOTEM_OF_UNDYING);
         meta = pittyItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Pitty system: " + (crate.pittySystemActive() ? "on" : "off"), "#00AAAA"));
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Pity system: " + (crate.pittySystemActive() ? "on" : "off"), "#00AAAA"));
         if(crate.pittySystemActive()) meta.setEnchantmentGlintOverride(true);
         pittyItem.setItemMeta(meta);
         gui.setItem(33, pittyItem);
