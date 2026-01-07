@@ -45,19 +45,16 @@ public class CrCreateSubCommand implements SubCommand {
             return true;
         }
 
-        if (args.length > 2) {
-            if(sender instanceof Player p) McGuiFramework.getGuiSounds().playFailSound(p);
-            sender.sendMessage(messageConfig.getColored("dropevent.error.name-no-spaces"));
-            return true;
-        }
-
         if(CrateStorage.getCrateById(args[1]) != null) {
             sender.sendMessage(messageConfig.getColored("crate.error.already-exists"));
             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playFailSound(p);
             return true;
         }
 
-        Crate crate = new Crate(args[1]);
+        String folder = "";
+        if(args.length >= 3) folder = args[2];
+
+        Crate crate = new Crate(args[1], folder);
         CrateStorage.saveCrate(crate);
 
         sender.sendMessage(messageConfig.getColored("crate.success.created"));

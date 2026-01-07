@@ -72,6 +72,12 @@ public class CrateEditGui {
         giveItem.setItemMeta(meta);
         gui.setItem(4, giveItem);
 
+        ItemStack editFolderItem = new ItemStack(Material.ENDER_CHEST);
+        meta = editFolderItem.getItemMeta();
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Edit folder", "#00AAAA"));
+        editFolderItem.setItemMeta(meta);
+        gui.setItem(8, editFolderItem);
+
         ItemStack deleteItem = new ItemStack(Material.LAVA_BUCKET);
         meta = deleteItem.getItemMeta();
         meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Delete crate", "#FF5555"));
@@ -147,6 +153,22 @@ public class CrateEditGui {
                         Bukkit.dispatchCommand(sender, "crates give " + sender.getName() + " " + crate.getName() + " 64");
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new PreventCloseGui();
+                    case 8:
+                        sender.sendMessage(messageConfig.getColored("crate.info.type-folder").append(cancelComponent));
+
+                        ChatMessageInputHandler.addListener(sender, (msg) -> {
+                            if(sender instanceof Player p) {
+                                Bukkit.getScheduler().runTask(plugin, () -> {
+                                    Bukkit.dispatchCommand(sender, "crates move " + crate.getName() + " /" + msg);
+                                    p.openInventory(new CrateEditGui(crate, false, sender, plugin).getGui().getInventory());
+                                });
+                            }
+                        });
+
+                        if (sender instanceof Player p) p.closeInventory();
+                        if (sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
+                        return null;
+
                     case 20:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new CrateEditGui(crate, !crateItemSelection, sender, plugin).getGui();
@@ -178,7 +200,7 @@ public class CrateEditGui {
                             if (sender instanceof Player p) {
                                 Bukkit.getScheduler().runTask(plugin, () -> {
                                     Bukkit.dispatchCommand(sender, "crates clone " + crate.getName() + " " + msg);
-                                    p.openInventory(new CrateListGui(sender, plugin).getGui().getInventory());
+                                    p.openInventory(new CrateListGui(crate.getFolder(), sender, plugin).getGui().getInventory());
                                 });
                             }
                         });
@@ -218,9 +240,8 @@ public class CrateEditGui {
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new CrateEditGui(crate, false, sender, plugin).getGui();
                     case 46:
-                        Bukkit.dispatchCommand(sender, "crates list");
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        return new PreventCloseGui();
+                        return new CrateListGui(crate.getFolder(), sender, plugin).getGui();
                     case 53:
                         ItemStack deleteItem = new ItemStack(Material.LAVA_BUCKET);
                         ItemMeta meta = deleteItem.getItemMeta();
@@ -237,7 +258,7 @@ public class CrateEditGui {
                         return new ConfirmationGui("Delete Crate?", deleteItem, backItem, () -> {
                             Bukkit.dispatchCommand(sender, "crates delete " + crate.getName());
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
-                            return new CrateListGui(sender, plugin).getGui();
+                            return new CrateListGui(crate.getFolder(), sender, plugin).getGui();
                         }, () -> {
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                             return self;

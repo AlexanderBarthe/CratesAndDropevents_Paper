@@ -4,6 +4,7 @@ import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
 import dev.upscairs.cratesAndDropevents.crates.rewards.payouts.*;
+import dev.upscairs.cratesAndDropevents.helper.FolderizableElement;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -14,8 +15,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CrateStorage {
 
@@ -90,6 +93,35 @@ public class CrateStorage {
         return null;
     }
 
+    public static List<Crate> getCratesInFolder(String folderPath) {
+        return getAll().stream().filter(crate -> crate.getFolder().equals(folderPath)).toList();
+    }
+
+    public static Set<String> getAllFolderPaths() {
+        return getAll().stream().map(FolderizableElement::getFolder).collect(Collectors.toSet());
+    }
+
+    public static Set<String> getSubfolders(String folderPath) {
+
+        Set<String> subfolders = new HashSet<>();
+
+        int subfolderDepth = folderPath.split("/").length;
+
+        for(String currentFolderPath :  getAllFolderPaths()) {
+            if(!currentFolderPath.startsWith(folderPath)) continue;
+
+            String[] path =  currentFolderPath.split("/");
+
+            if(path.length > subfolderDepth) {
+                String subfolderName = path[subfolderDepth];
+                subfolders.add(folderPath + "/" + subfolderName);
+            }
+        }
+
+        return subfolders;
+    }
+
+
     private static void saveFile() {
         try {
             config.save(file);
@@ -97,7 +129,7 @@ public class CrateStorage {
     }
 
     private static Crate createExampleCrate() {
-        Crate crate = new Crate("SampleCrate");
+        Crate crate = new Crate("SampleCrate", "");
         crate.setPittySystem(true);
 
         CrateReward dirtReward = new CrateReward(

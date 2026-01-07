@@ -36,7 +36,8 @@ public class CrListSubCommand implements SubCommand {
         if(!isSenderPermitted(sender)) return true;
         if(!(sender instanceof Player p)) return true;
 
-        CrateListGui cratesListGui = new CrateListGui(sender, plugin);
+
+        CrateListGui cratesListGui = new CrateListGui("", sender, plugin);
         p.openInventory(cratesListGui.getGui().getInventory());
         return true;
     }

@@ -45,6 +45,7 @@ public class ChatMessageConfig {
         defaultMessages.put("crate.success.cloned",  "<green>Crate has been cloned.<reset>");
 
         defaultMessages.put("crate.info.type-name", "<dark_aqua>Type name of new crate. It has to be unique. Use /crates cancel or the button to cancel<reset>");
+        defaultMessages.put("crate.info.type-folder", "<dark_aqua>Type name of the folder. It can be a new folder name. Use '/' to separate subfolders. Use /crates cancel or the button to cancel<reset>");
         defaultMessages.put("crate.info.type-display-name", "<dark_aqua>Type new display name. Use /crates cancel or the button to cancel<reset>");
         defaultMessages.put("crate.info.type-url", "<dark_aqua>Type URL of the skull (Format: http://textures.minecraft.net/texture/someLongCode). Use /crates cancel or the button to cancel<reset>");
         defaultMessages.put("crate.info.type-sound", "<dark_aqua>Type the path of the desired sound. If you want a different volume or pitch then 1, use the format <white><path> <volume> <pitch> (seperated by spaces. Use /crates cancel or the button to cancel<reset>");

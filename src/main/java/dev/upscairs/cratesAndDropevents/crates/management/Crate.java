@@ -3,6 +3,7 @@ package dev.upscairs.cratesAndDropevents.crates.management;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
+import dev.upscairs.cratesAndDropevents.helper.FolderizableElement;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import org.bukkit.Bukkit;
@@ -24,7 +25,7 @@ import java.net.URL;
 import java.util.*;
 
 @SerializableAs("Crate")
-public class Crate implements ConfigurationSerializable, ListableGuiObject {
+public class Crate extends FolderizableElement implements ConfigurationSerializable, ListableGuiObject {
 
     private String name;
     private ItemStack crateItem;
@@ -34,7 +35,8 @@ public class Crate implements ConfigurationSerializable, ListableGuiObject {
 
     public static final NamespacedKey CRATE_KEY = new NamespacedKey(CratesAndDropevents.getInstance(),"CRATE");
 
-    public Crate(String name) {
+    public Crate(String name, String folder) {
+        super(folder);
         this.name = name;
         this.pittySystem = false;
 
@@ -49,7 +51,9 @@ public class Crate implements ConfigurationSerializable, ListableGuiObject {
 
     }
 
-    public Crate(String name, ItemStack crateItem, boolean pittySystem) {
+    public Crate(String name, String folder, ItemStack crateItem, boolean pittySystem) {
+
+        super(folder);
 
         this.name = name;
         this.pittySystem = pittySystem;
@@ -76,7 +80,8 @@ public class Crate implements ConfigurationSerializable, ListableGuiObject {
         addCrateFlag();
     }
 
-    public Crate(String name, ItemStack crateItem, boolean pittySystem, Map<CrateReward, Integer> rewards) {
+    public Crate(String name, String folder, ItemStack crateItem, boolean pittySystem, Map<CrateReward, Integer> rewards) {
+        super(folder);
         this.crateItem = crateItem;
         this.name = name;
         this.pittySystem = pittySystem;
@@ -199,7 +204,7 @@ public class Crate implements ConfigurationSerializable, ListableGuiObject {
             clonedRewards.put(entry.getKey().clone(), entry.getValue());
         }
 
-        return new Crate(this.name, this.crateItem.clone(), pittySystem, clonedRewards);
+        return new Crate(this.name, getFolder(), this.crateItem.clone(), pittySystem, clonedRewards);
     }
 
     @Override
@@ -217,6 +222,7 @@ public class Crate implements ConfigurationSerializable, ListableGuiObject {
             rewardsList.add(rewardEntry);
         }
         map.put("rewards", rewardsList);
+        map.put("folder", getFolder() != null ? getFolder() : "");
 
         return map;
     }
@@ -232,7 +238,10 @@ public class Crate implements ConfigurationSerializable, ListableGuiObject {
         Boolean pittySystem = (Boolean) map.get("pittySystem");
         if(pittySystem == null) pittySystem = false;
 
-        Crate crate = new Crate(name, crateItem, pittySystem);
+        String folder = (String) map.get("folder");
+        if(folder == null) folder = "";
+
+        Crate crate = new Crate(name, folder, crateItem, pittySystem);
 
         Object obj = map.get("rewards");
         if (obj instanceof List<?> list) {

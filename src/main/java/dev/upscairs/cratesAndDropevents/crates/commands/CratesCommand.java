@@ -39,6 +39,7 @@ public class CratesCommand implements CommandExecutor, TabCompleter {
         register(new CrCancelSubCommand(p));
         register(new CrDeleteSubCommand(p));
         register(new CrLootSubCommand(p));
+        register(new CrMoveSubCommand(p));
     }
 
     public void register(SubCommand cmd) {
