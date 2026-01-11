@@ -77,6 +77,12 @@ public class DropeventEditGui {
         timeItem.setItemMeta(meta);
         gui.setItem(12, timeItem);
 
+        ItemStack editFolderItem = new ItemStack(Material.ENDER_CHEST);
+        meta = editFolderItem.getItemMeta();
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Edit folder", "#00AAAA"));
+        editFolderItem.setItemMeta(meta);
+        gui.setItem(8, editFolderItem);
+
 
         ItemStack broadcastItem = new ItemStack(Material.BELL);
         meta = broadcastItem.getItemMeta();
@@ -193,6 +199,21 @@ public class DropeventEditGui {
 
             if(slot < 54) {
                 switch (slot) {
+                    case 8:
+                        sender.sendMessage(messageConfig.getColored("dropevent.info.type-folder").append(cancelComponent));
+                        ChatMessageInputHandler.addListener(sender, (msg) -> {
+                            if(sender instanceof Player p) {
+                                Bukkit.getScheduler().runTask(plugin, () -> {
+                                    Bukkit.dispatchCommand(sender, "de move " + dropevent.getName() + " /" + msg);
+                                    p.openInventory(new DropeventEditGui(dropevent, false, sender, plugin).getGui().getInventory());
+                                });
+                            }
+                        });
+
+                        if (sender instanceof Player p) p.closeInventory();
+                        if (sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
+                        return null;
+
                     case 10:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new EditDropeventNumberGui(dropevent.getDropRange(), 0, 999, dropevent, "Range", sender).getGui();
@@ -213,8 +234,7 @@ public class DropeventEditGui {
                         return new DropeventDropsGui(dropevent, sender, plugin).getGui();
                     case 45:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        Bukkit.dispatchCommand(sender, "dropevent list");
-                        return new PreventCloseGui();
+                        return new DropeventListGui(dropevent.getFolder(), sender, plugin).getGui();
                     case 47:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         Bukkit.dispatchCommand(sender, "dropevent start " + dropevent.getName());
@@ -272,7 +292,7 @@ public class DropeventEditGui {
                         return new ConfirmationGui("Delete Dropevent?", deleteItem, backItem, () -> {
                             DropeventStorage.removeDropevent(dropevent);
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
-                            return new DropeventListGui(sender, plugin).getGui();
+                            return new DropeventListGui(dropevent.getFolder(), sender, plugin).getGui();
                         }, () -> {
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                             return self;
@@ -284,7 +304,7 @@ public class DropeventEditGui {
                             if (sender instanceof Player p) {
                                 Bukkit.getScheduler().runTask(plugin, () -> {
                                     Bukkit.dispatchCommand(sender, "dropevent clone " + dropevent.getName() + " " + msg);
-                                    p.openInventory(new DropeventListGui(sender, plugin).getGui().getInventory());
+                                    p.openInventory(new DropeventListGui(dropevent.getFolder(), sender, plugin).getGui().getInventory());
                                 });
                             }
                         });

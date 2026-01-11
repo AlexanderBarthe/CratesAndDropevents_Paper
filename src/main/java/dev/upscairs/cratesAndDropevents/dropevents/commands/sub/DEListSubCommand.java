@@ -35,7 +35,7 @@ public class DEListSubCommand implements SubCommand {
         if(!isSenderPermitted(sender)) return true;
         if(!(sender instanceof Player p)) return true;
 
-        DropeventListGui dropeventListGui = new DropeventListGui(sender, plugin);
+        DropeventListGui dropeventListGui = new DropeventListGui("", sender, plugin);
         p.openInventory(dropeventListGui.getGui().getInventory());
         return true;
     }

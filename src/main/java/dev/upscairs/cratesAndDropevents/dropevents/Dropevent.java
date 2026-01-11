@@ -1,6 +1,7 @@
 package dev.upscairs.cratesAndDropevents.dropevents;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.helper.FolderizableElement;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import org.bukkit.Bukkit;
@@ -13,7 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
-public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
+public class Dropevent extends FolderizableElement implements ListableGuiObject, ConfigurationSerializable {
 
     private String name;
     private ItemStack renderItem;
@@ -30,7 +31,8 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
 
     public static final NamespacedKey EVENT_KEY = new NamespacedKey(CratesAndDropevents.getInstance(),"DROPEVENT_ITEM");
 
-    public Dropevent(String name) {
+    public Dropevent(String name, String folder) {
+        super(folder);
         this.name = name;
         renderItem = new ItemStack(Material.FIREWORK_ROCKET, 1);
         dropRange = 100;
@@ -42,7 +44,8 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
         minPlayers = 0;
     }
 
-    public Dropevent(String name, ItemStack representingItem, int dropRange, int eventTimeSec, int dropCount, int countdownSec, boolean broadcast) {
+    public Dropevent(String name, String folder, ItemStack representingItem, int dropRange, int eventTimeSec, int dropCount, int countdownSec, boolean broadcast) {
+        super(folder);
         this.name = name;
         this.renderItem = representingItem;
         this.dropRange = dropRange;
@@ -54,7 +57,8 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
         minPlayers = 0;
     }
 
-    public Dropevent(String name, ItemStack renderItem, int dropRange, int eventTimeSec, HashMap<ItemStack, Integer> drops, int dropCount, int countdownSec, boolean broadcast,  boolean teleportable, String startupCommand, int minPlayers) {
+    public Dropevent(String name, String folder, ItemStack renderItem, int dropRange, int eventTimeSec, HashMap<ItemStack, Integer> drops, int dropCount, int countdownSec, boolean broadcast,  boolean teleportable, String startupCommand, int minPlayers) {
+        super(folder);
         this.name = name;
         this.renderItem = renderItem;
 
@@ -205,7 +209,7 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
             clonedDrops.put(entry.getKey().clone(), entry.getValue());
         }
 
-        return new Dropevent(name, renderItem.clone(), dropRange, eventTimeSec, clonedDrops,
+        return new Dropevent(name, getFolder(), renderItem.clone(), dropRange, eventTimeSec, clonedDrops,
                 dropCount, countdownSec, broadcast, teleportable,
                 startupCommand == null ? null : new String(startupCommand), minPlayers);
     }
@@ -254,6 +258,7 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
     public Map<String, Object> serialize() {
         Map<String, Object> map = new HashMap<>();
         map.put("name", name);
+        map.put("folder", getFolder());
         map.put("renderItem", renderItem);
         map.put("dropRange", dropRange);
         map.put("eventTimeSec", eventTimeSec);
@@ -278,7 +283,11 @@ public class Dropevent implements ListableGuiObject, ConfigurationSerializable {
     }
 
     public static Dropevent deserialize(Map<String, Object> map) {
-        Dropevent event = new Dropevent((String) map.get("name"));
+
+        String folder = (String) map.get("folder");
+        if(folder == null) folder = "";
+
+        Dropevent event = new Dropevent((String) map.get("name"), folder);
         event.setRenderItem((ItemStack) map.get("renderItem"));
         event.setDropRange((int) map.get("dropRange"));
         event.setEventTimeSec((int) map.get("eventTimeSec"));

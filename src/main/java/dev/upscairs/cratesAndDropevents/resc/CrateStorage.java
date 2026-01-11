@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class CrateStorage {
+public abstract class CrateStorage {
 
     private static FileConfiguration config;
     private static File file;

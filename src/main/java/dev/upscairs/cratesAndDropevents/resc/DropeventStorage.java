@@ -2,6 +2,7 @@ package dev.upscairs.cratesAndDropevents.resc;
 
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
+import dev.upscairs.cratesAndDropevents.helper.FolderizableElement;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -11,11 +12,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public class DropeventStorage {
+public abstract class DropeventStorage {
 
     private static FileConfiguration config;
     private static File file;
@@ -123,11 +123,38 @@ public class DropeventStorage {
         return null;
     }
 
-    /**
-     *
-     * Saves the config file to disk.
-     *
-     */
+    public static List<Dropevent> getDropeventsInFolder(String folderPath) {
+        return getAll().stream().filter(de -> de.getFolder().equals(folderPath)).toList();
+    }
+
+    public static Set<String> getAllFolderPaths() {
+        return getAll().stream().map(FolderizableElement::getFolder).collect(Collectors.toSet());
+    }
+
+    public static Set<String> getSubfolders(String folderPath) {
+
+        Set<String> subfolders = new HashSet<>();
+
+        int subfolderDepth = folderPath.split("/").length;
+
+        for (String currentFolderPath : getAllFolderPaths()) {
+            if (!currentFolderPath.startsWith(folderPath)) continue;
+
+            String[] path = currentFolderPath.split("/");
+            if (path.length > subfolderDepth) {
+                String subfolderName = path[subfolderDepth];
+                subfolders.add(folderPath + "/" + subfolderName);
+            }
+        }
+        return subfolders;
+    }
+
+
+        /**
+         *
+         * Saves the config file to disk.
+         *
+         */
     public static void saveFile() {
         try {
             config.save(file);
@@ -144,7 +171,7 @@ public class DropeventStorage {
         drops.put(drop, 1000);
 
         return new Dropevent(
-                "SampleEvent",
+                "SampleEvent", "",
                 new ItemStack(Material.FIREWORK_ROCKET),
                 50,
                 60,

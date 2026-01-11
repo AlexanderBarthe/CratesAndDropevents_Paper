@@ -42,12 +42,6 @@ public class DECreateSubCommand implements SubCommand {
             return true;
         }
 
-        if (args.length > 2) {
-            if(sender instanceof Player p) McGuiFramework.getGuiSounds().playFailSound(p);
-            sender.sendMessage(messageConfig.getColored("dropevent.error.name-no-spaces"));
-            return true;
-        }
-
         String eventName = args[1];
 
         if (DropeventStorage.getDropeventByName(eventName) != null) {
@@ -56,7 +50,11 @@ public class DECreateSubCommand implements SubCommand {
             return true;
         }
 
-        Dropevent dropevent = new Dropevent(eventName);
+        String folder = "";
+        if(args.length >= 3) folder = args[2];
+
+        Dropevent dropevent = new Dropevent(eventName, folder);
+
         DropeventStorage.saveDropevent(dropevent);
         sender.sendMessage(messageConfig.getColored("dropevent.success.created"));
         return true;
