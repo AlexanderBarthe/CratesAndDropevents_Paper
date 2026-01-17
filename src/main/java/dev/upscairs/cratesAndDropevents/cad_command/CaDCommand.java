@@ -29,7 +29,6 @@ public class CaDCommand implements CommandExecutor, TabCompleter {
         register(new CancelSubCommand(p));
         register(new ReloadSubCommand(p));
         register(new VersionSubCommand(p));
-        register(new UpgradeSubCommand(p));
         register(new ConfigSubCommand(p));
 
     }
