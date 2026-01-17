@@ -1,4 +1,4 @@
-package dev.upscairs.cratesAndDropevents.resc;
+package dev.upscairs.cratesAndDropevents.file_resources;
 
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;

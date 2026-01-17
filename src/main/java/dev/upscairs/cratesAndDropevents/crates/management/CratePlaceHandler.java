@@ -1,7 +1,6 @@
 package dev.upscairs.cratesAndDropevents.crates.management;
 
-import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,7 +10,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
 
 public class CratePlaceHandler implements Listener {
 

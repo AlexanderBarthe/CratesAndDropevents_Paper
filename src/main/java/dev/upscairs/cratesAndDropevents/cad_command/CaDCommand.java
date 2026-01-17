@@ -6,7 +6,7 @@ import dev.upscairs.cratesAndDropevents.cad_command.sub.ReloadSubCommand;
 import dev.upscairs.cratesAndDropevents.cad_command.sub.UpgradeSubCommand;
 import dev.upscairs.cratesAndDropevents.cad_command.sub.VersionSubCommand;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

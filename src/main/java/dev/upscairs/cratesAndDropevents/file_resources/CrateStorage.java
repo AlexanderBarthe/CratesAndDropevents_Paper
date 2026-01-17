@@ -1,4 +1,4 @@
-package dev.upscairs.cratesAndDropevents.resc;
+package dev.upscairs.cratesAndDropevents.file_resources;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;

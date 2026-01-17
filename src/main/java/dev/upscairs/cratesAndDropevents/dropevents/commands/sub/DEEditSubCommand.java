@@ -1,10 +1,10 @@
 package dev.upscairs.cratesAndDropevents.dropevents.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
-import dev.upscairs.cratesAndDropevents.resc.DropeventStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

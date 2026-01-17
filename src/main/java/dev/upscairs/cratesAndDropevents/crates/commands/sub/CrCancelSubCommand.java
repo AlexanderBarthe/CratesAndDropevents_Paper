@@ -1,13 +1,10 @@
 package dev.upscairs.cratesAndDropevents.crates.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 

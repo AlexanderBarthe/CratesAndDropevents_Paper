@@ -1,21 +1,18 @@
 package dev.upscairs.cratesAndDropevents.dropevents.gui_implementations;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.crates.gui_implementations.CrateListGui;
-import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.helper.GuiFolder;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
-import dev.upscairs.cratesAndDropevents.resc.DropeventStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
+import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
+import dev.upscairs.cratesAndDropevents.helper.GuiItemTemplate;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
 import dev.upscairs.mcGuiFramework.base.InventoryGui;
 import dev.upscairs.mcGuiFramework.base.ItemDisplayGui;
 import dev.upscairs.mcGuiFramework.functionality.PreventCloseGui;
 import dev.upscairs.mcGuiFramework.gui_wrappers.InteractableGui;
 import dev.upscairs.mcGuiFramework.gui_wrappers.PageGui;
-import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -23,13 +20,9 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
-import org.checkerframework.checker.formatter.qual.InvalidFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,17 +62,10 @@ public class DropeventListGui {
 
     public void setItems() {
 
-        ItemStack folderBackItem = new ItemStack(Material.TRIPWIRE_HOOK);
-        ItemMeta meta = folderBackItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Upper folder", "#AAAAAA"));
-        folderBackItem.setItemMeta(meta);
-        if(!folder.isEmpty()) gui.setItem(46, folderBackItem);
+        if(!folder.isEmpty())
+            gui.setItem(46, GuiItemTemplate.UPPER_FOLDER.create());
 
-        ItemStack createItem = new ItemStack(Material.CHEST_MINECART);
-        meta = createItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Create new dropevent", "00AAAA"));
-        createItem.setItemMeta(meta);
-        gui.setItem(48, createItem);
+        gui.setItem(48, GuiItemTemplate.CREATE_NEW.create("Create new dropevent"));
 
     }
 

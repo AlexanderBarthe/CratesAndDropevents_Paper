@@ -7,8 +7,8 @@ import dev.upscairs.cratesAndDropevents.crates.rewards.payouts.CommandRewardEven
 import dev.upscairs.cratesAndDropevents.crates.rewards.payouts.CrateRewardEvent;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
-import dev.upscairs.cratesAndDropevents.resc.DropeventStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 

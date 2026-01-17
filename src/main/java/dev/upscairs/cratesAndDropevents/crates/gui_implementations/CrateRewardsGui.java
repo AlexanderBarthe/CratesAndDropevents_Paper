@@ -2,8 +2,9 @@ package dev.upscairs.cratesAndDropevents.crates.gui_implementations;
 
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.helper.EditMode;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
+import dev.upscairs.cratesAndDropevents.helper.GuiItemTemplate;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
 import dev.upscairs.mcGuiFramework.base.ItemDisplayGui;
 import dev.upscairs.mcGuiFramework.functionality.PreventCloseGui;
@@ -12,7 +13,6 @@ import dev.upscairs.mcGuiFramework.gui_wrappers.PageGui;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableItemStack;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -57,19 +57,9 @@ public class CrateRewardsGui {
     public void placeItems() {
         gui.placeItems();
 
-        ItemMeta meta;
+        gui.setItem(46, GuiItemTemplate.BACK.create("To edit window"));
 
-        ItemStack backItem = new ItemStack(Material.ARROW);
-        meta = backItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("To edit window", "#AAAAAA").decoration(TextDecoration.BOLD, true));
-        backItem.setItemMeta(meta);
-        gui.setItem(46, backItem);
-
-        ItemStack newRewardItem = new ItemStack(Material.CHEST_MINECART);
-        meta = newRewardItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("Add reward", "#FFAA00").decoration(TextDecoration.BOLD, true));
-        newRewardItem.setItemMeta(meta);
-        gui.setItem(49, newRewardItem);
+        gui.setItem(49, GuiItemTemplate.CREATE_NEW.create("Add reward"));
     }
 
     public void writeRewardChances() {

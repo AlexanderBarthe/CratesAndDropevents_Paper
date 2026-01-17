@@ -1,7 +1,7 @@
 package dev.upscairs.cratesAndDropevents.crates.management;
 
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;

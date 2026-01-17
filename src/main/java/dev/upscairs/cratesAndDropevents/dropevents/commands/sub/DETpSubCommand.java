@@ -1,7 +1,7 @@
 package dev.upscairs.cratesAndDropevents.dropevents.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import dev.upscairs.cratesAndDropevents.dropevents.management.ActiveDropEvent;
 import dev.upscairs.cratesAndDropevents.dropevents.management.DropEventManager;

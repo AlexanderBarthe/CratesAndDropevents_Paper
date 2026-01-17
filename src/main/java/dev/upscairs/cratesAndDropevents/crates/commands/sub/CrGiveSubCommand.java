@@ -1,17 +1,15 @@
 package dev.upscairs.cratesAndDropevents.crates.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;

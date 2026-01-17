@@ -1,7 +1,8 @@
 package dev.upscairs.cratesAndDropevents.dropevents.gui_implementations;
 
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
-import dev.upscairs.cratesAndDropevents.resc.DropeventStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
+import dev.upscairs.cratesAndDropevents.helper.GuiItemTemplate;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
 import dev.upscairs.mcGuiFramework.base.InventoryGui;
 import dev.upscairs.mcGuiFramework.base.ItemDisplayGui;
@@ -9,7 +10,6 @@ import dev.upscairs.mcGuiFramework.functionality.PreventCloseGui;
 import dev.upscairs.mcGuiFramework.gui_wrappers.InteractableGui;
 import dev.upscairs.mcGuiFramework.gui_wrappers.PageGui;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
-import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import dev.upscairs.mcGuiFramework.utility.ListableItemStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -62,19 +62,9 @@ public class DropeventDropsGui {
 
         gui.placeItems();
 
-        ItemMeta meta;
+        gui.setItem(46, GuiItemTemplate.BACK.create("To edit window"));
 
-        ItemStack backItem = new ItemStack(Material.ARROW);
-        meta = backItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("To edit window", "#AAAAAA").decoration(TextDecoration.BOLD, true));
-        backItem.setItemMeta(meta);
-        gui.setItem(46, backItem);
-
-        ItemStack newDropItem = new ItemStack(Material.CHEST_MINECART);
-        meta = newDropItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("Add drop", "#FFAA00").decoration(TextDecoration.BOLD, true));
-        newDropItem.setItemMeta(meta);
-        gui.setItem(49, newDropItem);
+        gui.setItem(49, GuiItemTemplate.CREATE_NEW.create("Add drop"));
 
 
     }

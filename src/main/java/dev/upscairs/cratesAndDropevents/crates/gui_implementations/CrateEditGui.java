@@ -3,11 +3,11 @@ package dev.upscairs.cratesAndDropevents.crates.gui_implementations;
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.helper.ConfirmationGui;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
+import dev.upscairs.cratesAndDropevents.helper.GuiItemTemplate;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
-import dev.upscairs.mcGuiFramework.base.InventoryGui;
 import dev.upscairs.mcGuiFramework.base.ItemDisplayGui;
 import dev.upscairs.mcGuiFramework.functionality.PreventCloseGui;
 import dev.upscairs.mcGuiFramework.gui_wrappers.InteractableGui;
@@ -27,9 +27,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.util.List;
-import java.util.function.Supplier;
-
-import static dev.upscairs.cratesAndDropevents.helper.EditMode.NONE;
 
 public class CrateEditGui {
 
@@ -72,42 +69,22 @@ public class CrateEditGui {
         giveItem.setItemMeta(meta);
         gui.setItem(4, giveItem);
 
-        ItemStack editFolderItem = new ItemStack(Material.ENDER_CHEST);
-        meta = editFolderItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Edit folder", "#00AAAA"));
-        editFolderItem.setItemMeta(meta);
-        gui.setItem(8, editFolderItem);
+        gui.setItem(8, GuiItemTemplate.FOLDER_CONFIG.create());
 
-        ItemStack deleteItem = new ItemStack(Material.LAVA_BUCKET);
-        meta = deleteItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Delete crate", "#FF5555"));
-        deleteItem.setItemMeta(meta);
-        gui.setItem(53, deleteItem);
+        gui.setItem(53, GuiItemTemplate.DELETE.create("Delete crate"));
 
-        ItemStack backItem = new ItemStack(Material.ARROW);
-        meta = backItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("To the overview", "#AAAAAA").decoration(TextDecoration.BOLD, true));
-        backItem.setItemMeta(meta);
-        gui.setItem(46, backItem);
+        gui.setItem(46, GuiItemTemplate.BACK.create("To the overview"));
 
-        ItemStack lootItem = new ItemStack(Material.CHEST);
-        meta = lootItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("Configure Rewards", "#FFAA00").decoration(TextDecoration.BOLD, true));
-        lootItem.setItemMeta(meta);
-        gui.setItem(31, lootItem);
+        gui.setItem(31, GuiItemTemplate.LOOTPOOL.create("Configure rewards"));
 
         ItemStack urlItem = new ItemStack(Material.WRITABLE_BOOK);
         meta = urlItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("Click to edit Skull Url", "#FFAA00").decoration(TextDecoration.BOLD, true));
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Click to edit Skull Url", "#FFAA00"));
         meta.lore(List.of(InvGuiUtils.generateDefaultTextComponent("Or use /crates url <crate-name> <url>", "#AA00AA")));
         urlItem.setItemMeta(meta);
         gui.setItem(22, urlItem);
 
-        ItemStack cloneItem = new ItemStack(Material.EMERALD);
-        meta = cloneItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Clone Crate", "#55FF55"));
-        cloneItem.setItemMeta(meta);
-        gui.setItem(24, cloneItem);
+        gui.setItem(24, GuiItemTemplate.CLONE.create("Clone crate"));
 
         ItemStack displayNameItem = new ItemStack(Material.NAME_TAG);
         meta = displayNameItem.getItemMeta();
@@ -127,14 +104,14 @@ public class CrateEditGui {
         if(crateItemSelection) {
             crateItem = new ItemStack(Material.SCAFFOLDING);
             meta = crateItem.getItemMeta();
-            meta.displayName(InvGuiUtils.generateDefaultTextComponent("Click on new skull item or click here to abort", "#AA00AA").decoration(TextDecoration.BOLD, true));
+            meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Click on new skull item or click here to abort", "#AA00AA"));
             meta.setEnchantmentGlintOverride(true);
             crateItem.setItemMeta(meta);
         }
         else {
             crateItem = crate.getRenderItem().clone();
             meta = crateItem.getItemMeta();
-            meta.displayName(InvGuiUtils.generateDefaultTextComponent("Click to configure crate item", "#AA00AA").decoration(TextDecoration.BOLD, true));
+            meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Click to configure crate item", "#AA00AA"));
             crateItem.setItemMeta(meta);
         }
         gui.setItem(20, crateItem);
@@ -168,7 +145,6 @@ public class CrateEditGui {
                         if (sender instanceof Player p) p.closeInventory();
                         if (sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return null;
-
                     case 20:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new CrateEditGui(crate, !crateItemSelection, sender, plugin).getGui();
@@ -243,19 +219,13 @@ public class CrateEditGui {
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new CrateListGui(crate.getFolder(), sender, plugin).getGui();
                     case 53:
-                        ItemStack deleteItem = new ItemStack(Material.LAVA_BUCKET);
-                        ItemMeta meta = deleteItem.getItemMeta();
-                        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Delete Crate", "#FF5555"));
-                        deleteItem.setItemMeta(meta);
-
-                        ItemStack backItem = new ItemStack(Material.ARROW);
-                        meta = backItem.getItemMeta();
-                        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Abort", "#AAAAAA"));
-                        backItem.setItemMeta(meta);
 
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
 
-                        return new ConfirmationGui("Delete Crate?", deleteItem, backItem, () -> {
+                        return new ConfirmationGui("Delete Crate?",
+                                GuiItemTemplate.DELETE.create("Delete Crate"),
+                                GuiItemTemplate.BACK.create("Abort"),
+                                () -> {
                             Bukkit.dispatchCommand(sender, "crates delete " + crate.getName());
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
                             return new CrateListGui(crate.getFolder(), sender, plugin).getGui();
@@ -269,7 +239,7 @@ public class CrateEditGui {
                 }
             }
 
-            if(slot >= 54 && crateItemSelection) {
+            if(crateItemSelection) {
                 if(item.getType().isAir()) {
                     return new PreventCloseGui();
                 }

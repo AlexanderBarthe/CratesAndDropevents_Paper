@@ -3,12 +3,13 @@ package dev.upscairs.cratesAndDropevents.crates.gui_implementations;
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.helper.ConfirmationGui;
 import dev.upscairs.cratesAndDropevents.helper.EditMode;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
 import dev.upscairs.cratesAndDropevents.crates.rewards.payouts.*;
+import dev.upscairs.cratesAndDropevents.helper.GuiItemTemplate;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
 import dev.upscairs.mcGuiFramework.base.ItemDisplayGui;
 import dev.upscairs.mcGuiFramework.functionality.PreventCloseGui;
@@ -73,12 +74,6 @@ public class SingleRewardGui {
 
         ItemMeta meta;
 
-        ItemStack backItem = new ItemStack(Material.ARROW);
-        meta = backItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("To the overview", "#AAAAAA"));
-        backItem.setItemMeta(meta);
-
-
         ItemStack addEventItem = new ItemStack(Material.CHEST_MINECART);
         meta = addEventItem.getItemMeta();
         meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Add Event", "#FFAA00"));
@@ -86,10 +81,7 @@ public class SingleRewardGui {
         if(editMode == ADD_EVENT) meta.lore(List.of(InvGuiUtils.generateDefaultTextComponent("Click again to cancel", "#FF5555")));
         addEventItem.setItemMeta(meta);
 
-        ItemStack cloneRewardItem = new ItemStack(Material.EMERALD);
-        meta = cloneRewardItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Clone Reward", "#55FF55"));
-        cloneRewardItem.setItemMeta(meta);
+        ItemStack cloneRewardItem = GuiItemTemplate.CLONE.create("Clone Reward");
 
         ItemStack editChanceItem = new ItemStack(Material.CHEST);
         meta = editChanceItem.getItemMeta();
@@ -188,7 +180,7 @@ public class SingleRewardGui {
 
         switch (editMode) {
             case NONE -> {
-                gui.setItem(46, backItem);
+                gui.setItem(46, GuiItemTemplate.BACK.create("To the overview"));
                 gui.setItem(47, addEventItem);
                 gui.setItem(48, cloneRewardItem);
                 gui.setItem(49, editChanceItem);
@@ -196,7 +188,7 @@ public class SingleRewardGui {
                 gui.setItem(51, deleteItem);
             }
             case ADD_EVENT -> {
-                gui.setItem(46, backItem);
+                gui.setItem(46, GuiItemTemplate.BACK.create("To the overview"));
                 gui.setItem(47, addEventItem);
 
                 gui.setItem(48, addDropItem);
@@ -206,14 +198,14 @@ public class SingleRewardGui {
                 gui.setItem(52, addDelayItem);
             }
             case EDIT_ITEM_EVENT, EDIT_ITEM_EVENT_ITEM_SELECT -> {
-                gui.setItem(46, backItem);
+                gui.setItem(46, GuiItemTemplate.BACK.create("To the overview"));
                 gui.setItem(49, editDropItem);
                 gui.setItem(51, deleteItem);
                 gui.setItem(48, shiftLeftItem);
                 gui.setItem(50, shiftRightItem);
             }
             case EDIT_SOUND_EVENT, EDIT_COMMAND_EVENT, EDIT_MESSAGE_EVENT, EDIT_DELAY_EVENT -> {
-                gui.setItem(46, backItem);
+                gui.setItem(46, GuiItemTemplate.BACK.create("To the overview"));
                 gui.setItem(49, editOtherEventItem);
                 gui.setItem(51, deleteItem);
                 gui.setItem(48, shiftLeftItem);
@@ -288,19 +280,13 @@ public class SingleRewardGui {
                         return new PreventCloseGui();
                     }
                     else if(slot == 51) {
-                        ItemStack deleteItem = new ItemStack(Material.LAVA_BUCKET);
-                        ItemMeta meta = deleteItem.getItemMeta();
-                        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Delete Reward", "#FF5555"));
-                        deleteItem.setItemMeta(meta);
-
-                        ItemStack backItem = new ItemStack(Material.ARROW);
-                        meta = backItem.getItemMeta();
-                        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Abort", "#AAAAAA"));
-                        backItem.setItemMeta(meta);
 
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
 
-                        return new ConfirmationGui("Delete Reward?", deleteItem, backItem, () -> {
+                        return new ConfirmationGui("Delete Reward?",
+                                GuiItemTemplate.DELETE.create("Delete Reward"),
+                                GuiItemTemplate.BACK.create("Abort"),
+                                () -> {
                             crate.removeReward(reward);
                             CrateStorage.saveCrate(crate);
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
