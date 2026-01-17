@@ -42,14 +42,13 @@ public class ChatMessageConfig {
         defaultMessages.put("crate.success.deleted",  "<green>Crate has been deleted.<reset>");
         defaultMessages.put("crate.success.cloned",  "<green>Crate has been cloned.<reset>");
 
-        defaultMessages.put("crate.info.type-name", "<dark_aqua>Type name of new crate. It has to be unique. Use /crates cancel or the button to cancel<reset>");
-        defaultMessages.put("crate.info.type-folder", "<dark_aqua>Type name of the folder. It can be a new folder name. Use '/' to separate subfolders. Type '.' to target the root folder. Use /crates cancel or the button to cancel<reset>");
-        defaultMessages.put("crate.info.type-display-name", "<dark_aqua>Type new display name. Use /crates cancel or the button to cancel<reset>");
-        defaultMessages.put("crate.info.type-url", "<dark_aqua>Type URL of the skull (Format: http://textures.minecraft.net/texture/someLongCode). Use /crates cancel or the button to cancel<reset>");
-        defaultMessages.put("crate.info.type-sound", "<dark_aqua>Type the path of the desired sound. If you want a different volume or pitch then 1, use the format <white><path> <volume> <pitch> (seperated by spaces. Use /crates cancel or the button to cancel<reset>");
-        defaultMessages.put("crate.info.type-command", "<dark_aqua>Type the desired command without <white>/<dark_aqua>. Use /crates cancel or the button to cancel<reset>");
-        defaultMessages.put("crate.info.type-message", "<dark_aqua>Type the desired message. Use /crates cancel or the button to cancel<reset>");
-        defaultMessages.put("crate.info.type-canceled", "<gray>Canceled<reset>");
+        defaultMessages.put("crate.info.type-name", "<dark_aqua>Type name of new crate. It has to be unique. Use /cad cancel or the button to cancel<reset>");
+        defaultMessages.put("crate.info.type-folder", "<dark_aqua>Type name of the folder. It can be a new folder name. Use '/' to separate subfolders. Type '.' to target the root folder. Use /cad cancel or the button to cancel<reset>");
+        defaultMessages.put("crate.info.type-display-name", "<dark_aqua>Type new display name. Use /cad cancel or the button to cancel<reset>");
+        defaultMessages.put("crate.info.type-url", "<dark_aqua>Type URL of the skull (Format: http://textures.minecraft.net/texture/someLongCode). Use /cad cancel or the button to cancel<reset>");
+        defaultMessages.put("crate.info.type-sound", "<dark_aqua>Type the path of the desired sound. If you want a different volume or pitch then 1, use the format <white><path> <volume> <pitch> (seperated by spaces. Use /cad cancel or the button to cancel<reset>");
+        defaultMessages.put("crate.info.type-command", "<dark_aqua>Type the desired command without <white>/<dark_aqua>. Use /cad cancel or the button to cancel<reset>");
+        defaultMessages.put("crate.info.type-message", "<dark_aqua>Type the desired message. Use /cad cancel or the button to cancel<reset>");
 
         defaultMessages.put("dropevent.broadcast.local.countdown", "<dark_purple>A dropevent starts here in %ts.<reset>");
         defaultMessages.put("dropevent.broadcast.local.start", "<dark_purple>The dropevent started.<reset>");
@@ -84,9 +83,11 @@ public class ChatMessageConfig {
         defaultMessages.put("dropevent.error.hopper", "<dark_red>You can't start a dropevent where hoppers could collect items.<reset>");
 
         defaultMessages.put("dropevent.info.sneak-for-use", "<dark_aqua>Sneak + right click to use this item.");
-        defaultMessages.put("dropevent.info.type-name", "<dark_aqua>Type name of new dropevent. It has to be unique. Use /crates cancel or the button to cancel<reset>");
-        defaultMessages.put("dropevent.info.type-command", "<dark_aqua>Type the desired command without <white>/<dark_aqua>. Type <white>.<dark_aqua> to clear the command. Use /de cancel or the button to cancel<reset>");
-        defaultMessages.put("dropevent.info.type-folder", "<dark_aqua>Type name of the folder. It can be a new folder name. Use '/' to separate subfolders. Type '.' to target the root folder. Use /de cancel or the button to cancel<reset>");
+        defaultMessages.put("dropevent.info.type-name", "<dark_aqua>Type name of new dropevent. It has to be unique. Use /cad cancel or the button to cancel<reset>");
+        defaultMessages.put("dropevent.info.type-command", "<dark_aqua>Type the desired command without <white>/<dark_aqua>. Type <white>.<dark_aqua> to clear the command. Use /cad cancel or the button to cancel<reset>");
+        defaultMessages.put("dropevent.info.type-folder", "<dark_aqua>Type name of the folder. It can be a new folder name. Use '/' to separate subfolders. Type '.' to target the root folder. Use /cad cancel or the button to cancel<reset>");
+
+        defaultMessages.put("system.info.type-canceled", "<gray>Canceled<reset>");
 
         defaultMessages.put("system.command.error.player-not-found", "<dark_red>There is no player with that name.<reset>");
         defaultMessages.put("system.command.error.invalid-number", "<dark_red>Please specify a valid number.<reset>");

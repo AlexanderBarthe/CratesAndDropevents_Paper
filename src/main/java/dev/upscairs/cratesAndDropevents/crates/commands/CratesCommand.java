@@ -1,8 +1,8 @@
 package dev.upscairs.cratesAndDropevents.crates.commands;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.crates.commands.sub.*;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,7 +32,6 @@ public class CratesCommand implements CommandExecutor, TabCompleter {
         register(new CrInfoSubCommand(p));
         register(new CrListSubCommand(p));
         register(new CrRewardsSubCommand(p));
-        register(new CrCancelSubCommand(p));
         register(new CrDeleteSubCommand(p));
         register(new CrLootSubCommand(p));
         register(new CrMoveSubCommand(p));

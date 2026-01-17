@@ -1,7 +1,5 @@
 package dev.upscairs.cratesAndDropevents.helper;
 
-import java.io.File;
-
 public class FolderizableElement {
 
     private String folder;
