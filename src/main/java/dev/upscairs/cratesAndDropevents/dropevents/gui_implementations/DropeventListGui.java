@@ -44,7 +44,7 @@ public class DropeventListGui {
 
         this.folder = folder;
 
-        listedObjects.addAll(DropeventStorage.getSubfolders(folder).stream().map(GuiFolder::new).toList());
+        listedObjects.addAll(DropeventStorage.getSubfolders(folder).stream().map(f -> new GuiFolder(f, Dropevent.class)).toList());
         listedObjects.addAll(DropeventStorage.getDropeventsInFolder(folder));
 
         gui = new PageGui(new InteractableGui(new ItemDisplayGui()), listedObjects, 0);

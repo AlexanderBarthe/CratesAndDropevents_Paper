@@ -44,7 +44,7 @@ public class CrateListGui {
 
         this.folder = folder;
 
-        listedObjects.addAll(CrateStorage.getSubfolders(folder).stream().map(GuiFolder::new).toList());
+        listedObjects.addAll(CrateStorage.getSubfolders(folder).stream().map(f -> new GuiFolder(f, Crate.class)).toList());
         listedObjects.addAll(CrateStorage.getCratesInFolder(folder));
 
         this.plugin = plugin;
