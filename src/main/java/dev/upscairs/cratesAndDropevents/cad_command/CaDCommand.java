@@ -1,7 +1,10 @@
 package dev.upscairs.cratesAndDropevents.cad_command;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.cad_command.sub.*;
+import dev.upscairs.cratesAndDropevents.cad_command.sub.CancelSubCommand;
+import dev.upscairs.cratesAndDropevents.cad_command.sub.ConfigSubCommand;
+import dev.upscairs.cratesAndDropevents.cad_command.sub.ReloadSubCommand;
+import dev.upscairs.cratesAndDropevents.cad_command.sub.VersionSubCommand;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.command.Command;

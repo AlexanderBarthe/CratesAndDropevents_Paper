@@ -21,15 +21,17 @@ import org.bukkit.profile.PlayerTextures;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @SerializableAs("Crate")
 public class Crate extends FolderizableElement implements ConfigurationSerializable, ListableGuiObject {
 
+    private long id;
     private String name;
     private ItemStack crateItem;
     private boolean pittySystem;
-
+    
     private Map<CrateReward, Integer> rewards = new HashMap<>();
 
     public static final NamespacedKey CRATE_KEY = new NamespacedKey(CratesAndDropevents.getInstance(),"CRATE");
@@ -275,5 +277,13 @@ public class Crate extends FolderizableElement implements ConfigurationSerializa
     public void setRenderItem(ItemStack renderItem) {
         if(!renderItem.getType().equals(Material.PLAYER_HEAD)) return;
         this.crateItem = renderItem;
+    }
+    
+    public long getId() {
+        return this.id;
+    }
+    
+    public void setId(long id) {
+        this.id = id;
     }
 }

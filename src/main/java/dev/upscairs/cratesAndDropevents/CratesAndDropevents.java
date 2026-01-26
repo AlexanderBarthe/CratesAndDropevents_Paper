@@ -5,6 +5,8 @@ import dev.upscairs.cratesAndDropevents.crates.commands.CratesCommand;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.crates.management.CratePlaceHandler;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
+import dev.upscairs.cratesAndDropevents.db.CrateDao;
+import dev.upscairs.cratesAndDropevents.db.DatabaseManager;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.dropevents.commands.DropeventCommand;
 import dev.upscairs.cratesAndDropevents.dropevents.management.DropeventItemHandler;
@@ -20,6 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
 
 public final class CratesAndDropevents extends JavaPlugin {
 
@@ -27,11 +30,15 @@ public final class CratesAndDropevents extends JavaPlugin {
 
     private static CratesAndDropevents instance;
 
+    private DatabaseManager dbManager;
+    private CrateDao crateDao;
+
     @Override
     public void onEnable() {
 
         instance = this;
 
+        initDb();
         ConfigurationSerialization.registerClass(CrateReward.class, "CrateReward" );
         ConfigurationSerialization.registerClass(Dropevent.class, "Dropevent");
         ConfigurationSerialization.registerClass(Crate.class, "Crate");
@@ -50,14 +57,30 @@ public final class CratesAndDropevents extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        if (dbManager != null) {
+            dbManager.close();
+        }
     }
+
 
     public void reloadConfigs() {
         reloadConfig();
         registerConfigs();
         CrateStorage.init(this);
         DropeventStorage.init(this);
+    }
+
+    private void initDb() {
+        try {
+            this.dbManager = new DatabaseManager(this);
+            this.crateDao = new CrateDao(this, dbManager);
+
+            crateDao.createTableIfNotExists();
+
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "Fehler beim Starten der DB", e);
+            setEnabled(false);
+        }
     }
 
     private void registerCommands() {
@@ -135,6 +158,10 @@ public final class CratesAndDropevents extends JavaPlugin {
 
     public static CratesAndDropevents getInstance() {
         return instance;
+    }
+
+    public CrateDao getCrateDao() {
+        return crateDao;
     }
 
 }
