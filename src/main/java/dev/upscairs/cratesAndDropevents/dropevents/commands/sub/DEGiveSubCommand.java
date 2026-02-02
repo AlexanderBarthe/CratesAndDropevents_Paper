@@ -74,25 +74,8 @@ public class DEGiveSubCommand implements SubCommand {
         }
 
         //Set values
-        ItemStack givenItem = dropevent.getRenderItem().clone();
+        ItemStack givenItem = dropevent.getDropStarterItem();
         givenItem.setAmount(count);
-
-        //Flag item as dropevent starter
-        NamespacedKey key = Dropevent.EVENT_KEY;
-
-        ItemMeta meta = givenItem.getItemMeta();
-        meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, dropevent.getName());
-        List<Component> lore = meta.lore();
-
-        //Subtext
-        if(lore == null) lore = new ArrayList<>();
-
-        lore.add(InvGuiUtils.generateDefaultHeaderComponent("", "#000000"));
-        lore.add(InvGuiUtils.generateDefaultHeaderComponent("Dropevent", "#A40064"));
-        lore.add(InvGuiUtils.generateDefaultTextComponent("Shift + Right Click to start", "#AAAAAA"));
-
-        meta.lore(lore);
-        givenItem.setItemMeta(meta);
 
         //Give
         target.getInventory().addItem(givenItem);
