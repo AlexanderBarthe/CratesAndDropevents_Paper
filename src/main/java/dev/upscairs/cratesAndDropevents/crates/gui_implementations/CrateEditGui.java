@@ -211,7 +211,7 @@ public class CrateEditGui {
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new PreventCloseGui();
                     case 33:
-                        crate.setPittySystem(!crate.pittySystemActive());
+                        crate.setPitySystemActive(!crate.pittySystemActive());
                         CrateStorage.saveCrate(crate);
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new CrateEditGui(crate, false, sender, plugin).getGui();

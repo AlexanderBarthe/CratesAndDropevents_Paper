@@ -18,9 +18,14 @@ public class DatabaseManager {
 
         HikariConfig cfg = new HikariConfig();
         cfg.setJdbcUrl(jdbcUrl);
-        cfg.setMaximumPoolSize(4);
+        cfg.setMaximumPoolSize(1);
         cfg.setPoolName(plugin.getName() + "-HikariPool");
-        cfg.setConnectionInitSql("PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA synchronous=NORMAL;");
+        cfg.setConnectionInitSql(
+                "PRAGMA journal_mode=WAL; " +
+                        "PRAGMA foreign_keys=ON; " +
+                        "PRAGMA synchronous=NORMAL; " +
+                        "PRAGMA busy_timeout=5000;"
+        );
 
         this.ds = new HikariDataSource(cfg);
     }

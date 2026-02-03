@@ -61,6 +61,11 @@ public class SoundRewardEvent implements CrateRewardEvent {
         return renderItem;
     }
 
+     @Override
+     public String asString() {
+        return "sound§" + soundName + "§" + volume + "§" + pitch;
+     }
+
     public EditMode getAssociatedEditMode() {
         return EditMode.EDIT_SOUND_EVENT;
     }

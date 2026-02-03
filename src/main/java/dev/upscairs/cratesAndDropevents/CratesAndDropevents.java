@@ -5,8 +5,9 @@ import dev.upscairs.cratesAndDropevents.crates.commands.CratesCommand;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.crates.management.CratePlaceHandler;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
-import dev.upscairs.cratesAndDropevents.db.CrateDao;
+import dev.upscairs.cratesAndDropevents.db.daos.CrateDao;
 import dev.upscairs.cratesAndDropevents.db.DatabaseManager;
+import dev.upscairs.cratesAndDropevents.db.services.DbServices;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.dropevents.commands.DropeventCommand;
 import dev.upscairs.cratesAndDropevents.dropevents.management.DropeventItemHandler;
@@ -31,7 +32,7 @@ public final class CratesAndDropevents extends JavaPlugin {
     private static CratesAndDropevents instance;
 
     private DatabaseManager dbManager;
-    private CrateDao crateDao;
+    private DbServices dbServices;
 
     @Override
     public void onEnable() {
@@ -39,9 +40,7 @@ public final class CratesAndDropevents extends JavaPlugin {
         instance = this;
 
         initDb();
-        ConfigurationSerialization.registerClass(CrateReward.class, "CrateReward" );
         ConfigurationSerialization.registerClass(Dropevent.class, "Dropevent");
-        ConfigurationSerialization.registerClass(Crate.class, "Crate");
 
         CrateStorage.init(this);
         DropeventStorage.init(this);
@@ -73,12 +72,10 @@ public final class CratesAndDropevents extends JavaPlugin {
     private void initDb() {
         try {
             this.dbManager = new DatabaseManager(this);
-            this.crateDao = new CrateDao(this, dbManager);
-
-            crateDao.createTableIfNotExists();
+            this.dbServices = new DbServices(this, dbManager);
 
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Fehler beim Starten der DB", e);
+            getLogger().log(Level.SEVERE, "Error while starting database", e);
             setEnabled(false);
         }
     }
@@ -160,8 +157,9 @@ public final class CratesAndDropevents extends JavaPlugin {
         return instance;
     }
 
-    public CrateDao getCrateDao() {
-        return crateDao;
+    public DbServices getDbServices() {
+        return dbServices;
     }
+
 
 }

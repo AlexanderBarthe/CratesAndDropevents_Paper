@@ -1,5 +1,6 @@
 package dev.upscairs.cratesAndDropevents.crates.rewards.payouts;
 
+import dev.upscairs.cratesAndDropevents.db.Serializer;
 import dev.upscairs.cratesAndDropevents.helper.EditMode;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import org.bukkit.Location;
@@ -31,6 +32,11 @@ public class ItemRewardEvent implements CrateRewardEvent {
         player.getWorld().dropItemNaturally(location, item.clone());
 
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public String asString() {
+        return "item§" + Serializer.itemStackToJson(item);
     }
 
     public ItemStack getRenderItem() {

@@ -1,4 +1,4 @@
-package dev.upscairs.cratesAndDropevents.db;
+package dev.upscairs.cratesAndDropevents.db.daos;
 
 public class DropeventDao {
 }

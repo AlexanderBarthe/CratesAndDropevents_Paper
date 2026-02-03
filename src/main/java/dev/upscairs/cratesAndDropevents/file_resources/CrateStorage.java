@@ -130,7 +130,7 @@ public abstract class CrateStorage {
 
     private static Crate createExampleCrate() {
         Crate crate = new Crate("SampleCrate", "");
-        crate.setPittySystem(true);
+        crate.setPitySystemActive(true);
 
         CrateReward dirtReward = new CrateReward(
                 List.of(

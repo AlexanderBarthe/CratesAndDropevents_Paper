@@ -15,4 +15,6 @@ public interface CrateRewardEvent extends ListableGuiObject {
 
     CrateRewardEvent clone();
 
+    String asString();
+
 }

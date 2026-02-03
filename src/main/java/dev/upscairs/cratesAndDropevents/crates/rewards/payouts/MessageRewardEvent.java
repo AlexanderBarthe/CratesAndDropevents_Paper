@@ -35,6 +35,11 @@ public class MessageRewardEvent implements CrateRewardEvent {
         return CompletableFuture.completedFuture(null);
     }
 
+    @Override
+    public String asString() {
+        return "message§" + messageRaw;
+    }
+
     public ItemStack getRenderItem() {
         ItemStack item = new ItemStack(Material.PAPER);
         ItemMeta meta = item.getItemMeta();

@@ -9,7 +9,6 @@ import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.inventory.ItemStack;
@@ -21,25 +20,22 @@ import org.bukkit.profile.PlayerTextures;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @SerializableAs("Crate")
-public class Crate extends FolderizableElement implements ConfigurationSerializable, ListableGuiObject {
+public class Crate extends FolderizableElement implements ListableGuiObject {
 
-    private long id;
+    private int id;
     private String name;
     private ItemStack crateItem;
-    private boolean pittySystem;
-    
-    private Map<CrateReward, Integer> rewards = new HashMap<>();
+    private boolean pitySystemActive;
 
     public static final NamespacedKey CRATE_KEY = new NamespacedKey(CratesAndDropevents.getInstance(),"CRATE");
 
     public Crate(String name, String folder) {
         super(folder);
         this.name = name;
-        this.pittySystem = false;
+        this.pitySystemActive = false;
 
         crateItem = new ItemStack(InvGuiUtils.generateCustomUrlHeadStack("http://textures.minecraft.net/texture/f1327353e2f6364b437f1e6c4a7e9764ea95e27deec0031eec1142df2f949b3"));
         crateItem.setAmount(1);
@@ -52,15 +48,20 @@ public class Crate extends FolderizableElement implements ConfigurationSerializa
 
     }
 
-    public Crate(String name, String folder, ItemStack crateItem, boolean pittySystem) {
+    public Crate(int id, String name, String folder, ItemStack crateItem, boolean pitySystem) {
+        this(name, folder, crateItem, pitySystem);
+        this.id = id;
+    }
+    
+    public Crate(String name, String folder, ItemStack crateItem, boolean pitySystem) {
 
         super(folder);
 
         this.name = name;
-        this.pittySystem = pittySystem;
+        this.pitySystemActive = pitySystem;
 
         crateItem.setAmount(1);
-        crateItem.setType(Material.PLAYER_HEAD);
+        if(crateItem.getType() != Material.PLAYER_HEAD) crateItem.setType(Material.PLAYER_HEAD);
 
         /*
         ItemMeta meta = crateItem.getItemMeta();
@@ -73,26 +74,9 @@ public class Crate extends FolderizableElement implements ConfigurationSerializa
 
     }
 
-    public Crate(ItemStack crateItem, Map<CrateReward, Integer> rewards) {
+    public Crate(ItemStack crateItem) {
         this.crateItem = crateItem;
         this.name = crateItem.getItemMeta().getDisplayName();
-        this.rewards = rewards;
-
-        addCrateFlag();
-    }
-
-    public Crate(String name, String folder, ItemStack crateItem, boolean pittySystem, Map<CrateReward, Integer> rewards) {
-        super(folder);
-        this.crateItem = crateItem;
-        this.name = name;
-        this.pittySystem = pittySystem;
-        this.rewards = rewards;
-
-        /*
-        ItemMeta meta = crateItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent(name, "#FFAA00"));
-        crateItem.setItemMeta(meta);
-         */
 
         addCrateFlag();
     }
@@ -155,77 +139,21 @@ public class Crate extends FolderizableElement implements ConfigurationSerializa
         return true;
     }
 
-    public void setPittySystem(boolean pittySystem) {
-        this.pittySystem = pittySystem;
+    public void setPitySystemActive(boolean pitySystemActive) {
+        this.pitySystemActive = pitySystemActive;
     }
 
-    public boolean pittySystemActive() {
-        return pittySystem;
-    }
-
-    public Map<CrateReward, Integer> getRewards() {
-        return rewards;
-    }
-
-    public void setRewards(Map<CrateReward, Integer> rewards) {
-        this.rewards = rewards;
-    }
-
-    public void setRewardChance(CrateReward reward, int chance) {
-        rewards.put(reward, chance);
-    }
-
-    public void addReward(CrateReward reward, int chance) {
-        rewards.put(reward, chance);
-    }
-
-    public void removeReward(CrateReward reward) {
-        rewards.remove(reward);
+    public boolean pitySystemActive() {
+        return pitySystemActive;
     }
 
     public String getName() {
         return name;
     }
 
-    public int getUnusedChance() {
-
-        int summedChance = 0;
-
-        for (Map.Entry<CrateReward, Integer> entry : rewards.entrySet()) {
-            summedChance += entry.getValue();
-        }
-
-        return 1000 - summedChance;
-    }
-
     public Crate clone() {
 
-        Map<CrateReward, Integer> clonedRewards = new HashMap<>();
-        for (Map.Entry<CrateReward, Integer> entry : rewards.entrySet()) {
-            clonedRewards.put(entry.getKey().clone(), entry.getValue());
-        }
-
-        return new Crate(this.name, getFolder(), this.crateItem.clone(), pittySystem, clonedRewards);
-    }
-
-    @Override
-    public Map<String, Object> serialize() {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("name", this.name);
-        map.put("crateItem", crateItem);
-        map.put("pittySystem", pittySystem);
-
-        List<Map<String, Object>> rewardsList = new ArrayList<>();
-        for (Map.Entry<CrateReward, Integer> entry : rewards.entrySet()) {
-            Map<String, Object> rewardEntry = new LinkedHashMap<>();
-            rewardEntry.put("reward", entry.getKey());
-            rewardEntry.put("chance", entry.getValue());
-            rewardsList.add(rewardEntry);
-        }
-        map.put("rewards", rewardsList);
-        map.put("folder", getFolder() != null ? getFolder() : "");
-
-        return map;
+        return new Crate(this.name, getFolder(), this.crateItem.clone(), pitySystemActive);
     }
 
     public static Crate deserialize(Map<String, Object> map) {
@@ -236,13 +164,13 @@ public class Crate extends FolderizableElement implements ConfigurationSerializa
         ItemStack crateItem = (ItemStack) map.get("crateItem");
         if(crateItem == null) crateItem = new ItemStack(Material.PLAYER_HEAD);
 
-        Boolean pittySystem = (Boolean) map.get("pittySystem");
-        if(pittySystem == null) pittySystem = false;
+        Boolean pitySystem = (Boolean) map.get("pittySystem");
+        if(pitySystem == null) pitySystem = false;
 
         String folder = (String) map.get("folder");
         if(folder == null) folder = "";
 
-        Crate crate = new Crate(name, folder, crateItem, pittySystem);
+        Crate crate = new Crate(name, folder, crateItem, pitySystem);
 
         Object obj = map.get("rewards");
         if (obj instanceof List<?> list) {
@@ -261,7 +189,6 @@ public class Crate extends FolderizableElement implements ConfigurationSerializa
                 }
 
                 Number chanceNum = (Number) rewardMap.get("chance");
-                crate.addReward(reward, chanceNum.intValue());
             }
         }
 
@@ -279,11 +206,11 @@ public class Crate extends FolderizableElement implements ConfigurationSerializa
         this.crateItem = renderItem;
     }
     
-    public long getId() {
+    public int getId() {
         return this.id;
     }
     
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 }

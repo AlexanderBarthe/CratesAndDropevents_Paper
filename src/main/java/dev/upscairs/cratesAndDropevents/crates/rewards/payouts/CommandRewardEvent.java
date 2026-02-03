@@ -60,6 +60,11 @@ public class CommandRewardEvent implements CrateRewardEvent {
         return item;
     }
 
+    @Override
+    public String asString() {
+        return "command§" + command;
+    }
+
     public EditMode getAssociatedEditMode() {
         return EditMode.EDIT_COMMAND_EVENT;
     }

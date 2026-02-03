@@ -37,6 +37,11 @@ public class DelayRewardEvent implements CrateRewardEvent {
         return future;
     }
 
+    @Override
+    public String asString() {
+        return "delay§" + ticks;
+    }
+
     public ItemStack getRenderItem() {
         ItemStack item = new ItemStack(Material.CLOCK);
         ItemMeta meta = item.getItemMeta();
