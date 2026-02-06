@@ -2,6 +2,7 @@ package dev.upscairs.cratesAndDropevents.crates.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
+import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
@@ -13,10 +14,14 @@ import java.util.List;
 
 public class CrDeleteSubCommand implements SubCommand {
 
-    private final CratesAndDropevents plugin;
+    private final ChatMessageConfig messageConfig;
+    private final CrateService crateService;
+
+    //TODO adjust calls for this command
 
     public CrDeleteSubCommand(CratesAndDropevents plugin) {
-        this.plugin = plugin;
+        this.messageConfig = plugin.getChatMessageConfig();
+        this.crateService = plugin.getDbServices().getCrateService();
     }
 
     @Override
@@ -31,23 +36,26 @@ public class CrDeleteSubCommand implements SubCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if (!isSenderPermitted(sender)) return true;
-
-        ChatMessageConfig messageConfig = plugin.getChatMessageConfig();
 
         if(args.length <= 1) {
-            sender.sendMessage(messageConfig.getColored("crate.error.missing-name"));
+            sender.sendMessage(messageConfig.getColored("system.command.error.missing-id"));
             return true;
         }
 
-        Crate crate = CrateStorage.getCrateById(args[1]);
-
-        if(crate == null) {
-            sender.sendMessage(messageConfig.getColored("crate.error.name-not-found"));
+        int id;
+        try {
+            id = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));
             return true;
         }
 
-        CrateStorage.removeCrate(args[1]);
+        if(!crateService.existsById(id)) {
+            sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));
+            return true;
+        }
+
+        crateService.deleteCrateById(id);
         sender.sendMessage(messageConfig.getColored("crate.success.deleted"));
 
         return true;
@@ -61,8 +69,6 @@ public class CrDeleteSubCommand implements SubCommand {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-
-        if(isSenderPermitted(sender) && args.length == 2) return CrateStorage.getCrateIds();
 
         return Collections.emptyList();
     }

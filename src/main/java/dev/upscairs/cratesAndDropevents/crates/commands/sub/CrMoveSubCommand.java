@@ -2,6 +2,7 @@ package dev.upscairs.cratesAndDropevents.crates.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
+import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
@@ -16,10 +17,12 @@ import java.util.stream.Collectors;
 
 public class CrMoveSubCommand implements SubCommand {
 
-    private final CratesAndDropevents plugin;
+    private final ChatMessageConfig messageConfig;
+    private final CrateService crateService;
 
     public CrMoveSubCommand(CratesAndDropevents plugin) {
-        this.plugin = plugin;
+        this.messageConfig = plugin.getChatMessageConfig();
+        this.crateService = plugin.getDbServices().getCrateService();
     }
 
 
@@ -35,12 +38,9 @@ public class CrMoveSubCommand implements SubCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if (!isSenderPermitted(sender)) return true;
-
-        ChatMessageConfig messageConfig = plugin.getChatMessageConfig();
 
         if (args.length <= 1) {
-            sender.sendMessage(messageConfig.getColored("crate.error.missing-name"));
+            sender.sendMessage(messageConfig.getColored("system.command.error.missing-id"));
             return true;
         }
 
@@ -52,15 +52,23 @@ public class CrMoveSubCommand implements SubCommand {
 
         if(folder.equals(".") || folder.equals("/.")) folder = "";
 
-        Crate crate = CrateStorage.getCrateById(args[1]);
+        int id;
+        try {
+            id = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));
+            return true;
+        }
+
+        Crate crate = crateService.getCrateById(id);
 
         if(crate == null) {
-            sender.sendMessage(messageConfig.getColored("crate.error.name-not-found"));
+            sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));
             return true;
         }
 
         crate.setFolder(folder);
-        CrateStorage.saveCrate(crate);
+        crateService.updateCrate(crate);
 
         sender.sendMessage(messageConfig.getColored("crate.success.value-updated"));
 
@@ -76,7 +84,6 @@ public class CrMoveSubCommand implements SubCommand {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if(isSenderPermitted(sender)) {
             if(args.length == 2) return Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
-            if(args.length == 3) return CrateStorage.getCrateIds();
         }
 
         return Collections.emptyList();

@@ -34,16 +34,29 @@ public class CrateRewardService {
         return rewardCache.values().stream().filter(reward -> reward.getCrateId() == crateId).toList();
     }
 
+    public int getRemainingChanceForCrate(int crateId) {
+        int summedChance = rewardCache.values()
+                .stream().filter(reward -> reward.getCrateId() == crateId)
+                .mapToInt(CrateReward::getProbability).sum();
+        return 1000 - summedChance;
+    }
+
     public List<CrateReward> getAllRewards() {
         return rewardCache.values().stream().toList();
     }
 
     public void createReward(CrateReward reward) {
+        createReward(reward, null);
+    }
+
+    public void createReward(CrateReward reward, Consumer<CrateReward> onCreated) {
         reward.setId(0);
 
         Consumer<Integer> callback = id -> {
             reward.setId(id);
             rewardCache.put(id, reward);
+
+            if(onCreated != null) onCreated.accept(reward);
         };
         dao.saveRewardAsync(reward, callback);
     }
@@ -51,6 +64,13 @@ public class CrateRewardService {
     public void updateReward(CrateReward reward) {
         dao.saveRewardAsync(reward, null);
         rewardCache.put(reward.getId(), reward);
+    }
+
+    public void deleteRewardsOfCrate(int id) {
+        List<CrateReward> rewards = getRewardsForCrate(id);
+        for(CrateReward reward : rewards) {
+            deleteRewardById(reward.getId());
+        }
     }
 
     public void deleteRewardById(int id) {
@@ -64,7 +84,7 @@ public class CrateRewardService {
         plugin.getServer().getScheduler().runTaskTimerAsynchronously(
                 plugin,
                 this::refreshCacheAsync,
-                0L, intervalTicks
+                40L, intervalTicks
         );
     }
 

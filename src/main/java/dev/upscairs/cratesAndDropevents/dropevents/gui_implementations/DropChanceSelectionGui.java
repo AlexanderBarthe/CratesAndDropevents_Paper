@@ -1,5 +1,6 @@
 package dev.upscairs.cratesAndDropevents.dropevents.gui_implementations;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
@@ -19,13 +20,13 @@ public class DropChanceSelectionGui {
     private ItemStack drop;
     private int unusedChance;
     private CommandSender sender;
-    private Plugin plugin;
+    private CratesAndDropevents plugin;
 
     private NumberSelectionGui gui;
 
     private String defaultTitle;
 
-    public DropChanceSelectionGui(Dropevent dropevent, ItemStack changedDrop, int dropChance, int unusedChance, CommandSender sender, Plugin plugin) {
+    public DropChanceSelectionGui(Dropevent dropevent, ItemStack changedDrop, int dropChance, int unusedChance, CommandSender sender, CratesAndDropevents plugin) {
 
         gui = new NumberSelectionGui(new InteractableGui(new ItemDisplayGui()), dropChance, 0, dropChance+unusedChance, sender);
         configureClickReaction();

@@ -40,7 +40,7 @@ public class DECloneSubCommand implements SubCommand {
         ChatMessageConfig messageConfig = plugin.getChatMessageConfig();
 
         if(args.length <= 2) {
-            sender.sendMessage(messageConfig.getColored("dropevent.error.missing-name"));
+            sender.sendMessage(messageConfig.getColored("system.command.error.missing-id"));
             return true;
         }
 

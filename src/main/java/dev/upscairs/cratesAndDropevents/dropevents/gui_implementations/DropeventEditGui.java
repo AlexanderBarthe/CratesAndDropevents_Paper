@@ -32,13 +32,13 @@ public class DropeventEditGui {
 
     private Dropevent dropevent;
     private CommandSender sender;
-    private Plugin plugin;
+    private CratesAndDropevents plugin;
     private boolean renderItemSelection;
     private ChatMessageConfig messageConfig;
 
     private InteractableGui gui;
 
-    public DropeventEditGui(Dropevent dropevent, boolean renderItemSelection, CommandSender sender, Plugin plugin) {
+    public DropeventEditGui(Dropevent dropevent, boolean renderItemSelection, CommandSender sender, CratesAndDropevents plugin) {
         gui = new InteractableGui(new ItemDisplayGui());
         configureClickReaction();
 

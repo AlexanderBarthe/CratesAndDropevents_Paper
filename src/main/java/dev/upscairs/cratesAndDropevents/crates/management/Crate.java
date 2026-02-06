@@ -30,7 +30,7 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
     private ItemStack crateItem;
     private boolean pitySystemActive;
 
-    public static final NamespacedKey CRATE_KEY = new NamespacedKey(CratesAndDropevents.getInstance(),"CRATE");
+    public static final NamespacedKey CRATE_KEY = new NamespacedKey(CratesAndDropevents.getInstance(),"CRATE_ID");
 
     public Crate(String name, String folder) {
         super(folder);
@@ -42,9 +42,6 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
         ItemMeta meta = crateItem.getItemMeta();
         meta.displayName(InvGuiUtils.generateDefaultTextComponent(name, "#FFAA00"));
         crateItem.setItemMeta(meta);
-
-        addCrateFlag();
-
 
     }
 
@@ -69,26 +66,20 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
         crateItem.setItemMeta(meta);*/
         this.crateItem = crateItem;
 
-        addCrateFlag();
-
-
     }
 
     public Crate(ItemStack crateItem) {
         this.crateItem = crateItem;
         this.name = crateItem.getItemMeta().getDisplayName();
-
-        addCrateFlag();
-    }
-
-    private void addCrateFlag() {
-        ItemMeta meta = crateItem.getItemMeta();
-        meta.getPersistentDataContainer().set(CRATE_KEY, PersistentDataType.STRING, name);
-        crateItem.setItemMeta(meta);
     }
 
     public ItemStack getCrateItem() {
-        return crateItem;
+        ItemMeta meta = crateItem.getItemMeta();
+        meta.getPersistentDataContainer().set(CRATE_KEY, PersistentDataType.INTEGER, id);
+
+        ItemStack item = crateItem.clone();
+        item.setItemMeta(meta);
+        return item;
     }
 
     public void setName(String name) {
@@ -117,7 +108,6 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
         crateItem.setItemMeta(meta);*/
 
         this.crateItem = crateItem;
-        addCrateFlag();
     }
 
     public boolean setCrateSkullUrl(String url) {

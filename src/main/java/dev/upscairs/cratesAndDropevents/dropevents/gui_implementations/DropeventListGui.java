@@ -35,16 +35,16 @@ public class DropeventListGui {
 
     CommandSender sender;
 
-    private Plugin plugin;
+    private CratesAndDropevents plugin;
     private ChatMessageConfig messageConfig;
 
     private PageGui gui;
 
-    public DropeventListGui(String folder, CommandSender sender, Plugin plugin) {
+    public DropeventListGui(String folder, CommandSender sender, CratesAndDropevents plugin) {
 
         this.folder = folder;
 
-        listedObjects.addAll(DropeventStorage.getSubfolders(folder).stream().map(f -> new GuiFolder(f, Dropevent.class)).toList());
+        listedObjects.addAll(DropeventStorage.getSubfolders(folder).stream().map(f -> new GuiFolder(f, Dropevent.class, plugin)).toList());
         listedObjects.addAll(DropeventStorage.getDropeventsInFolder(folder));
 
         gui = new PageGui(new InteractableGui(new ItemDisplayGui()), listedObjects, 0);

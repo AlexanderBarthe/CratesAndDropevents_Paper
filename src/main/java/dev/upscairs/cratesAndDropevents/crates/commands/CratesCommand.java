@@ -59,6 +59,11 @@ public class CratesCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if(!handler.isSenderPermitted(sender)) {
+            //TODO introduce message
+            sender.sendMessage(messageConfig.getColored("system.command.error.no-permission"));
+            return true;
+        }
         return handler.execute(sender, args);
 
     }

@@ -1,6 +1,8 @@
 package dev.upscairs.cratesAndDropevents.helper;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
+import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
@@ -16,12 +18,15 @@ import java.util.List;
 
 public class GuiFolder implements ListableGuiObject {
 
+    private final CrateService crateService;
+
     private final String folder;
     private final Class<?> primaryListedObjectType;
 
-    public GuiFolder(String folder, Class<?> primaryListedObjectType) {
+    public GuiFolder(String folder, Class<?> primaryListedObjectType, CratesAndDropevents plugin) {
         this.folder = folder;
         this.primaryListedObjectType = primaryListedObjectType;
+        this.crateService = plugin.getDbServices().getCrateService();
     }
 
     @Override
@@ -38,8 +43,8 @@ public class GuiFolder implements ListableGuiObject {
 
         if(primaryListedObjectType == Crate.class) {
             elementCount = 0;
-            elementCount += CrateStorage.getSubfolders(folder).size();
-            elementCount += CrateStorage.getCratesInFolder(folder).size();
+            elementCount += crateService.getSubfolders(folder).size();
+            elementCount += crateService.getCratesInFolder(folder).size();
         }
         else if(primaryListedObjectType == Dropevent.class) {
             elementCount = 0;

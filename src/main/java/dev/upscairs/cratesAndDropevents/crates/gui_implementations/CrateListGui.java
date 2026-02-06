@@ -2,6 +2,7 @@ package dev.upscairs.cratesAndDropevents.crates.gui_implementations;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
+import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
@@ -29,26 +30,26 @@ import java.util.List;
 
 public class CrateListGui {
 
-    List<ListableGuiObject> listedObjects = new ArrayList<>();
+    private final CratesAndDropevents plugin;
+    private final ChatMessageConfig messageConfig;
+    private final CrateService crateService;
 
-    String folder;
+    private final List<ListableGuiObject> listedObjects = new ArrayList<>();
+    private final CommandSender sender;
+    private final PageGui gui;
 
-    CommandSender sender;
+    private final String folder;
 
-    private Plugin plugin;
-    ChatMessageConfig messageConfig;
+    public CrateListGui(String folder, CommandSender sender, CratesAndDropevents plugin) {
 
-    private PageGui gui;
-
-    public CrateListGui(String folder, CommandSender sender, Plugin plugin) {
+        this.plugin = plugin;
+        this.messageConfig = plugin.getChatMessageConfig();
+        this.crateService = plugin.getDbServices().getCrateService();
 
         this.folder = folder;
 
-        listedObjects.addAll(CrateStorage.getSubfolders(folder).stream().map(f -> new GuiFolder(f, Crate.class)).toList());
-        listedObjects.addAll(CrateStorage.getCratesInFolder(folder));
-
-        this.plugin = plugin;
-        this.messageConfig = ((CratesAndDropevents) plugin).getChatMessageConfig();
+        listedObjects.addAll(crateService.getSubfolders(folder).stream().map(f -> new GuiFolder(f, Crate.class, plugin)).toList());
+        listedObjects.addAll(crateService.getCratesInFolder(folder));
 
         gui = new PageGui(new InteractableGui(new ItemDisplayGui()), listedObjects, 0);
         configureClickReaction();
@@ -85,7 +86,7 @@ public class CrateListGui {
                     return new CrateListGui(f.getFolder(), sender, plugin).getGui();
                 }
                 else if (listedObjects.get(selectedIndex) instanceof Crate c) {
-                    Bukkit.dispatchCommand(sender, "crates info " + c.getName());
+                    Bukkit.dispatchCommand(sender, "crates info " + c.getId());
                 }
 
 
@@ -102,25 +103,15 @@ public class CrateListGui {
             }
             else if (slot == 48) {
 
-                Component cancelComponent = Component.text(" [Cancel]", NamedTextColor.RED)
-                        .clickEvent(ClickEvent.runCommand("/cad cancel"))
-                        .hoverEvent(HoverEvent.showText(Component.text("Click to Cancel", NamedTextColor.RED)))
-                        .decorate(TextDecoration.BOLD);
-
-                sender.sendMessage(messageConfig.getColored("crate.info.type-name").append(cancelComponent));
-
-                ChatMessageInputHandler.addListener(sender, (msg) -> {
-                    if (sender instanceof Player p) {
-                        Bukkit.getScheduler().runTask(plugin, () -> {
-                            Bukkit.dispatchCommand(sender, "crates create " + msg + " " + folder);
-                            p.openInventory(new CrateListGui(folder, sender, plugin).getGui().getInventory());
-                        });
+                Crate crate = new Crate("NewCrate", folder);
+                crateService.createCrate(crate, created -> {
+                    if(sender instanceof Player p) {
+                        McGuiFramework.getGuiSounds().playClickSound(p);
+                        p.openInventory(new CrateListGui(folder, sender, plugin).getGui().getInventory());
                     }
                 });
 
-                if (sender instanceof Player p) p.closeInventory();
-                if (sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                return null;
+                return gui;
 
             }
 

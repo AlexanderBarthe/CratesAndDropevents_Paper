@@ -3,6 +3,7 @@ package dev.upscairs.cratesAndDropevents.crates.commands.sub;
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.gui_implementations.CrateEditGui;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
+import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
@@ -15,12 +16,15 @@ import java.util.List;
 
 public class CrInfoSubCommand implements SubCommand {
 
+    private final ChatMessageConfig messageConfig;
+    private final CrateService crateService;
     private final CratesAndDropevents plugin;
 
     public CrInfoSubCommand(CratesAndDropevents plugin) {
+        this.messageConfig = plugin.getChatMessageConfig();
+        this.crateService = plugin.getDbServices().getCrateService();
         this.plugin = plugin;
     }
-
 
     @Override
     public String name() {
@@ -34,20 +38,25 @@ public class CrInfoSubCommand implements SubCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(!isSenderPermitted(sender)) return true;
         if(!(sender instanceof Player p)) return true;
 
-        ChatMessageConfig messageConfig = plugin.getChatMessageConfig();
-
         if(args.length <= 1) {
-            p.sendMessage(messageConfig.getColored("dropevent.error.missing-name"));
+            p.sendMessage(messageConfig.getColored("system.command.error.missing-id"));
             return true;
         }
 
-        Crate crate = CrateStorage.getCrateById(args[1]);
+        int id;
+        try {
+            id = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));
+            return true;
+        }
+
+        Crate crate = crateService.getCrateById(id);
 
         if (crate == null) {
-            p.sendMessage(messageConfig.getColored("dropevent.error.name-not-found"));
+            p.sendMessage(messageConfig.getColored("crate.error.invalid-id"));
             return true;
         }
 
@@ -63,8 +72,6 @@ public class CrInfoSubCommand implements SubCommand {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-
-        if(isSenderPermitted(sender) && args.length == 2) return CrateStorage.getCrateIds();
 
         return Collections.emptyList();
     }

@@ -1,5 +1,7 @@
 package dev.upscairs.cratesAndDropevents.crates.management;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,6 +15,19 @@ import org.bukkit.persistence.PersistentDataType;
 
 public class CratePlaceHandler implements Listener {
 
+    private final CratesAndDropevents plugin;
+    private final CrateService crateService;
+    private final CrateOpener crateOpener;
+
+
+    public CratePlaceHandler(CratesAndDropevents plugin) {
+        this.plugin = plugin;
+        this.crateService = plugin.getDbServices().getCrateService();
+        this.crateOpener = new CrateOpener(plugin);
+    }
+
+
+
     @EventHandler
     public void onCratePlace(BlockPlaceEvent event) {
 
@@ -22,14 +37,16 @@ public class CratePlaceHandler implements Listener {
 
         if (usedItem == null || !usedItem.hasItemMeta()) return;
 
-
         ItemMeta meta = usedItem.getItemMeta();
-        String crateName = meta.getPersistentDataContainer().get(Crate.CRATE_KEY, PersistentDataType.STRING);
 
-        Crate crate = CrateStorage.getCrateById(crateName);
+        if (meta == null) return;
+        Integer crateIdObj = meta.getPersistentDataContainer().get(Crate.CRATE_KEY, PersistentDataType.INTEGER);
+        if (crateIdObj == null) return;
+        int crateId = crateIdObj;
+        System.out.println(crateId);
 
+        Crate crate = crateService.getCrateById(crateId);
         if(crate == null) return;
-
 
         event.setCancelled(true);
 
@@ -42,7 +59,7 @@ public class CratePlaceHandler implements Listener {
 
         player.getInventory().setItem(player.getInventory().getHeldItemSlot(), newItem);
 
-        CrateOpener.openCrate(crate, player, location);
+        crateOpener.openCrate(crate, player, location);
 
     }
 

@@ -75,11 +75,6 @@ public class DEMoveSubCommand implements SubCommand {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if(isSenderPermitted(sender)) {
-            if(args.length == 2) return Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
-            if(args.length == 3) return CrateStorage.getCrateIds();
-        }
-
         return Collections.emptyList();
     }
 }

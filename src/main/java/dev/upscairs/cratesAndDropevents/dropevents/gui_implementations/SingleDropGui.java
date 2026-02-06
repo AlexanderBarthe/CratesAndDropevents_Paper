@@ -1,5 +1,6 @@
 package dev.upscairs.cratesAndDropevents.dropevents.gui_implementations;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
 import dev.upscairs.cratesAndDropevents.helper.ConfirmationGui;
@@ -26,14 +27,14 @@ public class SingleDropGui {
     private ItemStack dropItem;
     private boolean itemSelection;
     private CommandSender sender;
-    private Plugin plugin;
+    private CratesAndDropevents plugin;
     private int unusedChance;
 
     private int currentChance;
 
     private InteractableGui gui;
 
-    public SingleDropGui(Dropevent dropevent, ItemStack dropItem, boolean itemSelection, int unusedChance, CommandSender sender, Plugin plugin) {
+    public SingleDropGui(Dropevent dropevent, ItemStack dropItem, boolean itemSelection, int unusedChance, CommandSender sender, CratesAndDropevents plugin) {
 
         gui = new InteractableGui(new ItemDisplayGui());
         configureClickReaction();

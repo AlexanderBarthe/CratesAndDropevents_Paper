@@ -2,6 +2,7 @@ package dev.upscairs.cratesAndDropevents.crates.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
+import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
@@ -14,12 +15,13 @@ import java.util.List;
 
 public class CrCreateSubCommand implements SubCommand {
 
-    private final CratesAndDropevents plugin;
+    private final ChatMessageConfig messageConfig;
+    private final CrateService crateService;
 
     public CrCreateSubCommand(CratesAndDropevents plugin) {
-        this.plugin = plugin;
+        this.messageConfig = plugin.getChatMessageConfig();
+        this.crateService = plugin.getDbServices().getCrateService();
     }
-
 
     @Override
     public String name() {
@@ -34,26 +36,15 @@ public class CrCreateSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
 
-        if(!isSenderPermitted(sender)) return true;
-
-        ChatMessageConfig messageConfig = plugin.getChatMessageConfig();
-
-        if(args.length <= 1) {
-            sender.sendMessage(messageConfig.getColored("crate.error.missing-name"));
-            return true;
-        }
-
-        if(CrateStorage.getCrateById(args[1]) != null) {
-            sender.sendMessage(messageConfig.getColored("crate.error.already-exists"));
-            if(sender instanceof Player p) McGuiFramework.getGuiSounds().playFailSound(p);
-            return true;
-        }
+        String name = "New crate";
+        if(args.length > 1) name = args[1];
 
         String folder = "";
-        if(args.length >= 3) folder = args[2];
+        if(args.length > 2) folder = args[2];
 
-        Crate crate = new Crate(args[1], folder);
-        CrateStorage.saveCrate(crate);
+        Crate crate = new Crate(name, folder);
+
+        crateService.createCrate(crate);
 
         sender.sendMessage(messageConfig.getColored("crate.success.created"));
 

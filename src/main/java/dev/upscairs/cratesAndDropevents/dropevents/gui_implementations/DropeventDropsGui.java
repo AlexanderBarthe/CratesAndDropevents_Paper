@@ -1,5 +1,6 @@
 package dev.upscairs.cratesAndDropevents.dropevents.gui_implementations;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
 import dev.upscairs.cratesAndDropevents.helper.GuiItemTemplate;
@@ -29,13 +30,13 @@ public class DropeventDropsGui {
 
     private Dropevent dropevent;
     private CommandSender sender;
-    private Plugin plugin;
+    private CratesAndDropevents plugin;
 
     private int unusedChance;
 
     private PageGui gui;
 
-    public DropeventDropsGui(Dropevent dropevent, CommandSender sender, Plugin plugin) {
+    public DropeventDropsGui(Dropevent dropevent, CommandSender sender, CratesAndDropevents plugin) {
         gui = new PageGui(new InteractableGui(new ItemDisplayGui()),
                 dropevent.getDrops().entrySet().stream()
                     .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))

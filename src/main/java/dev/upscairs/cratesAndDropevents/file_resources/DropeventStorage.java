@@ -39,7 +39,7 @@ public abstract class DropeventStorage {
             } catch (IOException ignored) {}
         }
         config = YamlConfiguration.loadConfiguration(file);
-        if(createSample) saveDropevent(createExampleCrate());
+        //if(createSample) saveDropevent(createExampleCrate());
     }
 
     /**
@@ -161,6 +161,7 @@ public abstract class DropeventStorage {
         } catch (IOException ignored) {}
     }
 
+    /*
     private static Dropevent createExampleCrate() {
 
         HashMap<ItemStack, Integer> drops = new HashMap<>();
@@ -182,5 +183,5 @@ public abstract class DropeventStorage {
                 true,
                 null,
                 0);
-    }
+    }*/
 }

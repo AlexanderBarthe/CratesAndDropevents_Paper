@@ -59,7 +59,7 @@ public class PlayerPityService {
         plugin.getServer().getScheduler().runTaskTimerAsynchronously(
                 plugin,
                 this::refreshCacheAsync,
-                0L, intervalTicks
+                40L, intervalTicks
         );
     }
 

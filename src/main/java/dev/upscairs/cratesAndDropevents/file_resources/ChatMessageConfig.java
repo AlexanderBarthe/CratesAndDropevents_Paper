@@ -35,6 +35,7 @@ public class ChatMessageConfig {
         defaultMessages.put("crate.error.missing-player", "<dark_red>You must specify a player.<reset>");
         defaultMessages.put("crate.error.player-not-found", "<dark_red>Player not found.<reset>");
         defaultMessages.put("crate.error.no-crate-in-hand", "<dark_red>You need to hold the crate in your main hand.<reset>");
+        defaultMessages.put("crate.error.invalid-id", "<dark_red>There is no crate with this id.<reset>");
 
         defaultMessages.put("crate.success.created", "<green>Crate has been created.<reset>");
         defaultMessages.put("crate.success.value-updated", "<green>Value has been updated.<reset>");
@@ -78,7 +79,6 @@ public class ChatMessageConfig {
         defaultMessages.put("dropevent.error.name-no-spaces", "<dark_red>The name must not contain spaces.<reset>");
         defaultMessages.put("dropevent.error.setting-update-failed", "<dark_red>Failed to update setting.<reset>");
         defaultMessages.put("dropevent.error.use-no-perm", "<dark_red>You don't have permission to use this event.<reset>");
-        defaultMessages.put("dropevent.error.missing-id", "<dark_red>You need to specify an id to do that.<reset>");
         defaultMessages.put("dropevent.error.forbidden-world", "<dark_red>You are not allowed to start an event in this world.<reset>");
         defaultMessages.put("dropevent.error.hopper", "<dark_red>You can't start a dropevent where hoppers could collect items.<reset>");
 
@@ -94,7 +94,7 @@ public class ChatMessageConfig {
         defaultMessages.put("system.command.error.number-range-item", "<dark_red>You can only select 1 to 64 items.<reset>");
         defaultMessages.put("system.command.error.not-found", "<dark_red>Command not found<reset>");
         defaultMessages.put("system.command.error.not-enough-arguments", "<dark_red>Not enough arguments.<reset>");
-
+        defaultMessages.put("system.command.error.missing-id", "<dark_red>You need to specify an id.<reset>");
     }
 
     public void load() {

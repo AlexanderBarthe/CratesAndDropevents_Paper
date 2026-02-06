@@ -2,12 +2,16 @@ package dev.upscairs.cratesAndDropevents.db.services;
 
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.db.daos.CrateDao;
+import dev.upscairs.cratesAndDropevents.helper.FolderizableElement;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class CrateService {
 
@@ -26,6 +30,10 @@ public class CrateService {
         startAutoRefresh(CACHE_REFRESH_DELAY);
     }
 
+    public boolean existsById(int id) {
+        return crateCache.containsKey(id);
+    }
+
     public Crate getCrateById(int id) {
         return crateCache.get(id);
     }
@@ -34,12 +42,47 @@ public class CrateService {
         return crateCache.values().stream().toList();
     }
 
+    public List<Crate> getCratesInFolder(String folderPath) {
+        return getAllCrates().stream().filter(crate -> crate.getFolder().equals(folderPath)).toList();
+    }
+
+    public Set<String> getAllFolderPaths() {
+        return getAllCrates().stream().map(FolderizableElement::getFolder).collect(Collectors.toSet());
+    }
+
+    public Set<String> getSubfolders(String folderPath) {
+
+        Set<String> subfolders = new HashSet<>();
+
+        int subfolderDepth = folderPath.split("/").length;
+
+        for(String currentFolderPath : getAllFolderPaths()) {
+            if(!currentFolderPath.startsWith(folderPath)) continue;
+
+            String[] path =  currentFolderPath.split("/");
+
+            if(path.length > subfolderDepth) {
+                String subfolderName = path[subfolderDepth];
+                subfolders.add(folderPath + "/" + subfolderName);
+            }
+        }
+
+        return subfolders;
+    }
+
     public void createCrate(Crate crate) {
+        createCrate(crate, null);
+    }
+
+    public void createCrate(Crate crate, Consumer<Crate> onCreated) {
         crate.setId(0);
 
         Consumer<Integer> callback = id -> {
             crate.setId(id);
             crateCache.put(id, crate);
+
+            if(onCreated != null) onCreated.accept(crate);
+
         };
 
         dao.saveCrateAsync(crate, callback);
@@ -53,7 +96,7 @@ public class CrateService {
     public void deleteCrateById(int id) {
         dao.deleteCrateByIdAsync(id);
         crateCache.remove(id);
-        rewardService.getRewardsForCrate(id);
+        rewardService.deleteRewardsOfCrate(id);
     }
 
 
@@ -61,7 +104,7 @@ public class CrateService {
         plugin.getServer().getScheduler().runTaskTimerAsynchronously(
                 plugin,
                 this::refreshCacheAsync,
-                0, intervalTicks);
+                40, intervalTicks);
     }
 
     public void refreshCacheAsync() {

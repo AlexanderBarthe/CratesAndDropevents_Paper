@@ -1,7 +1,9 @@
 package dev.upscairs.cratesAndDropevents.crates.gui_implementations;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
+import dev.upscairs.cratesAndDropevents.db.services.CrateRewardService;
 import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.EditMode;
 import dev.upscairs.cratesAndDropevents.helper.GuiItemTemplate;
@@ -27,25 +29,38 @@ import java.util.Map;
 
 public class CrateRewardsGui {
 
-    private Crate crate;
-    private CommandSender sender;
-    private Plugin plugin;
+    private final CratesAndDropevents plugin;
+    private final CrateRewardService rewardService;
 
-    private PageGui gui;
+    private final CommandSender sender;
+    private final PageGui gui;
 
-    public CrateRewardsGui(Crate crate, CommandSender sender, Plugin plugin) {
-        gui = new PageGui(new InteractableGui(new ItemDisplayGui()),
-                crate.getRewards().entrySet().stream()
-                        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                        .map(Map.Entry::getKey)
-                        .map(reward -> new ListableItemStack(reward.getRenderItem()))
-                        .toList(),
-                0);
-        configureClickReaction();
+    private final Crate crate;
+
+    private final List<CrateReward> rewardsSorted;
+
+    public CrateRewardsGui(Crate crate, CommandSender sender, CratesAndDropevents plugin) {
 
         this.crate = crate;
         this.sender = sender;
         this.plugin = plugin;
+        rewardService = plugin.getDbServices().getCrateRewardService();
+
+        //Fetches rewards and sorts them by probability
+        rewardsSorted = new ArrayList<>(
+                rewardService.getRewardsForCrate(crate.getId()).stream().sorted(
+                                Comparator.comparingInt(CrateReward::getProbability)
+                                        .reversed())
+                        .toList());
+
+        gui = new PageGui(
+                new InteractableGui(new ItemDisplayGui()),
+                rewardsSorted, 0);
+
+
+        configureClickReaction();
+
+
 
         gui.showPageInTitle(true);
         gui.setTitle("Rewards of " + crate.getName());
@@ -63,18 +78,13 @@ public class CrateRewardsGui {
     }
 
     public void writeRewardChances() {
-        List<Map.Entry<CrateReward, Integer>> entries = new ArrayList<>(crate.getRewards().entrySet());
-        //Sort by probability
-        entries.sort(Map.Entry.<CrateReward, Integer>comparingByValue(Comparator.reverseOrder()));
 
         List<ListableItemStack> updated = new ArrayList<>();
-        int summedProbability = 0;
 
         //Write chances
-        for (Map.Entry<CrateReward, Integer> entry : entries) {
-            ItemStack originalItem = entry.getKey().getRenderItem();
-            int itemChance = entry.getValue();
-            summedProbability += itemChance;
+        for (CrateReward reward : rewardsSorted) {
+            ItemStack originalItem = reward.getRenderItem();
+            int itemChance = reward.getProbability();
 
             ItemStack item = originalItem.clone();
             List<Component> lore = List.of(
@@ -86,20 +96,21 @@ public class CrateRewardsGui {
         }
 
 
+        int unusedChance = rewardService.getRemainingChanceForCrate(crate.getId());
+
         //Create a "No drop" item if there is unused chance left.
-        if (crate.getUnusedChance() > 0) {
+        if (unusedChance > 0) {
 
             ItemStack voidItem = new ItemStack(Material.BARRIER);
             ItemMeta meta = voidItem.getItemMeta();
             meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("No reward", "#FF5555"));
             voidItem.setItemMeta(meta);
             ArrayList<Component> lore = new ArrayList<>();
-            lore.add(InvGuiUtils.generateDefaultTextComponent("Chance: " + ((float)crate.getUnusedChance())/10f + "%", "#55FFFF"));
+            lore.add(InvGuiUtils.generateDefaultTextComponent("Chance: " + ((float)unusedChance)/10f + "%", "#55FFFF"));
             voidItem.lore(lore);
             updated.add(new ListableItemStack(voidItem));
 
         }
-
 
         gui.setListedObjects(updated);
     }
@@ -113,7 +124,7 @@ public class CrateRewardsGui {
 
                 int lastAvailableIndex = gui.getListedObjects().size() - 1;
 
-                if(crate.getUnusedChance() > 0f) {
+                if(rewardService.getRemainingChanceForCrate(crate.getId()) > 0f) {
                     lastAvailableIndex--;
                 }
 
@@ -121,19 +132,7 @@ public class CrateRewardsGui {
                     return new PreventCloseGui();
                 }
 
-                //Lookup reference of reward (compare item and chance)
-                List<ListableItemStack> listedObjects = gui.getListedObjects();
-                ItemStack clickedReward = listedObjects.get(selectedIndex).getRenderItem();
-
-
-                List<CrateReward> listedRewards = crate.getRewards()
-                        .entrySet()
-                        .stream()
-                        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                        .map(Map.Entry::getKey)
-                        .toList();
-
-                CrateReward selectedReward = listedRewards.get(selectedIndex+45*gui.getPage());
+                CrateReward selectedReward = rewardsSorted.get(selectedIndex+45*gui.getPage());
 
                 if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                 return new SingleRewardGui(crate,
@@ -148,22 +147,22 @@ public class CrateRewardsGui {
                 if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                 return new CrateEditGui(crate, false, sender, plugin).getGui();
             }
-            //Add a new drop to the Dropevent
+            //Add a new reward to the crate
             else if(slot == 49) {
 
-                CrateReward crateReward = new CrateReward(plugin);
+                int unusedChance = rewardService.getRemainingChanceForCrate(crate.getId());
+                int probability = Math.max(unusedChance, 0);
 
-                if(crate.getUnusedChance() > 0f) {
-                    crate.addReward(crateReward, crate.getUnusedChance());
-                }
-                else {
-                    crate.addReward(crateReward, 0);
-                }
+                CrateReward newReward = new CrateReward(crate.getId(), probability, plugin);
 
-                CrateStorage.saveCrate(crate);
+                rewardService.createReward(newReward, created -> {
+                    if(sender instanceof Player p) {
+                        McGuiFramework.getGuiSounds().playClickSound(p);
+                        p.openInventory(new CrateRewardsGui(crate, sender, plugin).getGui().getInventory());
+                    }
+                });
 
-                if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                return new CrateRewardsGui(crate, sender, plugin).getGui();
+                return gui;
             }
 
             return gui;

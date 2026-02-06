@@ -4,6 +4,7 @@ import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
 import dev.upscairs.cratesAndDropevents.crates.rewards.payouts.*;
+import dev.upscairs.cratesAndDropevents.db.services.CrateRewardService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
@@ -29,7 +30,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -40,28 +40,32 @@ import static dev.upscairs.cratesAndDropevents.helper.EditMode.*;
 
 public class SingleRewardGui {
 
-    private Crate crate;
-    private CrateReward reward;
-    private CrateRewardEvent selectedEvent;
-    private CommandSender sender;
-    private Plugin plugin;
-    private ChatMessageConfig messageConfig;
+    private final CratesAndDropevents plugin;
+    private final ChatMessageConfig messageConfig;
+    private final CrateRewardService rewardService;
 
-    private EditMode editMode;
+    private final CrateRewardEvent selectedEvent;
+    private final CommandSender sender;
+    private final EditMode editMode;
+    private final PageGui gui;
 
-    private PageGui gui;
+    private final Crate crate;
+    private final CrateReward reward;
 
-    public SingleRewardGui(Crate crate, CrateReward reward, CrateRewardEvent selectedEvent, EditMode editMode, CommandSender sender, Plugin plugin) {
+    public SingleRewardGui(Crate crate, CrateReward reward, CrateRewardEvent selectedEvent, EditMode editMode, CommandSender sender, CratesAndDropevents plugin) {
 
         gui = new PageGui(new InteractableGui(new ItemDisplayGui()), reward.getSequence(), 0);
+
+        this.plugin = plugin;
+        this.messageConfig = plugin.getChatMessageConfig();
+        this.rewardService = plugin.getDbServices().getCrateRewardService();
 
         this.crate = crate;
         this.reward = reward;
         this.selectedEvent = selectedEvent;
         this.editMode = editMode;
         this.sender = sender;
-        this.plugin = plugin;
-        this.messageConfig = ((CratesAndDropevents)plugin).getChatMessageConfig();
+
 
         gui.setSize(54);
         gui.setTitle("Configure reward");
@@ -85,7 +89,7 @@ public class SingleRewardGui {
 
         ItemStack editChanceItem = new ItemStack(Material.CHEST);
         meta = editChanceItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Probability: " + ((float)crate.getRewards().get(reward))/10 + "%" , "#FFAA00"));
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Probability: " + ((float)reward.getProbability())/10 + "%" , "#FFAA00"));
         meta.lore(List.of(InvGuiUtils.generateDefaultTextComponent("Click to configure", "#AA00AA")));
         editChanceItem.setItemMeta(meta);
 
@@ -264,16 +268,17 @@ public class SingleRewardGui {
                     else if(slot == 48) {
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
                         CrateReward clonedReward = reward.clone();
-                        int newChance = Math.min(crate.getUnusedChance(), crate.getRewards().get(reward));
-                        crate.setRewardChance(clonedReward, newChance);
+                        int newChance = Math.min(rewardService.getRemainingChanceForCrate(crate.getId()), reward.getProbability());
+                        reward.setProbability(newChance);
 
-                        CrateStorage.saveCrate(crate);
+                        rewardService.updateReward(reward);
 
                         return new CrateRewardsGui(crate, sender, plugin).getGui();
                     }
                     else if(slot == 49) {
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        return new CrateRewardChanceGui(crate.getRewards().get(reward), crate.getUnusedChance(), crate, reward, sender, plugin).getGui();
+                        return new CrateRewardChanceGui(reward.getProbability(),
+                                rewardService.getRemainingChanceForCrate(crate.getId()), crate, reward, sender, plugin).getGui();
                     }
                     else if(slot == 50) {
                         if(sender instanceof Player player) reward.execute(player, getLookingAt(player, 2));
@@ -287,8 +292,9 @@ public class SingleRewardGui {
                                 GuiItemTemplate.DELETE.create("Delete Reward"),
                                 GuiItemTemplate.BACK.create("Abort"),
                                 () -> {
-                            crate.removeReward(reward);
-                            CrateStorage.saveCrate(crate);
+
+                            rewardService.deleteRewardById(reward.getId());
+
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
                             return new CrateRewardsGui(crate, sender, plugin).getGui();
                         }, () -> {
@@ -317,9 +323,8 @@ public class SingleRewardGui {
                         };
 
                         if(rewardEvent != null) reward.addEvent(rewardEvent);
-                        CrateStorage.saveCrate(crate);
 
-
+                        rewardService.updateReward(reward);
 
                         if(sender instanceof Player p) {
                             if(slot == 47) {
@@ -350,7 +355,8 @@ public class SingleRewardGui {
                     if(index > 0) {
                         Collections.swap(rewards, index, index - 1);
                     }
-                    CrateStorage.saveCrate(crate);
+
+                    rewardService.updateReward(reward);
 
                     if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                     return new SingleRewardGui(crate, reward, selectedEvent, editMode, sender, plugin).getGui();
@@ -361,7 +367,7 @@ public class SingleRewardGui {
                     if(index < rewards.size() - 1) {
                         Collections.swap(rewards, index, index + 1);
                     }
-                    CrateStorage.saveCrate(crate);
+                    rewardService.updateReward(reward);
 
                     if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                     return new SingleRewardGui(crate, reward, selectedEvent, editMode, sender, plugin).getGui();
@@ -369,7 +375,7 @@ public class SingleRewardGui {
                 else if(slot == 51) {
                     List<CrateRewardEvent> rewards = reward.getSequence();
                     rewards.remove(selectedEvent);
-                    CrateStorage.saveCrate(crate);
+                    rewardService.updateReward(reward);
                     return new SingleRewardGui(crate, reward, null, NONE, sender, plugin).getGui();
                 }
                 else if(slot == 49) {
@@ -395,7 +401,7 @@ public class SingleRewardGui {
                                         srw.setPitch(Float.parseFloat(args[2]));
                                     } catch (Exception ignored) {}
 
-                                    CrateStorage.saveCrate(crate);
+                                    rewardService.updateReward(reward);
                                 }
                                 sender.sendMessage(messageConfig.getColored("crate.success.value-updated"));
 
@@ -418,7 +424,7 @@ public class SingleRewardGui {
 
                             ChatMessageInputHandler.addListener(sender, (msg) -> {
                                 if(selectedEvent instanceof CommandRewardEvent crw) crw.setCommand(msg);
-                                CrateStorage.saveCrate(crate);
+                                rewardService.updateReward(reward);
                                 sender.sendMessage(messageConfig.getColored("crate.success.value-updated"));
 
                                 if (sender instanceof Player p) {
@@ -448,7 +454,7 @@ public class SingleRewardGui {
 
                             ChatMessageInputHandler.addListener(sender, (msg) -> {
                                 if(selectedEvent instanceof MessageRewardEvent mrw) mrw.setMessageRaw(msg);
-                                CrateStorage.saveCrate(crate);
+                                rewardService.updateReward(reward);
                                 sender.sendMessage(messageConfig.getColored("crate.success.value-updated"));
 
                                 if (sender instanceof Player p) {
@@ -471,7 +477,7 @@ public class SingleRewardGui {
                     if(selectedEvent instanceof ItemRewardEvent ire) {
                         ire.setItem(item);
                     }
-                    CrateStorage.saveCrate(crate);
+                    rewardService.updateReward(reward);
 
                     if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                     return new SingleRewardGui(crate, reward, selectedEvent, EDIT_ITEM_EVENT, sender, plugin).getGui();

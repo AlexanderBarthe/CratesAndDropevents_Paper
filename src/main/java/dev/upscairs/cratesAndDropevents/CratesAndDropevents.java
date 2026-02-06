@@ -39,15 +39,16 @@ public final class CratesAndDropevents extends JavaPlugin {
 
         instance = this;
 
+        registerConfigs();
+
         initDb();
         ConfigurationSerialization.registerClass(Dropevent.class, "Dropevent");
 
-        CrateStorage.init(this);
+        //CrateStorage.init(this);
         DropeventStorage.init(this);
 
         registerCommands();
         registerEvents();
-        registerConfigs();
 
         McGuiFramework.initalize(this);
         McGuiFramework.playSounds(getConfig().getBoolean("gui.play-sounds"));
@@ -65,7 +66,7 @@ public final class CratesAndDropevents extends JavaPlugin {
     public void reloadConfigs() {
         reloadConfig();
         registerConfigs();
-        CrateStorage.init(this);
+        //CrateStorage.init(this);
         DropeventStorage.init(this);
     }
 
@@ -101,7 +102,7 @@ public final class CratesAndDropevents extends JavaPlugin {
     private void registerEvents() {
         getServer().getPluginManager().registerEvents(new EventDragonDropPreventListener(), this);
         getServer().getPluginManager().registerEvents(new DropeventItemHandler(this), this);
-        getServer().getPluginManager().registerEvents(new CratePlaceHandler(), this);
+        getServer().getPluginManager().registerEvents(new CratePlaceHandler(this), this);
         getServer().getPluginManager().registerEvents(new ChatMessageInputHandler(), this);
     }
 

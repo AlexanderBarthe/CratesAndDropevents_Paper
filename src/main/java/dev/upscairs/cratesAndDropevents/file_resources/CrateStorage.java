@@ -45,10 +45,10 @@ public abstract class CrateStorage {
             }
         }
         config = YamlConfiguration.loadConfiguration(file);
-        if (generateSample) saveCrate(createExampleCrate());
+        //if (generateSample) saveCrate(createExampleCrate());
     }
 
-
+    /*
     public static void saveCrate(Crate crate) {
 
         config.set("crates." + crate.getName(), crate);
@@ -119,7 +119,7 @@ public abstract class CrateStorage {
         }
 
         return subfolders;
-    }
+    }*/
 
 
     private static void saveFile() {
@@ -128,6 +128,7 @@ public abstract class CrateStorage {
         } catch (IOException ignored) {}
     }
 
+    /*
     private static Crate createExampleCrate() {
         Crate crate = new Crate("SampleCrate", "");
         crate.setPitySystemActive(true);
@@ -180,5 +181,5 @@ public abstract class CrateStorage {
         crate.addReward(beaconReward, 100);
 
         return crate;
-    }
+    }*/
 }

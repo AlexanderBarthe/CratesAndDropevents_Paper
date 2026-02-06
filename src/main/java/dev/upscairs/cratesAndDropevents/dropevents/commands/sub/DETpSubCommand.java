@@ -42,7 +42,7 @@ public class DETpSubCommand implements SubCommand {
         UUID id;
 
         if(args.length == 1) {
-            p.sendMessage(messageConfig.getColored("dropevent.error.missing-id"));
+            p.sendMessage(messageConfig.getColored("system.command.error.missing-id"));
             return true;
         }
 

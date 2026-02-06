@@ -21,7 +21,7 @@ public class CrateDao extends Dao {
     public void createTableIfNotExists() {
         final String sql = """
             CREATE TABLE IF NOT EXISTS crates (
-              id INT PRIMARY KEY AUTOINCREMENT,
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
               name TEXT NOT NULL,
               crate_item TEXT,
               pity_system INTEGER NOT NULL DEFAULT 0,

@@ -1,14 +1,13 @@
 package dev.upscairs.cratesAndDropevents.crates.rewards;
 
+import com.google.gson.*;
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.rewards.payouts.*;
+import dev.upscairs.cratesAndDropevents.db.Serializer;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,6 +17,7 @@ import org.bukkit.plugin.Plugin;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+
 @SerializableAs("CrateReward")
 public class CrateReward implements ListableGuiObject {
 
@@ -26,6 +26,7 @@ public class CrateReward implements ListableGuiObject {
     private int probability;
     private List<CrateRewardEvent> sequence;
 
+    private static final Gson GSON = new GsonBuilder().create();
     private Plugin plugin;
 
     public CrateReward(List<CrateRewardEvent> sequence, Plugin plugin) {
@@ -43,8 +44,9 @@ public class CrateReward implements ListableGuiObject {
         this.sequence = new ArrayList<>();
     }
 
-    public CrateReward(int id, int crateId, int probability, List<CrateRewardEvent> sequence, Plugin plugin) {
-        this.sequence = new ArrayList<>(sequence);
+    public CrateReward(int crateId, int probability, Plugin plugin) {
+        this.id = 0;
+        this.sequence = new ArrayList<>();
         this.crateId = crateId;
         this.probability = probability;
         this.plugin = plugin;
@@ -90,42 +92,60 @@ public class CrateReward implements ListableGuiObject {
     }
 
     public String sequenceToString() {
-        StringBuilder sb = new StringBuilder();
-        for (CrateRewardEvent element : sequence) {
-            sb.append(element.asString()).append("§§");
+        JsonArray array = new JsonArray();
+
+        for (CrateRewardEvent e : sequence) {
+            array.add(e.toJson());
         }
-        return sb.toString();
+
+        return GSON.toJson(array);
     }
 
-    public void importSequenceFromString(String string) {
-        String[] sequenceStrings = string.split("§§");
-
+    public void importSequenceFromString(String json) {
         List<CrateRewardEvent> sequenceList = new ArrayList<>();
+        if (json == null || json.isBlank()) {
+            this.sequence = sequenceList;
+            return;
+        }
 
-        for(String s : sequenceStrings) {
-            if(s.isEmpty()) continue;
+        try {
+            JsonArray array = JsonParser.parseString(json).getAsJsonArray();
 
-            String[] rewardData = s.split("§");
+            for (JsonElement el : array) {
+                if (!el.isJsonObject()) continue;
+                JsonObject obj = el.getAsJsonObject();
 
-            if(rewardData.length <= 1) continue;
-
-            switch (rewardData[0]) {
-                case "command": sequenceList.add(new CommandRewardEvent(rewardData[1], plugin)); break;
-                case "message": sequenceList.add(new MessageRewardEvent(rewardData[1])); break;
-                case "delay": sequenceList.add(new DelayRewardEvent(Integer.parseInt(rewardData[1]), plugin)); break;
-                case "item": sequenceList.add(new ItemRewardEvent(new ItemStack(Material.valueOf(rewardData[1])))); break;
-                case "sound": {
-                    if(rewardData.length < 4) continue;
-                    sequenceList.add(new SoundRewardEvent(rewardData[1], Float.parseFloat(rewardData[2]), Float.parseFloat(rewardData[3])));
-                    break;
+                if (!obj.has("type")) {
+                    plugin.getLogger().warning("Reward event missing 'type' field: " + obj);
+                    continue;
                 }
-                default: continue;
+
+                String typeStr = obj.get("type").getAsString();
+                CrateRewardType rewardType = CrateRewardType.fromString(typeStr);
+
+                if (rewardType == null) {
+                    plugin.getLogger().warning("Unknown reward type: " + typeStr);
+                    continue;
+                }
+
+                switch (rewardType) {
+                    case COMMAND -> sequenceList.add(new CommandRewardEvent(obj, plugin));
+                    case MESSAGE -> sequenceList.add(new MessageRewardEvent(obj, plugin));
+                    case DELAY -> sequenceList.add(new DelayRewardEvent(obj, plugin));
+                    case ITEM -> sequenceList.add(new ItemRewardEvent(obj, plugin));
+                    case SOUND -> sequenceList.add(new SoundRewardEvent(obj, plugin));
+                    default -> plugin.getLogger().warning("Unhandled reward type: " + rewardType);
+                }
             }
 
+        } catch (JsonSyntaxException | IllegalStateException ex) {
+            plugin.getLogger().warning("Failed to parse reward sequence JSON");
         }
 
-        sequence = sequenceList;
+        this.sequence = sequenceList;
     }
+
+
 
     public static CrateReward deserialize(Map<String, Object> map) {
 

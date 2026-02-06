@@ -1,5 +1,6 @@
 package dev.upscairs.cratesAndDropevents.crates.gui_implementations;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
 import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
@@ -16,16 +17,16 @@ import org.bukkit.plugin.Plugin;
 
 public class CrateRewardChanceGui {
 
-    private Crate crate;
-    private CrateReward reward;
-    private CommandSender sender;
-    private Plugin plugin;
+    private final CratesAndDropevents plugin;
 
-    private NumberSelectionGui gui;
+    private final CommandSender sender;
+    private final NumberSelectionGui gui;
 
-    private String defaultTitle;
+    private final Crate crate;
+    private final CrateReward reward;
+    private final String defaultTitle;
 
-    public CrateRewardChanceGui(int dropChance, int unusedChance, Crate crate, CrateReward reward, CommandSender sender, Plugin plugin) {
+    public CrateRewardChanceGui(int dropChance, int unusedChance, Crate crate, CrateReward reward, CommandSender sender, CratesAndDropevents plugin) {
 
         gui = new NumberSelectionGui(new InteractableGui(new ItemDisplayGui()), dropChance, 0, dropChance+unusedChance, sender);
 
@@ -35,7 +36,7 @@ public class CrateRewardChanceGui {
         this.plugin = plugin;
 
         configureClickReaction();
-        gui.onPostInternalClick(() -> writeTitle());
+        gui.onPostInternalClick(this::writeTitle);
         defaultTitle = "Configure Reward chance: ";
 
         writeTitle();
@@ -46,8 +47,9 @@ public class CrateRewardChanceGui {
         gui.onClick((slot, item, self) -> {
             if(slot == 30) {
                 int newProb = gui.getNumber();
-                crate.setRewardChance(reward, newProb);
-                CrateStorage.saveCrate(crate);
+
+                reward.setProbability(newProb);
+                plugin.getDbServices().getCrateRewardService().updateReward(reward);
 
                 if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
                 return new SingleRewardGui(crate, reward, null, EditMode.NONE, sender, plugin).getGui();

@@ -3,6 +3,7 @@ package dev.upscairs.cratesAndDropevents.crates.commands.sub;
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.gui_implementations.CrateRewardsGui;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
+import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
@@ -15,9 +16,13 @@ import java.util.List;
 
 public class CrRewardsSubCommand implements SubCommand {
 
+    private final ChatMessageConfig messageConfig;
+    private final CrateService crateService;
     private final CratesAndDropevents plugin;
 
     public CrRewardsSubCommand(CratesAndDropevents plugin) {
+        this.messageConfig = plugin.getChatMessageConfig();
+        this.crateService = plugin.getDbServices().getCrateService();
         this.plugin = plugin;
     }
 
@@ -33,19 +38,24 @@ public class CrRewardsSubCommand implements SubCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(!isSenderPermitted(sender)) return true;
         if(!(sender instanceof Player p))  return true;
-
-        ChatMessageConfig messageConfig = plugin.getChatMessageConfig();
 
         if(args.length <= 1) {
             sender.sendMessage(messageConfig.getColored("system.command.error.not-enough-arguments"));
         }
 
-        Crate crate = CrateStorage.getCrateById(args[1]);
+        int id;
+        try {
+            id = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));
+            return true;
+        }
+
+        Crate crate = crateService.getCrateById(id);
 
         if(crate == null) {
-            sender.sendMessage(messageConfig.getColored("crate.error.name-not-found"));
+            sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));
             return true;
         }
 
@@ -61,8 +71,6 @@ public class CrRewardsSubCommand implements SubCommand {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-
-        if(isSenderPermitted(sender) && args.length == 2) return CrateStorage.getCrateIds();
 
         return Collections.emptyList();
     }
