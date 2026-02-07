@@ -1,10 +1,8 @@
 package dev.upscairs.cratesAndDropevents.crates.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -16,8 +14,6 @@ public class CrDeleteSubCommand implements SubCommand {
 
     private final ChatMessageConfig messageConfig;
     private final CrateService crateService;
-
-    //TODO adjust calls for this command
 
     public CrDeleteSubCommand(CratesAndDropevents plugin) {
         this.messageConfig = plugin.getChatMessageConfig();
@@ -42,21 +38,9 @@ public class CrDeleteSubCommand implements SubCommand {
             return true;
         }
 
-        int id;
-        try {
-            id = Integer.parseInt(args[1]);
-        } catch (NumberFormatException e) {
-            sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));
-            return true;
-        }
-
-        if(!crateService.existsById(id)) {
-            sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));
-            return true;
-        }
-
-        crateService.deleteCrateById(id);
-        sender.sendMessage(messageConfig.getColored("crate.success.deleted"));
+        boolean success = crateService.deleteById(args[1]);
+        if(success) sender.sendMessage(messageConfig.getColored("crate.success.deleted"));
+        else sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));
 
         return true;
 

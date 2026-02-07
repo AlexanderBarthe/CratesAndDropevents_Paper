@@ -6,7 +6,6 @@ import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
 import dev.upscairs.cratesAndDropevents.crates.rewards.payouts.*;
 import dev.upscairs.cratesAndDropevents.db.services.CrateRewardService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.helper.ConfirmationGui;
 import dev.upscairs.cratesAndDropevents.helper.EditMode;
@@ -266,14 +265,17 @@ public class SingleRewardGui {
                         return new SingleRewardGui(crate, reward, null, ADD_EVENT, sender, plugin).getGui();
                     }
                     else if(slot == 48) {
-                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
+
                         CrateReward clonedReward = reward.clone();
                         int newChance = Math.min(rewardService.getRemainingChanceForCrate(crate.getId()), reward.getProbability());
-                        reward.setProbability(newChance);
+                        clonedReward.setProbability(newChance);
 
-                        rewardService.updateReward(reward);
-
-                        return new CrateRewardsGui(crate, sender, plugin).getGui();
+                        rewardService.createReward(clonedReward, created -> {
+                            if(sender instanceof Player p) {
+                                McGuiFramework.getGuiSounds().playSuccessSound(p);
+                                p.openInventory(new CrateRewardsGui(crate, sender, plugin).getGui().getInventory());
+                            }
+                        });
                     }
                     else if(slot == 49) {
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);

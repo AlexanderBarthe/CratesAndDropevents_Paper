@@ -2,22 +2,16 @@ package dev.upscairs.cratesAndDropevents;
 
 import dev.upscairs.cratesAndDropevents.cad_command.CaDCommand;
 import dev.upscairs.cratesAndDropevents.crates.commands.CratesCommand;
-import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.crates.management.CratePlaceHandler;
-import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
-import dev.upscairs.cratesAndDropevents.db.daos.CrateDao;
 import dev.upscairs.cratesAndDropevents.db.DatabaseManager;
 import dev.upscairs.cratesAndDropevents.db.services.DbServices;
-import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.dropevents.commands.DropeventCommand;
 import dev.upscairs.cratesAndDropevents.dropevents.management.DropeventItemHandler;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.helper.EventDragonDropPreventListener;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -42,7 +36,6 @@ public final class CratesAndDropevents extends JavaPlugin {
         registerConfigs();
 
         initDb();
-        ConfigurationSerialization.registerClass(Dropevent.class, "Dropevent");
 
         //CrateStorage.init(this);
         DropeventStorage.init(this);

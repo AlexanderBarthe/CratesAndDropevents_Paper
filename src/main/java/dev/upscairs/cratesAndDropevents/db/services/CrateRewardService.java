@@ -1,8 +1,8 @@
 package dev.upscairs.cratesAndDropevents.db.services;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
 import dev.upscairs.cratesAndDropevents.db.daos.RewardDao;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
 import java.util.Map;
@@ -13,13 +13,13 @@ public class CrateRewardService {
 
     private final PlayerPityService playerPityService;
     private final RewardDao dao;
-    private final JavaPlugin plugin;
+    private final CratesAndDropevents plugin;
 
     private final Map<Integer, CrateReward> rewardCache = new ConcurrentHashMap<>();
 
     private static final long CACHE_REFRESH_DELAY = 20L * 60 * 5;
 
-    public CrateRewardService(PlayerPityService playerPityService, RewardDao rewardDao, JavaPlugin plugin) {
+    public CrateRewardService(PlayerPityService playerPityService, RewardDao rewardDao, CratesAndDropevents plugin) {
         this.playerPityService = playerPityService;
         this.dao = rewardDao;
         this.plugin = plugin;
@@ -61,6 +61,15 @@ public class CrateRewardService {
         dao.saveRewardAsync(reward, callback);
     }
 
+    public void cloneRewardsOfCrate(int crateId, int newCrateId) {
+        List<CrateReward> rewards = getRewardsForCrate(crateId);
+        rewards.forEach(reward -> {
+            CrateReward clone = reward.clone();
+            clone.setCrateId(newCrateId);
+            createReward(clone);
+        });
+    }
+
     public void updateReward(CrateReward reward) {
         dao.saveRewardAsync(reward, null);
         rewardCache.put(reward.getId(), reward);
@@ -93,7 +102,7 @@ public class CrateRewardService {
             rewardCache.clear();
             rewards.forEach(reward -> rewardCache.put(reward.getId(), reward));
         };
-        dao.getAllRewardsAsync(consumer);
+        dao.getAllAsync(consumer);
     }
 
 

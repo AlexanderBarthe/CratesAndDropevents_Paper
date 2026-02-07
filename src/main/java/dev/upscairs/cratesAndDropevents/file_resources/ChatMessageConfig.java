@@ -28,9 +28,6 @@ public class ChatMessageConfig {
     private void setupDefaults() {
 
         defaultMessages.put("crate.error.non-skull-item-selected", "<dark_red>You have to select a skull item!<reset>");
-        defaultMessages.put("crate.error.name-not-found", "<dark_red>Crate not found!<reset>");
-        defaultMessages.put("crate.error.already-exists", "<dark_red>A crate with that name already exists!<reset>");
-        defaultMessages.put("crate.error.missing-name", "<dark_red>You must specify a name.<reset>");
         defaultMessages.put("crate.error.missing-url", "<dark_red>You must specify a url.<reset>");
         defaultMessages.put("crate.error.missing-player", "<dark_red>You must specify a player.<reset>");
         defaultMessages.put("crate.error.player-not-found", "<dark_red>Player not found.<reset>");
@@ -43,9 +40,8 @@ public class ChatMessageConfig {
         defaultMessages.put("crate.success.deleted",  "<green>Crate has been deleted.<reset>");
         defaultMessages.put("crate.success.cloned",  "<green>Crate has been cloned.<reset>");
 
-        defaultMessages.put("crate.info.type-name", "<dark_aqua>Type name of new crate. It has to be unique. Use /cad cancel or the button to cancel<reset>");
         defaultMessages.put("crate.info.type-folder", "<dark_aqua>Type name of the folder. It can be a new folder name. Use '/' to separate subfolders. Type '.' to target the root folder. Use /cad cancel or the button to cancel<reset>");
-        defaultMessages.put("crate.info.type-display-name", "<dark_aqua>Type new display name. Use /cad cancel or the button to cancel<reset>");
+        defaultMessages.put("crate.info.type-display-name", "<dark_aqua>Type new name. Use /cad cancel or the button to cancel<reset>");
         defaultMessages.put("crate.info.type-url", "<dark_aqua>Type URL of the skull (Format: http://textures.minecraft.net/texture/someLongCode). Use /cad cancel or the button to cancel<reset>");
         defaultMessages.put("crate.info.type-sound", "<dark_aqua>Type the path of the desired sound. If you want a different volume or pitch then 1, use the format <white><path> <volume> <pitch> (seperated by spaces. Use /cad cancel or the button to cancel<reset>");
         defaultMessages.put("crate.info.type-command", "<dark_aqua>Type the desired command without <white>/<dark_aqua>. Use /cad cancel or the button to cancel<reset>");
@@ -73,17 +69,14 @@ public class ChatMessageConfig {
         defaultMessages.put("dropevent.error.simultaneous-limit", "<dark_red>There are too many active events right now.<reset>");
         defaultMessages.put("dropevent.error.ownable", "<dark_red>You don't have the permission to start an event.<reset>");
         defaultMessages.put("dropevent.error.player-amount", "<dark_red>There must be at least %p players online to start an event.<reset>");
-        defaultMessages.put("dropevent.error.missing-name", "<dark_red>You must specify a name.<reset>");
-        defaultMessages.put("dropevent.error.name-not-found", "<dark_red>There is no event with that name.<reset>");
-        defaultMessages.put("dropevent.error.name-already-exists", "<dark_red>There is already an event with that name.<reset>");
-        defaultMessages.put("dropevent.error.name-no-spaces", "<dark_red>The name must not contain spaces.<reset>");
         defaultMessages.put("dropevent.error.setting-update-failed", "<dark_red>Failed to update setting.<reset>");
         defaultMessages.put("dropevent.error.use-no-perm", "<dark_red>You don't have permission to use this event.<reset>");
         defaultMessages.put("dropevent.error.forbidden-world", "<dark_red>You are not allowed to start an event in this world.<reset>");
         defaultMessages.put("dropevent.error.hopper", "<dark_red>You can't start a dropevent where hoppers could collect items.<reset>");
+        defaultMessages.put("dropevent.error.invalid-id", "<dark_red>There is no dropevent with this id.<reset>");
+        defaultMessages.put("dropevent.error.missing-id", "<dark_red>You need to specify an id.<reset>");
 
         defaultMessages.put("dropevent.info.sneak-for-use", "<dark_aqua>Sneak + right click to use this item.");
-        defaultMessages.put("dropevent.info.type-name", "<dark_aqua>Type name of new dropevent. It has to be unique. Use /cad cancel or the button to cancel<reset>");
         defaultMessages.put("dropevent.info.type-command", "<dark_aqua>Type the desired command without <white>/<dark_aqua>. Type <white>.<dark_aqua> to clear the command. Use /cad cancel or the button to cancel<reset>");
         defaultMessages.put("dropevent.info.type-folder", "<dark_aqua>Type name of the folder. It can be a new folder name. Use '/' to separate subfolders. Type '.' to target the root folder. Use /cad cancel or the button to cancel<reset>");
 
@@ -95,6 +88,7 @@ public class ChatMessageConfig {
         defaultMessages.put("system.command.error.not-found", "<dark_red>Command not found<reset>");
         defaultMessages.put("system.command.error.not-enough-arguments", "<dark_red>Not enough arguments.<reset>");
         defaultMessages.put("system.command.error.missing-id", "<dark_red>You need to specify an id.<reset>");
+        defaultMessages.put("system.command.error.no-permission", "<dark_red>You don't have permission to execute this command.<reset>");
     }
 
     public void load() {

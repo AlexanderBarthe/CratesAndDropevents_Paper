@@ -29,7 +29,6 @@ public class CancelSubCommand implements SubCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(!isSenderPermitted(sender)) return true;
         ChatMessageInputHandler.removeListener(sender);
         sender.sendMessage(plugin.getChatMessageConfig().getColored("system.info.type-canceled"));
         return true;

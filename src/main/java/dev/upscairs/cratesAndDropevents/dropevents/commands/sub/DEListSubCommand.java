@@ -31,10 +31,9 @@ public class DEListSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
 
-        if(!isSenderPermitted(sender)) return true;
         if(!(sender instanceof Player p)) return true;
 
-        DropeventListGui dropeventListGui = new DropeventListGui("", sender, plugin);
+        DropeventListGui dropeventListGui = new DropeventListGui("", 0, sender, plugin);
         p.openInventory(dropeventListGui.getGui().getInventory());
         return true;
     }

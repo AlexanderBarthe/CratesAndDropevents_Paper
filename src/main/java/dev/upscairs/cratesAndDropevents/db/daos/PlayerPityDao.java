@@ -81,7 +81,7 @@ public class PlayerPityDao extends Dao {
         });
     }
 
-    public void getAllPityEntriesAsync(Consumer<List<Tuple<Integer, String>>> callback) {
+    public void getAllAsync(Consumer<List<Tuple<Integer, String>>> callback) {
 
         getPlugin().getServer().getScheduler().runTaskAsynchronously(getPlugin(), () -> {
             final String sql = "SELECT reward_id, player_uuid FROM player_pity";

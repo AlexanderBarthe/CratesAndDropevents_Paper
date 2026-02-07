@@ -4,7 +4,6 @@ import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -57,15 +56,7 @@ public class CrGiveSubCommand implements SubCommand {
             return true;
         }
 
-        int id;
-        try {
-            id = Integer.parseInt(args[2]);
-        } catch (NumberFormatException e) {
-            sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));
-            return true;
-        }
-
-        Crate crate = crateService.getCrateById(id);
+        Crate crate = crateService.getCrateById(args[2]);
 
         if(crate == null) {
             sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));

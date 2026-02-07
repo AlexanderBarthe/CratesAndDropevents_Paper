@@ -57,7 +57,10 @@ public class CaDCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(messageConfig.getColored("system.command.error.not-found"));
             return true;
         }
-
+        if(!handler.isSenderPermitted(sender)) {
+            sender.sendMessage(messageConfig.getColored("system.command.error.no-permission"));
+            return true;
+        }
         return handler.execute(sender, args);
 
     }

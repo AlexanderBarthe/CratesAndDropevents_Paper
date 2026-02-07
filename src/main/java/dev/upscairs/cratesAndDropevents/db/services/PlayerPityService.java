@@ -80,6 +80,6 @@ public class PlayerPityService {
             pitiedPlayerCache.addAll(newSet);
 
         };
-        dao.getAllPityEntriesAsync(consumer);
+        dao.getAllAsync(consumer);
     }
 }

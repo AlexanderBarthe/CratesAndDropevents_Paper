@@ -1,9 +1,9 @@
 package dev.upscairs.cratesAndDropevents.db.services;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.db.daos.CrateDao;
 import dev.upscairs.cratesAndDropevents.helper.FolderizableElement;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,13 +17,13 @@ public class CrateService {
 
     private final CrateRewardService rewardService;
     private final CrateDao dao;
-    private final JavaPlugin plugin;
+    private final CratesAndDropevents plugin;
 
     private final Map<Integer, Crate> crateCache = new ConcurrentHashMap<>();
 
     private static final long CACHE_REFRESH_DELAY = 20L * 60 * 5;
 
-    public CrateService(CrateRewardService rewardService, CrateDao rewardDao, JavaPlugin plugin) {
+    public CrateService(CrateRewardService rewardService, CrateDao rewardDao, CratesAndDropevents plugin) {
         this.rewardService = rewardService;
         this.dao = rewardDao;
         this.plugin = plugin;
@@ -36,6 +36,14 @@ public class CrateService {
 
     public Crate getCrateById(int id) {
         return crateCache.get(id);
+    }
+
+    public Crate getCrateById(String idString) {
+        try {
+            return getCrateById(Integer.parseInt(idString));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     public List<Crate> getAllCrates() {
@@ -99,6 +107,18 @@ public class CrateService {
         rewardService.deleteRewardsOfCrate(id);
     }
 
+    public boolean deleteById(String idString) {
+        try {
+            boolean existing = existsById(Integer.parseInt(idString));
+            if(!existing) return false;
+
+            deleteCrateById(Integer.parseInt(idString));
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
 
     private void startAutoRefresh(long intervalTicks) {
         plugin.getServer().getScheduler().runTaskTimerAsynchronously(
@@ -112,7 +132,7 @@ public class CrateService {
             crateCache.clear();
             crates.forEach(crate -> crateCache.put(crate.getId(), crate));
         };
-        dao.getAllCratesAsync(consumer);
+        dao.getAllAsync(consumer);
     }
 
 }

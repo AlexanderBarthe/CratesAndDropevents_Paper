@@ -4,8 +4,6 @@ import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
-import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.helper.GuiFolder;
 import dev.upscairs.cratesAndDropevents.helper.GuiItemTemplate;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
@@ -15,15 +13,9 @@ import dev.upscairs.mcGuiFramework.functionality.PreventCloseGui;
 import dev.upscairs.mcGuiFramework.gui_wrappers.InteractableGui;
 import dev.upscairs.mcGuiFramework.gui_wrappers.PageGui;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,19 +31,21 @@ public class CrateListGui {
     private final PageGui gui;
 
     private final String folder;
+    private final int page;
 
-    public CrateListGui(String folder, CommandSender sender, CratesAndDropevents plugin) {
+    public CrateListGui(String folder, int page, CommandSender sender, CratesAndDropevents plugin) {
 
         this.plugin = plugin;
         this.messageConfig = plugin.getChatMessageConfig();
         this.crateService = plugin.getDbServices().getCrateService();
 
         this.folder = folder;
+        this.page = page;
 
         listedObjects.addAll(crateService.getSubfolders(folder).stream().map(f -> new GuiFolder(f, Crate.class, plugin)).toList());
         listedObjects.addAll(crateService.getCratesInFolder(folder));
 
-        gui = new PageGui(new InteractableGui(new ItemDisplayGui()), listedObjects, 0);
+        gui = new PageGui(new InteractableGui(new ItemDisplayGui()), listedObjects, page);
         configureClickReaction();
 
         this.sender = sender;
@@ -83,7 +77,7 @@ public class CrateListGui {
                 if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
 
                 if(listedObjects.get(selectedIndex) instanceof GuiFolder f) {
-                    return new CrateListGui(f.getFolder(), sender, plugin).getGui();
+                    return new CrateListGui(f.getFolder(), 0, sender, plugin).getGui();
                 }
                 else if (listedObjects.get(selectedIndex) instanceof Crate c) {
                     Bukkit.dispatchCommand(sender, "crates info " + c.getId());
@@ -98,16 +92,16 @@ public class CrateListGui {
                 if(folder.isEmpty()) return new PreventCloseGui();
 
                 if(sender instanceof Player p)  McGuiFramework.getGuiSounds().playClickSound(p);
-                return new CrateListGui(folder.substring(0, folder.lastIndexOf("/")), sender, plugin).getGui();
+                return new CrateListGui(folder.substring(0, folder.lastIndexOf("/")), page, sender, plugin).getGui();
 
             }
             else if (slot == 48) {
 
-                Crate crate = new Crate("NewCrate", folder);
+                Crate crate = new Crate("Crate", folder);
                 crateService.createCrate(crate, created -> {
                     if(sender instanceof Player p) {
                         McGuiFramework.getGuiSounds().playClickSound(p);
-                        p.openInventory(new CrateListGui(folder, sender, plugin).getGui().getInventory());
+                        p.openInventory(new CrateListGui(folder, gui.getPage(), sender, plugin).getGui().getInventory());
                     }
                 });
 

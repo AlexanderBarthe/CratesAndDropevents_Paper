@@ -30,7 +30,6 @@ public class DEStopAllSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
 
-        if(!isSenderPermitted(sender)) return true;
 
         ChatMessageConfig messageConfig = plugin.getChatMessageConfig();
 

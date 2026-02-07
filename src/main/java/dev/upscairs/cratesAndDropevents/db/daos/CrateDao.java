@@ -6,8 +6,14 @@ import dev.upscairs.cratesAndDropevents.db.Serializer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -22,7 +28,6 @@ public class CrateDao extends Dao {
         final String sql = """
             CREATE TABLE IF NOT EXISTS crates (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
-              name TEXT NOT NULL,
               crate_item TEXT,
               pity_system INTEGER NOT NULL DEFAULT 0,
               folder TEXT NOT NULL DEFAULT '',
@@ -40,18 +45,17 @@ public class CrateDao extends Dao {
 
         final String sql = isInsert
                 ? """
-              INSERT INTO crates (name, crate_item, pity_system, folder, created_at, updated_at)
-              VALUES (?, ?, ?, ?, ?, ?)
+              INSERT INTO crates (crate_item, pity_system, folder, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?)
               """
                 : """
               UPDATE crates
-              SET name = ?, crate_item = ?, pity_system = ?, folder = ?, updated_at = ?
+              SET crate_item = ?, pity_system = ?, folder = ?, updated_at = ?
               WHERE id = ?
               """;
 
         final Object[] params = isInsert
                 ? new Object[] {
-                crate.getName(),
                 Serializer.itemStackToJson(crate.getCrateItem()),
                 crate.pitySystemActive(),
                 crate.getFolder(),
@@ -59,7 +63,6 @@ public class CrateDao extends Dao {
                 now
         }
                 : new Object[] {
-                crate.getName(),
                 Serializer.itemStackToJson(crate.getCrateItem()),
                 crate.pitySystemActive(),
                 crate.getFolder(),
@@ -137,7 +140,7 @@ public class CrateDao extends Dao {
 
     }
 
-    public void getAllCratesAsync(Consumer<List<Crate>> callback) {
+    public void getAllAsync(Consumer<List<Crate>> callback) {
         getPlugin().getServer().getScheduler().runTaskAsynchronously(getPlugin(), () -> {
             List<Crate> crates = getAllCrates();
             getPlugin().getServer().getScheduler().runTask(getPlugin(), () -> callback.accept(crates));
@@ -154,11 +157,10 @@ public class CrateDao extends Dao {
 
     private Crate mapCrate(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
-        String name = rs.getString("name");
         ItemStack crateItem = Serializer.jsonToItemStack(rs.getString("crate_item"));
         boolean pitySystem = rs.getBoolean("pity_system");
         String folder = rs.getString("folder");
 
-        return new Crate(id, name, folder, crateItem, pitySystem);
+        return new Crate(id, folder, crateItem, pitySystem);
     }
 }

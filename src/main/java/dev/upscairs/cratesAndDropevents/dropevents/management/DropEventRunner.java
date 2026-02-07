@@ -1,6 +1,8 @@
 package dev.upscairs.cratesAndDropevents.dropevents.management;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.db.services.DropService;
+import dev.upscairs.cratesAndDropevents.dropevents.Drop;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.BossbarCountdown;
@@ -33,7 +35,8 @@ public class DropEventRunner {
 
     private String locationName = "";
 
-    private Plugin plugin;
+    private CratesAndDropevents plugin;
+    private DropService dropService;
     private ChatMessageConfig chatMessageConfig;
     private Random random = new Random();
 
@@ -42,11 +45,12 @@ public class DropEventRunner {
 
     private static final int COUNTDOWN_FIREWORK_INTERVAL = 8;
 
-    public DropEventRunner(Dropevent dropevent, Player hostingPlayer, Plugin plugin) {
+    public DropEventRunner(Dropevent dropevent, Player hostingPlayer, CratesAndDropevents plugin) {
         this.dropevent = dropevent.clone();
         this.centerLocation = hostingPlayer.getLocation().clone();
         this.hostingPlayer = hostingPlayer;
         this.plugin = plugin;
+        this.dropService = plugin.getDbServices().getDropService();
         this.chatMessageConfig = ((CratesAndDropevents) plugin).getChatMessageConfig();
     }
 
@@ -293,7 +297,7 @@ public class DropEventRunner {
         dropLoc.setY(highestY + 23);
 
         //Item drop
-        ItemStack dropItem = selectRandomItem(dropevent.getDrops());
+        ItemStack dropItem = selectRandomItem(dropService.getDropsForDropevent(dropevent.getId()));
         world.dropItemNaturally(dropLoc, dropItem);
 
         //Firework explosion
@@ -309,23 +313,18 @@ public class DropEventRunner {
      * @param drops Drops and there chance in promille.
      * @return
      */
-    private ItemStack selectRandomItem(Map<ItemStack, Integer> drops) {
+    private ItemStack selectRandomItem(List<Drop> drops) {
         if (drops == null || drops.isEmpty()) {
             return new ItemStack(Material.AIR);
-        }
-
-        int totalChance = 0;
-        for (int chance : drops.values()) {
-            totalChance += chance;
         }
 
         int random = (int) (Math.random() * 1000);
 
         int cumulative = 0;
-        for (Map.Entry<ItemStack, Integer> entry : drops.entrySet()) {
-            cumulative += entry.getValue();
+        for (Drop drop : drops) {
+            cumulative += drop.getProbability();
             if (random < cumulative) {
-                return entry.getKey().clone();
+                return drop.getItem().clone();
             }
         }
 
@@ -344,7 +343,7 @@ public class DropEventRunner {
                         + ", " + centerLocation.getBlockZ())
                 .replace("%t", String.valueOf(dropevent.getCountdownSec()))
                 .replace("%w", centerLocation.getWorld().getName())
-                .replace("%n", dropevent.getName())
+                .replace("%n", dropevent.getNameRaw())
                 .replace("%l", locationName.isEmpty() ? "" : locationName)
                 .replace("%h", hostingPlayer.getName());
 

@@ -1,19 +1,11 @@
 package dev.upscairs.cratesAndDropevents.file_resources;
 
-import dev.upscairs.cratesAndDropevents.crates.management.Crate;
-import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
-import dev.upscairs.cratesAndDropevents.helper.FolderizableElement;
-import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class DropeventStorage {
 
@@ -38,17 +30,13 @@ public abstract class DropeventStorage {
                 createSample = true;
             } catch (IOException ignored) {}
         }
-        config = YamlConfiguration.loadConfiguration(file);
+        //config = YamlConfiguration.loadConfiguration(file);
         //if(createSample) saveDropevent(createExampleCrate());
     }
 
+
     /**
-     *
-     * Saves a dropevent to the config file. If the dropevent already exists, it will be overwritten.
-     * The name of the dropevent will be used as the key in the config file.
-     *
-     * @param dropevent
-     */
+
     public static void saveDropevent(Dropevent dropevent) {
         config.set("events." + dropevent.getName(), dropevent);
         saveFile();
@@ -56,10 +44,6 @@ public abstract class DropeventStorage {
 
     /**
      *
-     * Deletes a dropevent from the file.
-     *
-     * @param dropevent
-     */
     public static void removeDropevent(Dropevent dropevent) {
         config.set("events." + dropevent.getName(), null);
         saveFile();
@@ -67,10 +51,6 @@ public abstract class DropeventStorage {
 
     /**
      *
-     * Returns a list of all dropevent names in the config file. Suprise!
-     *
-     * @return
-     */
     public static List<String> getDropeventNames() {
         ConfigurationSection section = config.getConfigurationSection("events");
         List<String> keys = new ArrayList<>();
@@ -83,10 +63,6 @@ public abstract class DropeventStorage {
 
     /**
      *
-     * Returns a list of all dropevents in the config file.
-     *
-     * @return
-     */
     public static List<Dropevent> getAll() {
         List<Dropevent> list = new ArrayList<>();
 
@@ -107,12 +83,7 @@ public abstract class DropeventStorage {
     }
 
     /**
-     *
-     * Looks up a dropevent by its name in the config file. Returns null if the dropevent does not exist.
-     *
-     * @param name
-     * @return
-     */
+
     public static Dropevent getDropeventByName(String name) {
         if (config.contains("events." + name)) {
             Object obj = config.get("events." + name);

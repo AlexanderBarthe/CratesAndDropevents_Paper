@@ -33,7 +33,7 @@ public class VersionSubCommand implements SubCommand {
 
     @Override
     public boolean isSenderPermitted(CommandSender sender) {
-        return sender.isOp();
+        return true;
     }
 
     @Override

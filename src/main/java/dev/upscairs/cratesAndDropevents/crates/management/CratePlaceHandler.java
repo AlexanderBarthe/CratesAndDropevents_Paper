@@ -2,7 +2,6 @@ package dev.upscairs.cratesAndDropevents.crates.management;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.db.services.CrateService;
-import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -43,7 +42,6 @@ public class CratePlaceHandler implements Listener {
         Integer crateIdObj = meta.getPersistentDataContainer().get(Crate.CRATE_KEY, PersistentDataType.INTEGER);
         if (crateIdObj == null) return;
         int crateId = crateIdObj;
-        System.out.println(crateId);
 
         Crate crate = crateService.getCrateById(crateId);
         if(crate == null) return;

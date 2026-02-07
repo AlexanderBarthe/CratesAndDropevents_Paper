@@ -2,6 +2,7 @@ package dev.upscairs.cratesAndDropevents.dropevents.management;
 
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.db.services.DropeventService;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
 import org.bukkit.Material;
@@ -11,14 +12,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 public class DropeventItemHandler implements Listener {
 
     private final CratesAndDropevents plugin;
+    private final DropeventService dropeventService;
 
     public DropeventItemHandler(CratesAndDropevents plugin) {
         this.plugin = plugin;
+        this.dropeventService = plugin.getDbServices().getDropeventService();
     }
 
     @EventHandler
@@ -58,8 +62,15 @@ public class DropeventItemHandler implements Listener {
             return;
         }
 
-        String eventName = usedItem.getItemMeta().getPersistentDataContainer().get(Dropevent.EVENT_KEY, PersistentDataType.STRING);
-        Dropevent dropevent = DropeventStorage.getDropeventByName(eventName);
+        if (usedItem == null || !usedItem.hasItemMeta()) return;
+        ItemMeta meta = usedItem.getItemMeta();
+
+        if (meta == null) return;
+        Integer dropeventIdObj = usedItem.getItemMeta().getPersistentDataContainer().get(Dropevent.EVENT_KEY, PersistentDataType.INTEGER);
+        if(dropeventIdObj == null) return;
+        int dropeventId = dropeventIdObj;
+
+        Dropevent dropevent = dropeventService.getById(dropeventId);
 
         if(dropevent == null) {
             player.sendMessage(plugin.getChatMessageConfig().getColored("dropevent.error.use-no-perm"));

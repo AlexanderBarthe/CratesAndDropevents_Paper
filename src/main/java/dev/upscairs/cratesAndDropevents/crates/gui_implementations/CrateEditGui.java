@@ -2,6 +2,7 @@ package dev.upscairs.cratesAndDropevents.crates.gui_implementations;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
+import dev.upscairs.cratesAndDropevents.db.services.CrateRewardService;
 import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
@@ -34,6 +35,7 @@ public class CrateEditGui {
     private final CratesAndDropevents plugin;
     private final ChatMessageConfig messageConfig;
     private final CrateService crateService;
+    private final CrateRewardService rewardService;
 
     private final boolean crateItemSelection;
 
@@ -51,8 +53,9 @@ public class CrateEditGui {
         this.plugin = plugin;
         this.messageConfig = plugin.getChatMessageConfig();
         this.crateService = plugin.getDbServices().getCrateService();
+        this.rewardService = plugin.getDbServices().getCrateRewardService();
 
-        gui.setTitle("Edit " + crate.getName());
+        gui.setTitle("Edit " + crate.getNameRaw());
         gui.setSize(54);
 
         placeItems();
@@ -89,7 +92,7 @@ public class CrateEditGui {
 
         ItemStack displayNameItem = new ItemStack(Material.NAME_TAG);
         meta = displayNameItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Edit item display name", "#AAAAAA"));
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Edit name", "#AAAAAA"));
         displayNameItem.setItemMeta(meta);
         gui.setItem(29, displayNameItem);
 
@@ -110,7 +113,7 @@ public class CrateEditGui {
             crateItem.setItemMeta(meta);
         }
         else {
-            crateItem = crate.getRenderItem().clone();
+            crateItem = new ItemStack(crate.getRenderItem().getType());
             meta = crateItem.getItemMeta();
             meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Click to configure crate item", "#AA00AA"));
             crateItem.setItemMeta(meta);
@@ -176,33 +179,28 @@ public class CrateEditGui {
                         return null;
                     case 24:
                         // Clone crate
-                        sender.sendMessage(messageConfig.getColored("crate.info.type-name").append(cancelComponent));
 
-                        ChatMessageInputHandler.addListener(sender, (msg) -> {
-                            if (sender instanceof Player p) {
-                                Bukkit.getScheduler().runTask(plugin, () -> {
-                                    Bukkit.dispatchCommand(sender, "crates clone " + crate.getId() + " " + msg);
-                                    p.openInventory(new CrateListGui(crate.getFolder(), sender, plugin).getGui().getInventory());
-                                });
+                        Crate clone = crate.clone();
+
+                        crateService.createCrate(clone, created -> {
+                            if(sender instanceof Player p) {
+                                McGuiFramework.getGuiSounds().playClickSound(p);
+                                p.openInventory(new CrateListGui(crate.getFolder(), 0, sender, plugin).getGui().getInventory());
+
+                                rewardService.cloneRewardsOfCrate(crate.getId(), created.getId());
                             }
                         });
 
-
-                        if(sender instanceof Player p) p.closeInventory();
-                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        return null;
+                        return gui;
                     case 29:
-                        // Update display name
+                        // Update name
                         sender.sendMessage(messageConfig.getColored("crate.info.type-display-name").append(cancelComponent));
 
                         ChatMessageInputHandler.addListener(sender, (msg) -> {
                             if (sender instanceof Player p) {
 
-                                ItemStack crateItem = crate.getCrateItem();
-                                ItemMeta meta = crateItem.getItemMeta();
-                                meta.displayName(MiniMessage.miniMessage().deserialize(msg));
-                                crateItem.setItemMeta(meta);
-                                crate.setCrateItem(crateItem);
+                                crate.setName(msg);
+                                crateService.updateCrate(crate);
 
                                 Bukkit.getScheduler().runTask(plugin, () -> {
                                     p.openInventory(new CrateEditGui(crate, false, sender, plugin).getGui().getInventory());
@@ -225,7 +223,7 @@ public class CrateEditGui {
                         return new CrateEditGui(crate, false, sender, plugin).getGui();
                     case 46:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        return new CrateListGui(crate.getFolder(), sender, plugin).getGui();
+                        return new CrateListGui(crate.getFolder(), 0, sender, plugin).getGui();
                     case 53:
 
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
@@ -236,7 +234,7 @@ public class CrateEditGui {
                                 () -> {
                             Bukkit.dispatchCommand(sender, "crates delete " + crate.getId());
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
-                            return new CrateListGui(crate.getFolder(), sender, plugin).getGui();
+                            return new CrateListGui(crate.getFolder(), 0, sender, plugin).getGui();
                         }, () -> {
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                             return self;

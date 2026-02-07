@@ -6,6 +6,10 @@ import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
 import dev.upscairs.cratesAndDropevents.helper.FolderizableElement;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
+import io.papermc.paper.datacomponent.item.ItemLore;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -20,13 +24,15 @@ import org.bukkit.profile.PlayerTextures;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @SerializableAs("Crate")
 public class Crate extends FolderizableElement implements ListableGuiObject {
 
     private int id;
-    private String name;
     private ItemStack crateItem;
     private boolean pitySystemActive;
 
@@ -34,7 +40,6 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
 
     public Crate(String name, String folder) {
         super(folder);
-        this.name = name;
         this.pitySystemActive = false;
 
         crateItem = new ItemStack(InvGuiUtils.generateCustomUrlHeadStack("http://textures.minecraft.net/texture/f1327353e2f6364b437f1e6c4a7e9764ea95e27deec0031eec1142df2f949b3"));
@@ -45,32 +50,26 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
 
     }
 
-    public Crate(int id, String name, String folder, ItemStack crateItem, boolean pitySystem) {
-        this(name, folder, crateItem, pitySystem);
+    public Crate(int id, String folder, ItemStack crateItem, boolean pitySystem) {
+        this(folder, crateItem, pitySystem);
         this.id = id;
     }
     
-    public Crate(String name, String folder, ItemStack crateItem, boolean pitySystem) {
+    public Crate(String folder, ItemStack crateItem, boolean pitySystem) {
 
         super(folder);
 
-        this.name = name;
         this.pitySystemActive = pitySystem;
 
         crateItem.setAmount(1);
         if(crateItem.getType() != Material.PLAYER_HEAD) crateItem.setType(Material.PLAYER_HEAD);
 
-        /*
-        ItemMeta meta = crateItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent(name, "#FFAA00"));
-        crateItem.setItemMeta(meta);*/
         this.crateItem = crateItem;
 
     }
 
     public Crate(ItemStack crateItem) {
         this.crateItem = crateItem;
-        this.name = crateItem.getItemMeta().getDisplayName();
     }
 
     public ItemStack getCrateItem() {
@@ -82,30 +81,11 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
         return item;
     }
 
-    public void setName(String name) {
-        this.name = name;
-
-        /*
-        ItemMeta meta = crateItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent(name, "#FFAA00"));
-        crateItem.setItemMeta(meta);
-        */
-    }
-
     public void setCrateItem(ItemStack crateItem) {
 
-        if(crateItem.getType() != Material.PLAYER_HEAD) {
-            return;
-        }
+        if(crateItem.getType() != Material.PLAYER_HEAD) return;
 
         crateItem.setAmount(1);
-
-
-
-        /*
-        ItemMeta meta = crateItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent(name, "#FFAA00"));
-        crateItem.setItemMeta(meta);*/
 
         this.crateItem = crateItem;
     }
@@ -119,7 +99,7 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
         try {
             textures.setSkin(new URL(url));
         } catch (MalformedURLException ex) {
-            Bukkit.getLogger().warning("Head Database seems to be down");
+            Bukkit.getLogger().warning("URL is invalid or the head database is down.");
             return false;
         }
 
@@ -137,13 +117,9 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
         return pitySystemActive;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public Crate clone() {
 
-        return new Crate(this.name, getFolder(), this.crateItem.clone(), pitySystemActive);
+        return new Crate(getFolder(), this.crateItem.clone(), pitySystemActive);
     }
 
     public static Crate deserialize(Map<String, Object> map) {
@@ -160,7 +136,7 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
         String folder = (String) map.get("folder");
         if(folder == null) folder = "";
 
-        Crate crate = new Crate(name, folder, crateItem, pitySystem);
+        Crate crate = new Crate(folder, crateItem, pitySystem);
 
         Object obj = map.get("rewards");
         if (obj instanceof List<?> list) {
@@ -188,7 +164,17 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
 
     @Override
     public ItemStack getRenderItem() {
-        return crateItem;
+        ItemStack renderItem = crateItem.clone();
+        ItemMeta meta = renderItem.getItemMeta();
+        List<Component> lore = meta.lore();
+        if(lore == null) lore = new ArrayList<>();
+        lore.add(InvGuiUtils.generateDefaultTextComponent("Id: " + id, "#555555"));
+        meta.lore(lore);
+        renderItem.setItemMeta(meta);
+
+        renderItem.setAmount(1);
+
+        return renderItem;
     }
 
     public void setRenderItem(ItemStack renderItem) {
@@ -203,4 +189,23 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
     public void setId(int id) {
         this.id = id;
     }
+
+    public Component getName() {
+        return crateItem.getItemMeta().displayName();
+    }
+
+    public String getNameRaw() {
+        return PlainTextComponentSerializer.plainText().serialize(getName());
+    }
+
+    public void setName(Component name) {
+        ItemMeta meta = crateItem.getItemMeta();
+        meta.displayName(name);
+        crateItem.setItemMeta(meta);
+    }
+
+    public void setName(String componentString) {
+        setName(MiniMessage.miniMessage().deserialize(componentString));
+    }
+
 }

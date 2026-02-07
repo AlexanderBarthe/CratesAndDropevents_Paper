@@ -5,7 +5,6 @@ import dev.upscairs.cratesAndDropevents.crates.gui_implementations.CrateLootpool
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.Material;
 import org.bukkit.command.Command;

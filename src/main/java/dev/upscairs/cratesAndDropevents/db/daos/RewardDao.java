@@ -4,7 +4,10 @@ import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
 import dev.upscairs.cratesAndDropevents.db.DatabaseManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -153,7 +156,7 @@ public class RewardDao extends Dao {
 
     }
 
-    public void getAllRewardsAsync(Consumer<List<CrateReward>> callback) {
+    public void getAllAsync(Consumer<List<CrateReward>> callback) {
         getPlugin().getServer().getScheduler().runTaskAsynchronously(getPlugin(), () -> {
             List<CrateReward> rewards = getAllRewards();
             getPlugin().getServer().getScheduler().runTask(getPlugin(), () -> callback.accept(rewards));

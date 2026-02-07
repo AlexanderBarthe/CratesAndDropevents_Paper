@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.Optional;
 import java.util.logging.Level;
 
-public class Dao {
+public abstract class Dao {
 
     private final JavaPlugin plugin;
     private final DatabaseManager db;

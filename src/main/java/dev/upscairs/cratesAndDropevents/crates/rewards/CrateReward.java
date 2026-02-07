@@ -3,7 +3,6 @@ package dev.upscairs.cratesAndDropevents.crates.rewards;
 import com.google.gson.*;
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.rewards.payouts.*;
-import dev.upscairs.cratesAndDropevents.db.Serializer;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import org.bukkit.Location;
@@ -14,7 +13,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -60,6 +61,14 @@ public class CrateReward implements ListableGuiObject {
         importSequenceFromString(rewardSequence);
     }
 
+    public CrateReward(int id, int crateId, int probability, List<CrateRewardEvent> sequence, Plugin plugin) {
+        this.id = id;
+        this.crateId = crateId;
+        this.probability = probability;
+        this.sequence = sequence;
+        this.plugin = plugin;
+    }
+
 
     public CompletableFuture<Void> execute(Player player, Location location) {
 
@@ -88,7 +97,7 @@ public class CrateReward implements ListableGuiObject {
         }
 
 
-        return new CrateReward(clonedSequence, plugin);
+        return new CrateReward(0, crateId, probability, clonedSequence, plugin);
     }
 
     public String sequenceToString() {

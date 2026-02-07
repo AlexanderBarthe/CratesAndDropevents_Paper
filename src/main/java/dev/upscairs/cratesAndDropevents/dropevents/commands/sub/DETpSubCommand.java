@@ -33,7 +33,6 @@ public class DETpSubCommand implements SubCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(!isSenderPermitted(sender)) return true;
 
         if(!(sender instanceof Player p)) return true;
 

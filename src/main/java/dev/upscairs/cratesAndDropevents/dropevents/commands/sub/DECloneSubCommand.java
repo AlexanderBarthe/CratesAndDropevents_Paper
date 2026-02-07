@@ -1,9 +1,9 @@
 package dev.upscairs.cratesAndDropevents.dropevents.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.db.services.DropeventService;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
 import org.bukkit.command.Command;
@@ -15,12 +15,13 @@ import java.util.List;
 
 public class DECloneSubCommand implements SubCommand {
 
-    private final CratesAndDropevents plugin;
+    private final ChatMessageConfig messageConfig;
+    private final DropeventService dropeventService;
 
     public DECloneSubCommand(CratesAndDropevents plugin) {
-        this.plugin = plugin;
+        this.messageConfig = plugin.getChatMessageConfig();
+        this.dropeventService = plugin.getDbServices().getDropeventService();
     }
-
 
     @Override
     public String name() {
@@ -35,33 +36,24 @@ public class DECloneSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
 
-        if(!isSenderPermitted(sender)) return true;
-
-        ChatMessageConfig messageConfig = plugin.getChatMessageConfig();
-
-        if(args.length <= 2) {
+        if(args.length < 2) {
             sender.sendMessage(messageConfig.getColored("system.command.error.missing-id"));
             return true;
         }
 
-        Dropevent originalDropevent = DropeventStorage.getDropeventByName(args[1]);
+
+        Dropevent originalDropevent = dropeventService.getById(args[1]);
 
         if(originalDropevent == null) {
-            sender.sendMessage(messageConfig.getColored("dropevent.error.name-not-found"));
+            sender.sendMessage(messageConfig.getColored("dropevent.error.invalid-id"));
             return true;
         }
 
-        if (DropeventStorage.getDropeventByName(args[2]) != null) {
-            if(sender instanceof Player p) McGuiFramework.getGuiSounds().playFailSound(p);
-            sender.sendMessage(messageConfig.getColored("dropevent.error.name-already-exists"));
-            return true;
-        }
+        Dropevent clonedDropevent = originalDropevent.clone();
 
-        Dropevent clonedCrate = originalDropevent.clone();
-        clonedCrate.setName(args[2]);
+        dropeventService.create(clonedDropevent);
 
-        DropeventStorage.saveDropevent(clonedCrate);
-
+        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
         sender.sendMessage(messageConfig.getColored("dropevent.success.cloned"));
 
         return true;
@@ -74,7 +66,6 @@ public class DECloneSubCommand implements SubCommand {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if(isSenderPermitted(sender) && args.length == 2) return DropeventStorage.getDropeventNames();
         return Collections.emptyList();
     }
 }

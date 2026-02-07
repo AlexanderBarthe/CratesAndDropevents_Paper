@@ -1,9 +1,9 @@
 package dev.upscairs.cratesAndDropevents.dropevents.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.db.services.DropeventService;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
 import org.bukkit.command.Command;
@@ -14,10 +14,12 @@ import java.util.List;
 
 public class DECreateSubCommand implements SubCommand {
 
-    private final CratesAndDropevents plugin;
+    private final ChatMessageConfig messageConfig;
+    private final DropeventService dropeventService;
 
     public DECreateSubCommand(CratesAndDropevents plugin) {
-        this.plugin = plugin;
+        this.messageConfig = plugin.getChatMessageConfig();
+        this.dropeventService = plugin.getDbServices().getDropeventService();
     }
 
     @Override
@@ -33,29 +35,18 @@ public class DECreateSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
 
-        if(!isSenderPermitted(sender)) return true;
-
-        ChatMessageConfig messageConfig = plugin.getChatMessageConfig();
-
-        if(args.length == 1) {
-            sender.sendMessage(messageConfig.getColored("dropevent.error.missing-name"));
-            return true;
-        }
-
-        String eventName = args[1];
-
-        if (DropeventStorage.getDropeventByName(eventName) != null) {
-            if(sender instanceof Player p) McGuiFramework.getGuiSounds().playFailSound(p);
-            sender.sendMessage(messageConfig.getColored("dropevent.error.name-already-exists"));
-            return true;
-        }
-
+        String eventName = "New Dropevent";
         String folder = "";
+
+        if(args.length >= 2) eventName = args[1];
         if(args.length >= 3) folder = args[2];
+
 
         Dropevent dropevent = new Dropevent(eventName, folder);
 
-        DropeventStorage.saveDropevent(dropevent);
+        dropeventService.create(dropevent);
+
+        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
         sender.sendMessage(messageConfig.getColored("dropevent.success.created"));
         return true;
     }

@@ -3,8 +3,8 @@ package dev.upscairs.cratesAndDropevents.helper;
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.db.services.CrateService;
+import dev.upscairs.cratesAndDropevents.db.services.DropeventService;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
-import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
@@ -19,6 +19,7 @@ import java.util.List;
 public class GuiFolder implements ListableGuiObject {
 
     private final CrateService crateService;
+    private final DropeventService dropeventService;
 
     private final String folder;
     private final Class<?> primaryListedObjectType;
@@ -27,6 +28,7 @@ public class GuiFolder implements ListableGuiObject {
         this.folder = folder;
         this.primaryListedObjectType = primaryListedObjectType;
         this.crateService = plugin.getDbServices().getCrateService();
+        this.dropeventService = plugin.getDbServices().getDropeventService();
     }
 
     @Override
@@ -48,8 +50,8 @@ public class GuiFolder implements ListableGuiObject {
         }
         else if(primaryListedObjectType == Dropevent.class) {
             elementCount = 0;
-            elementCount += DropeventStorage.getSubfolders(folder).size();
-            elementCount += DropeventStorage.getDropeventsInFolder(folder).size();
+            elementCount += dropeventService.getSubfolders(folder).size();
+            elementCount += dropeventService.getInFolder(folder).size();
         }
 
         if(elementCount != -1) {

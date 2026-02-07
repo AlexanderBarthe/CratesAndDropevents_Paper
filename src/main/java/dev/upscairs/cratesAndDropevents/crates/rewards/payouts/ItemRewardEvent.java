@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import dev.upscairs.cratesAndDropevents.db.Serializer;
 import dev.upscairs.cratesAndDropevents.helper.EditMode;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

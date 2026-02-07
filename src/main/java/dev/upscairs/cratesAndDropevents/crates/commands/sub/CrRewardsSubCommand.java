@@ -5,7 +5,6 @@ import dev.upscairs.cratesAndDropevents.crates.gui_implementations.CrateRewardsG
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -44,15 +43,7 @@ public class CrRewardsSubCommand implements SubCommand {
             sender.sendMessage(messageConfig.getColored("system.command.error.not-enough-arguments"));
         }
 
-        int id;
-        try {
-            id = Integer.parseInt(args[1]);
-        } catch (NumberFormatException e) {
-            sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));
-            return true;
-        }
-
-        Crate crate = crateService.getCrateById(id);
+        Crate crate = crateService.getCrateById(args[1]);
 
         if(crate == null) {
             sender.sendMessage(messageConfig.getColored("crate.error.invalid-id"));

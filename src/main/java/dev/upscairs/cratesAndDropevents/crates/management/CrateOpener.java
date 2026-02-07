@@ -4,14 +4,12 @@ import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
 import dev.upscairs.cratesAndDropevents.db.services.CrateRewardService;
 import dev.upscairs.cratesAndDropevents.db.services.PlayerPityService;
-import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 public class CrateOpener {

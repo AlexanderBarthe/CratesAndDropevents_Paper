@@ -1,24 +1,11 @@
 package dev.upscairs.cratesAndDropevents.file_resources;
 
-import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.crates.management.Crate;
-import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
-import dev.upscairs.cratesAndDropevents.crates.rewards.payouts.*;
-import dev.upscairs.cratesAndDropevents.helper.FolderizableElement;
-import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public abstract class CrateStorage {
 

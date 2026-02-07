@@ -1,9 +1,9 @@
 package dev.upscairs.cratesAndDropevents.dropevents.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.db.services.DropeventService;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import net.kyori.adventure.text.Component;
@@ -22,9 +22,13 @@ import java.util.stream.Collectors;
 
 public class DEGiveSubCommand implements SubCommand {
 
+    private final ChatMessageConfig messageConfig;
+    private final DropeventService dropeventService;
     private final CratesAndDropevents plugin;
 
     public DEGiveSubCommand(CratesAndDropevents plugin) {
+        this.messageConfig = plugin.getChatMessageConfig();
+        this.dropeventService = plugin.getDbServices().getDropeventService();
         this.plugin = plugin;
     }
 
@@ -41,10 +45,6 @@ public class DEGiveSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
 
-        if(!isSenderPermitted(sender)) return true;
-
-        ChatMessageConfig messageConfig = plugin.getChatMessageConfig();
-
         //Retrieve and check arguments
         Player target = plugin.getServer().getPlayer(args[1]);
         if(target == null) {
@@ -53,9 +53,9 @@ public class DEGiveSubCommand implements SubCommand {
         }
 
 
-        Dropevent dropevent = DropeventStorage.getDropeventByName(args[2]);
+        Dropevent dropevent = dropeventService.getById(args[2]);
         if(dropevent == null) {
-            sender.sendMessage(messageConfig.getColored("dropevent.error.name-not-found"));
+            sender.sendMessage(messageConfig.getColored("dropevent.error.invalid-id"));
             return true;
         }
 
@@ -81,7 +81,7 @@ public class DEGiveSubCommand implements SubCommand {
         NamespacedKey key = Dropevent.EVENT_KEY;
 
         ItemMeta meta = givenItem.getItemMeta();
-        meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, dropevent.getName());
+        meta.getPersistentDataContainer().set(key, PersistentDataType.INTEGER, dropevent.getId());
         List<Component> lore = meta.lore();
 
         //Subtext
@@ -116,9 +116,6 @@ public class DEGiveSubCommand implements SubCommand {
             return plugin.getServer().getOnlinePlayers().stream()
                     .map(Player::getName)
                     .collect(Collectors.toList());
-        }
-        else if(args.length == 3) {
-            return DropeventStorage.getDropeventNames();
         }
 
         return Collections.emptyList();

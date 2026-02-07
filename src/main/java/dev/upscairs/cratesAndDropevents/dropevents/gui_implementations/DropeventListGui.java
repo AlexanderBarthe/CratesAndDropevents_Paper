@@ -1,6 +1,8 @@
 package dev.upscairs.cratesAndDropevents.dropevents.gui_implementations;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.crates.management.Crate;
+import dev.upscairs.cratesAndDropevents.db.services.DropeventService;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
@@ -22,37 +24,36 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DropeventListGui {
 
-    List<ListableGuiObject> listedObjects = new ArrayList<>();
+    private final CratesAndDropevents plugin;
+    private final ChatMessageConfig messageConfig;
+    private final DropeventService dropeventService;
 
-    String folder;
+    private final PageGui gui;
+    private final CommandSender sender;
 
-    CommandSender sender;
+    private List<ListableGuiObject> listedObjects = new ArrayList<>();
+    private String folder;
 
-    private CratesAndDropevents plugin;
-    private ChatMessageConfig messageConfig;
-
-    private PageGui gui;
-
-    public DropeventListGui(String folder, CommandSender sender, CratesAndDropevents plugin) {
+    public DropeventListGui(String folder, int page, CommandSender sender, CratesAndDropevents plugin) {
 
         this.folder = folder;
-
-        listedObjects.addAll(DropeventStorage.getSubfolders(folder).stream().map(f -> new GuiFolder(f, Dropevent.class, plugin)).toList());
-        listedObjects.addAll(DropeventStorage.getDropeventsInFolder(folder));
-
-        gui = new PageGui(new InteractableGui(new ItemDisplayGui()), listedObjects, 0);
-        configureClickReaction();
-
         this.sender = sender;
         this.plugin = plugin;
-        this.messageConfig = ((CratesAndDropevents) plugin).getChatMessageConfig();
+        this.dropeventService = plugin.getDbServices().getDropeventService();
+        this.messageConfig = plugin.getChatMessageConfig();
+
+        listedObjects.addAll(dropeventService.getSubfolders(folder).stream().map(f -> new GuiFolder(f, Dropevent.class, plugin)).toList());
+        listedObjects.addAll(dropeventService.getInFolder(folder));
+
+        gui = new PageGui(new InteractableGui(new ItemDisplayGui()), listedObjects, page);
+        configureClickReaction();
 
         gui.showPageInTitle(true);
         gui.setTitle("Dropevents" + (folder.isEmpty() ? "" : " in " + folder));
@@ -82,10 +83,10 @@ public class DropeventListGui {
                 if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
 
                 if(listedObjects.get(selectedIndex) instanceof GuiFolder f) {
-                    return new DropeventListGui(f.getFolder(), sender, plugin).getGui();
+                    return new DropeventListGui(f.getFolder(), gui.getPage(), sender, plugin).getGui();
                 }
                 else if (listedObjects.get(selectedIndex) instanceof Dropevent d) {
-                    Bukkit.dispatchCommand(sender, "dropevent info " + d.getName());
+                    Bukkit.dispatchCommand(sender, "dropevent info " + d.getId());
                 }
                 return new PreventCloseGui();
 
@@ -93,29 +94,20 @@ public class DropeventListGui {
             else if (slot == 46) {
                 if (folder.isEmpty()) return new PreventCloseGui();
                 if (sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                return new DropeventListGui(folder.substring(0, folder.lastIndexOf("/")), sender, plugin).getGui();
+                return new DropeventListGui(folder.substring(0, folder.lastIndexOf("/")), 0, sender, plugin).getGui();
             }
             else if(slot == 48) {
-                Component cancelComponent = Component.text(" [Cancel]", NamedTextColor.RED)
-                        .clickEvent(ClickEvent.runCommand("/cad cancel"))
-                        .hoverEvent(HoverEvent.showText(Component.text("Click to Cancel", NamedTextColor.RED)))
-                        .decorate(TextDecoration.BOLD);
 
-                sender.sendMessage(messageConfig.getColored("dropevent.info.type-name").append(cancelComponent));
+                Dropevent dropevent = new Dropevent("New dropevent", folder);
 
-                ChatMessageInputHandler.addListener(sender, (msg) -> {
-                    if (sender instanceof Player p) {
-                        Bukkit.getScheduler().runTask(plugin, () -> {
-                            Bukkit.dispatchCommand(sender, "dropevent create " + msg + " " + folder);
-                            p.openInventory(new DropeventListGui(folder, sender, plugin).getGui().getInventory());
-                        });
+                dropeventService.create(dropevent, created -> {
+                    if(sender instanceof Player p) {
+                        p.openInventory(new DropeventListGui(folder, gui.getPage(), sender, plugin).getGui().getInventory());
+                        McGuiFramework.getGuiSounds().playClickSound(p);
                     }
                 });
 
-                if(sender instanceof Player p) p.closeInventory();
-                if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                return null;
-
+                return gui;
 
             }
 

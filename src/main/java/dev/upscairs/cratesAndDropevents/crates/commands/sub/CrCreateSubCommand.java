@@ -4,7 +4,6 @@ import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.db.services.CrateService;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.CrateStorage;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
 import org.bukkit.command.Command;
@@ -36,7 +35,7 @@ public class CrCreateSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
 
-        String name = "New crate";
+        String name = "Crate";
         if(args.length > 1) name = args[1];
 
         String folder = "";
@@ -47,6 +46,7 @@ public class CrCreateSubCommand implements SubCommand {
         crateService.createCrate(crate);
 
         sender.sendMessage(messageConfig.getColored("crate.success.created"));
+        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
 
         return true;
     }
