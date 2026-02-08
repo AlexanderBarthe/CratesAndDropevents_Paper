@@ -7,16 +7,17 @@ import dev.upscairs.cratesAndDropevents.db.DatabaseManager;
 import dev.upscairs.cratesAndDropevents.db.services.DbServices;
 import dev.upscairs.cratesAndDropevents.dropevents.commands.DropeventCommand;
 import dev.upscairs.cratesAndDropevents.dropevents.management.DropeventItemHandler;
-import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.*;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.helper.EventDragonDropPreventListener;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 public final class CratesAndDropevents extends JavaPlugin {
@@ -37,15 +38,13 @@ public final class CratesAndDropevents extends JavaPlugin {
 
         initDb();
 
-        //CrateStorage.init(this);
-        DropeventStorage.init(this);
-
         registerCommands();
         registerEvents();
 
         McGuiFramework.initalize(this);
         McGuiFramework.playSounds(getConfig().getBoolean("gui.play-sounds"));
 
+        migrateData();
     }
 
     @Override
@@ -59,8 +58,6 @@ public final class CratesAndDropevents extends JavaPlugin {
     public void reloadConfigs() {
         reloadConfig();
         registerConfigs();
-        //CrateStorage.init(this);
-        DropeventStorage.init(this);
     }
 
     private void initDb() {
@@ -129,8 +126,6 @@ public final class CratesAndDropevents extends JavaPlugin {
         getConfig().addDefault("dropevents.simultaneous-limit.active", false);
         getConfig().addDefault("dropevents.simultaneous-limit.count", 5);
         getConfig().addDefault("dropevents.normal-players.usable", false);
-        //Removed: getConfig().addDefault("dropevents.normal-players.start.online-player-condition", false);
-        //Removed: getConfig().addDefault("dropevents.normal-players.start.min-online-players", 10);
         getConfig().addDefault("dropevents.forbidden-worlds", List.of("minecraft:the_nether", "minecraft:the_end"));
         getConfig().addDefault("dropevents.hopper-prevention", false);
         getConfig().addDefault("dropevents.ops-override-restrictions", true);
@@ -154,6 +149,27 @@ public final class CratesAndDropevents extends JavaPlugin {
     public DbServices getDbServices() {
         return dbServices;
     }
+
+
+    public void migrateData() {
+        File cratesFile = new File(getDataFolder(), "crates.yml");
+        try {
+            Map<String, Object> cratesMap = YamlUtils.loadYamlAsMap(cratesFile);
+            MigrationUtils.migrateCratesFromMap(cratesMap, dbServices.getCrateService(), dbServices.getCrateRewardService(), this);
+        } catch (IOException e) {
+            getLogger().warning("Failed to load crates.yml: " + e.getMessage());
+        }
+
+        File eventsFile = new File(getDataFolder(), "dropevents.yml");
+        try {
+            Map<String, Object> eventsMap = YamlUtils.loadYamlAsMap(eventsFile);
+            MigrationUtils.migrateDropeventsFromMap(eventsMap, dbServices.getDropeventService(), dbServices.getDropService(), this);
+        } catch (IOException e) {
+            getLogger().warning("Failed to load events.yml: " + e.getMessage());
+        }
+
+    }
+
 
 
 }

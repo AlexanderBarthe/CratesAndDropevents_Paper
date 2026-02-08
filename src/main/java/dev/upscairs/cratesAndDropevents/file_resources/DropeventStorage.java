@@ -1,11 +1,24 @@
 package dev.upscairs.cratesAndDropevents.file_resources;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.db.services.DbServices;
+import dev.upscairs.cratesAndDropevents.db.services.DropService;
+import dev.upscairs.cratesAndDropevents.db.services.DropeventService;
+import dev.upscairs.cratesAndDropevents.dropevents.Drop;
+import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
+import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public abstract class DropeventStorage {
 
@@ -59,10 +72,9 @@ public abstract class DropeventStorage {
             keys.addAll(section.getKeys(false));
         }
         return keys;
-    }
+    }*/
 
-    /**
-     *
+
     public static List<Dropevent> getAll() {
         List<Dropevent> list = new ArrayList<>();
 
@@ -73,7 +85,7 @@ public abstract class DropeventStorage {
                 if (obj instanceof Dropevent dropevent) {
 
                     //Fix if render item is corrupted
-                    if(dropevent.getRenderItem() == null) dropevent.setRenderItem(new ItemStack(Material.FIREWORK_ROCKET));
+                    if(dropevent.getRenderItem() == null) dropevent.setItem(new ItemStack(Material.FIREWORK_ROCKET));
 
                     list.add(dropevent);
                 }
@@ -81,6 +93,112 @@ public abstract class DropeventStorage {
         }
         return list;
     }
+
+    public static void migrate(DbServices dbServices, CratesAndDropevents plugin) {
+
+        DropeventService dropeventService = dbServices.getDropeventService();
+        DropService dropService = dbServices.getDropService();
+
+        if (config == null) {
+            plugin.getLogger().warning("Migration aborted: config is null.");
+            return;
+        }
+
+        ConfigurationSection eventsSection = config.getConfigurationSection("events");
+        if (eventsSection == null) {
+            plugin.getLogger().info("No 'events' section found in config — nothing to migrate.");
+            return;
+        }
+
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            for (String key : eventsSection.getKeys(false)) {
+                ConfigurationSection evSec = eventsSection.getConfigurationSection(key);
+                if (evSec == null) continue;
+
+                try {
+                    String folder = evSec.getString("folder", "");
+                    ItemStack renderItem = readItemSafely(evSec, "renderItem");
+                    if (renderItem == null) renderItem = new ItemStack(Material.FIREWORK_ROCKET);
+
+                    int dropRange = evSec.getInt("dropRange", 100);
+                    int eventTimeSec = evSec.getInt("eventTimeSec", 120);
+                    int dropCount = evSec.getInt("dropCount", 1);
+                    int countdownSec = evSec.getInt("countdownSec", 60);
+                    boolean broadcast = evSec.getBoolean("broadcast", false);
+                    boolean teleportable = evSec.getBoolean("teleportable", false);
+                    String startupCommand = evSec.getString("startupCommand", "");
+                    int minPlayers = evSec.getInt("minPlayers", 0);
+
+                    Dropevent dropevent = new Dropevent(
+                            0,
+                            folder,
+                            renderItem,
+                            dropRange,
+                            eventTimeSec,
+                            dropCount,
+                            countdownSec,
+                            broadcast,
+                            teleportable,
+                            startupCommand,
+                            minPlayers
+                    );
+
+                    dropeventService.create(dropevent, createdEvent -> {
+                        if (createdEvent == null) {
+                            plugin.getLogger().warning("Created dropevent callback returned null for key: " + key);
+                            return;
+                        }
+
+                        // drops als Liste
+                        List<?> dropsList = evSec.getList("drops");
+                        if (dropsList == null || dropsList.isEmpty()) return;
+
+                        for (int i = 0; i < dropsList.size(); i++) {
+                            try {
+                                ItemStack dropItem = readItemSafely(evSec, "drops." + i + ".item");
+                                if (dropItem == null) {
+                                    plugin.getLogger().warning("Skipping drop with missing item for event " + key + " index " + i);
+                                    continue;
+                                }
+                                int chance = evSec.getInt("drops." + i + ".chance", evSec.getInt("drops." + i + ".probability", 100));
+                                Drop drop = new Drop(0, createdEvent.getId(), chance, dropItem);
+                                dropService.createDrop(drop, null);
+                            } catch (Throwable t) {
+                            }
+                        }
+                    });
+
+                } catch (Throwable t) {
+                }
+            }
+
+            plugin.getLogger().info("Dropevent migration from YAML scheduled (DB inserts run async via DAOs).");
+        });
+    }
+
+    private static ItemStack readItemSafely(ConfigurationSection evSec, String path) {
+        try {
+            if (evSec.isSet(path)) {
+                Object raw = evSec.get(path);
+                if (raw instanceof ItemStack) {
+                    return ((ItemStack) raw).clone();
+                }
+                if (raw instanceof Map) {
+                    try {
+                        Object des = ConfigurationSerialization.deserializeObject((Map<String, Object>) raw);
+                        if (des instanceof ItemStack) return ((ItemStack) des).clone();
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+}
+
+
+
 
     /**
 
@@ -126,11 +244,6 @@ public abstract class DropeventStorage {
          * Saves the config file to disk.
          *
          */
-    public static void saveFile() {
-        try {
-            config.save(file);
-        } catch (IOException ignored) {}
-    }
 
     /*
     private static Dropevent createExampleCrate() {
@@ -155,4 +268,4 @@ public abstract class DropeventStorage {
                 null,
                 0);
     }*/
-}
+

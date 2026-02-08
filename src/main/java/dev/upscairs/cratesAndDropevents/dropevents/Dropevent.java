@@ -262,6 +262,7 @@ public class Dropevent extends FolderizableElement implements ListableGuiObject 
     }
 
     public String getNameRaw() {
+        if(getName() == null) return "";
         return PlainTextComponentSerializer.plainText().serialize(getName());
     }
 
