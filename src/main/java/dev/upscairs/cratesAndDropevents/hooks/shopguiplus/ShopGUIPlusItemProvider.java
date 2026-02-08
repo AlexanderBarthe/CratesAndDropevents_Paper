@@ -1,8 +1,8 @@
 package dev.upscairs.cratesAndDropevents.hooks.shopguiplus;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.db.services.DropeventService;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
-import dev.upscairs.cratesAndDropevents.resc.DropeventStorage;
 import net.brcdev.shopgui.provider.item.ItemProvider;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
@@ -12,8 +12,12 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.Objects;
 
 public class ShopGUIPlusItemProvider extends ItemProvider {
+
+  private final DropeventService dropeventService;
+
   public ShopGUIPlusItemProvider() {
     super("CratesAndDropEvents");
+    dropeventService = CratesAndDropevents.getInstance().getDbServices().getDropeventService();
   }
 
   @Override
@@ -26,10 +30,9 @@ public class ShopGUIPlusItemProvider extends ItemProvider {
     ConfigurationSection cadSection = configurationSection.getConfigurationSection("cad");
     if (cadSection == null) return null;
 
-    String dropEventName = cadSection.getString("dropEvent");
-    if (dropEventName == null) return null;
+    int dropEventId = cadSection.getInt("dropEventId");
 
-    Dropevent dropevent = DropeventStorage.getDropeventByName(dropEventName);
+    Dropevent dropevent = dropeventService.getById(dropEventId);
     if (dropevent == null) return null;
 
     return dropevent.getDropStarterItem();
@@ -37,22 +40,22 @@ public class ShopGUIPlusItemProvider extends ItemProvider {
 
   @Override
   public boolean compare(ItemStack itemStack1, ItemStack itemStack2) {
-    String itemStack1Id = getDropEventId(itemStack1);
-    String itemStack2Id = getDropEventId(itemStack2);
+    Integer itemStack1Id = getDropEventId(itemStack1);
+    Integer itemStack2Id = getDropEventId(itemStack2);
 
     // Ensure dropevent id exists for both and are the same
     return itemStack1Id != null && Objects.equals(itemStack1Id, itemStack2Id);
   }
 
-  private String getDropEventId(ItemStack itemStack) {
+  private Integer getDropEventId(ItemStack itemStack) {
     if (itemStack == null) return null;
     if (!itemStack.hasItemMeta()) return null;
 
     PersistentDataContainer itemStackContainer = itemStack.getItemMeta().getPersistentDataContainer();
 
-    boolean hasKey = itemStackContainer.has(Dropevent.EVENT_KEY);
-    if (!hasKey) return null;
+    if (!itemStackContainer.has(Dropevent.EVENT_KEY, PersistentDataType.INTEGER))
+      return null;
 
-    return itemStackContainer.get(Dropevent.EVENT_KEY, PersistentDataType.STRING);
+    return itemStackContainer.get(Dropevent.EVENT_KEY, PersistentDataType.INTEGER);
   }
 }

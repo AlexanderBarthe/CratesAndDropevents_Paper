@@ -19,11 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.logging.Level;
-
 public final class CratesAndDropevents extends JavaPlugin {
 
     private static ChatMessageConfig chatMessageConfig;
@@ -73,7 +68,7 @@ private DatabaseManager dbManager;
             this.dbServices = new DbServices(this, dbManager);
 
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Error while starting database", e);
+            getLogger().severe("Error while starting database");
             setEnabled(false);
         }
     }

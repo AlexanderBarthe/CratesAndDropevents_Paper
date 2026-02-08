@@ -131,10 +131,6 @@ public class Dropevent extends FolderizableElement implements ListableGuiObject 
         this.id = id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public int getDropRange() {
         return dropRange;
     }
