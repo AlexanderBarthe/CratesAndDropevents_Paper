@@ -6,7 +6,6 @@ import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
 import dev.upscairs.cratesAndDropevents.helper.FolderizableElement;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
-import io.papermc.paper.datacomponent.item.ItemLore;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;

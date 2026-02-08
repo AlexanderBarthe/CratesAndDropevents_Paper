@@ -1,12 +1,9 @@
 package dev.upscairs.cratesAndDropevents.dropevents.gui_implementations;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.db.services.DropeventService;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
-import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.helper.GuiFolder;
 import dev.upscairs.cratesAndDropevents.helper.GuiItemTemplate;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
@@ -16,15 +13,9 @@ import dev.upscairs.mcGuiFramework.functionality.PreventCloseGui;
 import dev.upscairs.mcGuiFramework.gui_wrappers.InteractableGui;
 import dev.upscairs.mcGuiFramework.gui_wrappers.PageGui;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.units.qual.C;
 
 import java.util.ArrayList;
 import java.util.List;

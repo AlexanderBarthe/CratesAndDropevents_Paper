@@ -4,7 +4,6 @@ import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.db.services.DropService;
 import dev.upscairs.cratesAndDropevents.dropevents.Drop;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
-import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
 import dev.upscairs.mcGuiFramework.base.InventoryGui;
 import dev.upscairs.mcGuiFramework.base.ItemDisplayGui;
@@ -13,7 +12,6 @@ import dev.upscairs.mcGuiFramework.gui_wrappers.InteractableGui;
 import dev.upscairs.mcGuiFramework.gui_wrappers.NumberSelectionGui;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 public class DropChanceSelectionGui {
 
@@ -40,9 +38,7 @@ public class DropChanceSelectionGui {
 
         gui = new NumberSelectionGui(new InteractableGui(new ItemDisplayGui()), drop.getProbability(), 0, drop.getProbability()+unusedChance, sender);
         configureClickReaction();
-        gui.onPostInternalClick(() -> writeTitle());
-
-
+        gui.onPostInternalClick(this::writeTitle);
 
         defaultTitle = "Configure Drop chance: ";
         writeTitle();

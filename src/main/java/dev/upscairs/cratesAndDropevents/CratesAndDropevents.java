@@ -8,7 +8,6 @@ import dev.upscairs.cratesAndDropevents.db.services.DbServices;
 import dev.upscairs.cratesAndDropevents.dropevents.commands.DropeventCommand;
 import dev.upscairs.cratesAndDropevents.dropevents.management.DropeventItemHandler;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.file_resources.DropeventStorage;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.helper.EventDragonDropPreventListener;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
@@ -37,9 +36,6 @@ public final class CratesAndDropevents extends JavaPlugin {
 
         initDb();
 
-        //CrateStorage.init(this);
-        DropeventStorage.init(this);
-
         registerCommands();
         registerEvents();
 
@@ -59,8 +55,6 @@ public final class CratesAndDropevents extends JavaPlugin {
     public void reloadConfigs() {
         reloadConfig();
         registerConfigs();
-        //CrateStorage.init(this);
-        DropeventStorage.init(this);
     }
 
     private void initDb() {
@@ -129,8 +123,6 @@ public final class CratesAndDropevents extends JavaPlugin {
         getConfig().addDefault("dropevents.simultaneous-limit.active", false);
         getConfig().addDefault("dropevents.simultaneous-limit.count", 5);
         getConfig().addDefault("dropevents.normal-players.usable", false);
-        //Removed: getConfig().addDefault("dropevents.normal-players.start.online-player-condition", false);
-        //Removed: getConfig().addDefault("dropevents.normal-players.start.min-online-players", 10);
         getConfig().addDefault("dropevents.forbidden-worlds", List.of("minecraft:the_nether", "minecraft:the_end"));
         getConfig().addDefault("dropevents.hopper-prevention", false);
         getConfig().addDefault("dropevents.ops-override-restrictions", true);
