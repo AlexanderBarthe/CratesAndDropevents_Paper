@@ -150,8 +150,6 @@ public final class CratesAndDropevents extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(shopGUIPlusHook, this);
 
             this.getLogger().info("ShopGUI+ detected.");
-        } else {
-            this.getLogger().warning("ShopGUI+ not found.");
         }
     }
 }
