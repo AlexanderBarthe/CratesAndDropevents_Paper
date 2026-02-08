@@ -33,11 +33,11 @@ public class DropeventEditGui {
     private final ChatMessageConfig messageConfig;
     private final DropeventService dropeventService;
 
-    private InteractableGui gui;
-    private Dropevent dropevent;
-    private CommandSender sender;
+    private final InteractableGui gui;
+    private final Dropevent dropevent;
+    private final CommandSender sender;
 
-    private boolean renderItemSelection;
+    private final boolean renderItemSelection;
 
     public DropeventEditGui(Dropevent dropevent, boolean renderItemSelection, CommandSender sender, CratesAndDropevents plugin) {
         gui = new InteractableGui(new ItemDisplayGui());
@@ -60,7 +60,16 @@ public class DropeventEditGui {
 
         ItemMeta meta;
 
+        gui.setItem(44, GuiItemTemplate.ID.create("ID: " + dropevent.getId()));
+
         gui.setItem(45, GuiItemTemplate.BACK.create("To the overview"));
+
+        ItemStack giveItem = dropevent.getItem().clone();
+        giveItem.setAmount(64);
+        meta = giveItem.getItemMeta();
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Give starter items", "#55FFFF"));
+        giveItem.setItemMeta(meta);
+        gui.setItem(4, giveItem);
 
         ItemStack rangeItem = new ItemStack(Material.COMPASS);
         meta = rangeItem.getItemMeta();
@@ -74,8 +83,9 @@ public class DropeventEditGui {
         timeItem.setItemMeta(meta);
         gui.setItem(12, timeItem);
 
-        gui.setItem(8, GuiItemTemplate.FOLDER_CONFIG.create());
+        gui.setItem(35, GuiItemTemplate.FOLDER_CONFIG.create());
 
+        gui.setItem(36, GuiItemTemplate.EDIT_NAME.create());
 
         ItemStack broadcastItem = new ItemStack(Material.BELL);
         meta = broadcastItem.getItemMeta();
@@ -95,9 +105,9 @@ public class DropeventEditGui {
         meta = minPlayerItem.getItemMeta();
         meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Min players to start: " + dropevent.getMinPlayers(), "#AA0000"));
         minPlayerItem.setItemMeta(meta);
-        gui.setItem(30, minPlayerItem);
+        gui.setItem(23, minPlayerItem);
 
-        gui.setItem(32, GuiItemTemplate.LOOTPOOL.create("Configure Loot pool"));
+        gui.setItem(31, GuiItemTemplate.LOOTPOOL.create("Configure Loot pool"));
 
         ItemStack droppedItem = new ItemStack(Material.HOPPER);
         meta = droppedItem.getItemMeta();
@@ -155,7 +165,7 @@ public class DropeventEditGui {
             meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Click to configure render item", "#AA00AA"));
             renderItem.setItemMeta(meta);
         }
-        gui.setItem(23, renderItem);
+        gui.setItem(27, renderItem);
 
         ItemStack commandItem = new ItemStack(Material.COMMAND_BLOCK);
         meta = commandItem.getItemMeta();
@@ -178,7 +188,11 @@ public class DropeventEditGui {
 
             if(slot < 54) {
                 switch (slot) {
-                    case 8:
+                    case 4:
+                        Bukkit.dispatchCommand(sender, "de give " + sender.getName() + " " + dropevent.getId() + " 64");
+                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
+                        return new PreventCloseGui();
+                    case 35:
                         sender.sendMessage(messageConfig.getColored("dropevent.info.type-folder").append(cancelComponent));
                         ChatMessageInputHandler.addListener(sender, (msg) -> {
                             if(sender instanceof Player p) {
@@ -215,7 +229,7 @@ public class DropeventEditGui {
                         dropevent.setTeleportable(!dropevent.isTeleportable());
                         dropeventService.update(dropevent);
                         return new DropeventEditGui(dropevent, renderItemSelection, sender, plugin).getGui();
-                    case 23:
+                    case 27:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new DropeventEditGui(dropevent, !renderItemSelection, sender, plugin).getGui();
                     case 25:
@@ -237,12 +251,30 @@ public class DropeventEditGui {
                         if(sender instanceof Player p) p.closeInventory();
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return null;
-                    case 30:
+                    case 23:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new EditDropeventNumberGui(dropevent.getMinPlayers(), 0, 2500, dropevent, "Minplayers", sender).getGui();
-                    case 32:
+                    case 31:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new DropeventDropsGui(dropevent, sender, plugin).getGui();
+                    case 36:
+                        sender.sendMessage(messageConfig.getColored("dropevent.info.type-name").append(cancelComponent));
+                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
+
+                        ChatMessageInputHandler.addListener(sender, (msg) -> {
+                            if (sender instanceof Player p) {
+                                dropevent.setName(msg);
+                                dropeventService.update(dropevent, updated -> {
+                                    Bukkit.getScheduler().runTask(plugin, () -> {
+                                        p.openInventory(new DropeventEditGui(dropevent, false, sender, plugin).getGui().getInventory());
+                                    });
+                                });
+
+                            }
+                        });
+                        if(sender instanceof Player p) p.closeInventory();
+                        return null;
+
                     case 45:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new DropeventListGui(dropevent.getFolder(), 0, sender, plugin).getGui();

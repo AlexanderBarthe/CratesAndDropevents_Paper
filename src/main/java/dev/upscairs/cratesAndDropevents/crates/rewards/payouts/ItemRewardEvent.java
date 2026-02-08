@@ -1,7 +1,7 @@
 package dev.upscairs.cratesAndDropevents.crates.rewards.payouts;
 
 import com.google.gson.JsonObject;
-import dev.upscairs.cratesAndDropevents.db.Serializer;
+import dev.upscairs.cratesAndDropevents.helper.Serializer;
 import dev.upscairs.cratesAndDropevents.helper.EditMode;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import org.bukkit.Location;

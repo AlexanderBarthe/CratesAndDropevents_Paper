@@ -14,7 +14,9 @@ public enum GuiItemTemplate {
     BACK(backTemplate()),
     LOOTPOOL(lootpoolTemplate()),
     FOLDER_CONFIG(folderConfigTemplate()),
-    UPPER_FOLDER(upperFolderTemplate());
+    UPPER_FOLDER(upperFolderTemplate()),
+    EDIT_NAME(editNameTemplate()),
+    ID(idTemplate());
 
     private final ItemStack template;
 
@@ -97,6 +99,22 @@ public enum GuiItemTemplate {
         ItemStack item = new ItemStack(Material.EMERALD);
         ItemMeta meta = item.getItemMeta();
         meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Clone", "#55FF55"));
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private static ItemStack editNameTemplate() {
+        ItemStack item = new ItemStack(Material.NAME_TAG);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Edit name", "#AAAAAA"));
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private static ItemStack idTemplate() {
+        ItemStack item = new ItemStack(Material.PAPER);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Id", "#AAAAAA"));
         item.setItemMeta(meta);
         return item;
     }

@@ -54,7 +54,7 @@ public class DropeventDropsGui {
         configureClickReaction();
 
         gui.showPageInTitle(true);
-        gui.setTitle("Loot Pool of " + dropevent.getName());
+        gui.setTitle("Loot Pool of " + dropevent.getNameRaw());
 
         placeItems();
         writeItemChances();

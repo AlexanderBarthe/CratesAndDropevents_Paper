@@ -2,7 +2,7 @@ package dev.upscairs.cratesAndDropevents.db.daos;
 
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.db.DatabaseManager;
-import dev.upscairs.cratesAndDropevents.db.Serializer;
+import dev.upscairs.cratesAndDropevents.helper.Serializer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 

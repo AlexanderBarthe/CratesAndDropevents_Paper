@@ -2,6 +2,7 @@ package dev.upscairs.cratesAndDropevents.dropevents;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.helper.FolderizableElement;
+import dev.upscairs.cratesAndDropevents.helper.Serializer;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import net.kyori.adventure.text.Component;
@@ -19,7 +20,6 @@ import java.util.Map;
 public class Dropevent extends FolderizableElement implements ListableGuiObject {
 
     private int id;
-    private String folder;
     private ItemStack item;
 
     private int dropRange;
@@ -57,8 +57,8 @@ public class Dropevent extends FolderizableElement implements ListableGuiObject 
     }
 
     public Dropevent(int id, String folder, ItemStack item, int dropRange, int eventTimeSec, int dropCount, int countdownSec, boolean broadcast,  boolean teleportable, String startupCommand, int minPlayers) {
+        super(folder);
         this.id = id;
-        this.folder = folder;
         this.item = item;
         this.dropRange  = dropRange;
         this.eventTimeSec  = eventTimeSec;
@@ -86,7 +86,16 @@ public class Dropevent extends FolderizableElement implements ListableGuiObject 
     }
 
     public void setItem(ItemStack item) {
-        this.item = item;
+        ItemStack newItem = item.clone();
+
+        //New item with old name
+
+        newItem.setAmount(1);
+        ItemMeta meta = newItem.getItemMeta();
+        meta.displayName(getName());
+        newItem.setItemMeta(meta);
+
+        this.item = newItem;
     }
 
     public int getId() {
@@ -95,16 +104,6 @@ public class Dropevent extends FolderizableElement implements ListableGuiObject 
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    @Override
-    public String getFolder() {
-        return folder;
-    }
-
-    @Override
-    public void setFolder(String folder) {
-        this.folder = folder;
     }
 
     public int getDropRange() {
@@ -176,7 +175,7 @@ public class Dropevent extends FolderizableElement implements ListableGuiObject 
     }
 
     public Dropevent clone() {
-        return new Dropevent(id, folder, item.clone(), dropRange, eventTimeSec,
+        return new Dropevent(id, getFolder(), item.clone(), dropRange, eventTimeSec,
                 dropCount, countdownSec, broadcast, teleportable, startupCommand, minPlayers);
     }
 
@@ -262,6 +261,7 @@ public class Dropevent extends FolderizableElement implements ListableGuiObject 
     }
 
     public String getNameRaw() {
+        if(getName() == null) return "";
         return PlainTextComponentSerializer.plainText().serialize(getName());
     }
 
@@ -272,7 +272,7 @@ public class Dropevent extends FolderizableElement implements ListableGuiObject 
     }
 
     public void setName(String componentString) {
-        setName(MiniMessage.miniMessage().deserialize(componentString));
+        setName(Serializer.parseStringToComponent(componentString));
     }
 
 }

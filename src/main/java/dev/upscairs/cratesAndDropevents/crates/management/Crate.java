@@ -4,6 +4,7 @@ import com.destroystokyo.paper.profile.PlayerProfile;
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
 import dev.upscairs.cratesAndDropevents.helper.FolderizableElement;
+import dev.upscairs.cratesAndDropevents.helper.Serializer;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import net.kyori.adventure.text.Component;
@@ -84,9 +85,15 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
 
         if(crateItem.getType() != Material.PLAYER_HEAD) return;
 
-        crateItem.setAmount(1);
+        ItemStack newItem = crateItem.clone();
+        newItem.setAmount(1);
 
-        this.crateItem = crateItem;
+        //New item with old name
+        ItemMeta meta = newItem.getItemMeta();
+        meta.displayName(getName());
+        newItem.setItemMeta(meta);
+
+        this.crateItem = newItem;
     }
 
     public boolean setCrateSkullUrl(String url) {
@@ -194,6 +201,7 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
     }
 
     public String getNameRaw() {
+        if(getName() == null) return "";
         return PlainTextComponentSerializer.plainText().serialize(getName());
     }
 
@@ -204,7 +212,7 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
     }
 
     public void setName(String componentString) {
-        setName(MiniMessage.miniMessage().deserialize(componentString));
+        setName(Serializer.parseStringToComponent(componentString));
     }
 
 }

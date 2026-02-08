@@ -50,7 +50,7 @@ public class SingleDropGui {
         configureClickReaction();
 
         gui.setSize(54);
-        gui.setTitle("Configure Loot for " + dropevent.getName());
+        gui.setTitle("Configure Loot for " + dropevent.getNameRaw());
 
         placeItems();
         configureClickReaction();
@@ -68,6 +68,8 @@ public class SingleDropGui {
         meta.displayName(InvGuiUtils.generateDefaultTextComponent("Probability: " + currentChance/10 + "%", "#FFAA00").decoration(TextDecoration.BOLD, true));
         chanceItem.setItemMeta(meta);
         gui.setItem(29, chanceItem);
+
+        gui.setItem(31, GuiItemTemplate.CLONE.create("Clone drop"));
 
         gui.setItem(33, GuiItemTemplate.DELETE.create("Delete drop"));
 
@@ -108,6 +110,20 @@ public class SingleDropGui {
                     case 29:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new DropChanceSelectionGui(dropevent, drop, sender, plugin).getGui();
+                    case 31:
+                        int remainingChance = dropService.getRemainingChanceForEvent(dropevent.getId());
+                        Drop clone = drop.clone();
+                        clone.setProbability(Math.min(remainingChance, clone.getProbability()));
+
+                        dropService.createDrop(clone, created -> {
+                            if(sender instanceof Player p) {
+                                McGuiFramework.getGuiSounds().playSuccessSound(p);
+                                p.openInventory(new DropeventDropsGui(dropevent, sender, plugin).getGui().getInventory());
+                            }
+                        });
+
+                        return gui;
+
                     case 33:
 
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);

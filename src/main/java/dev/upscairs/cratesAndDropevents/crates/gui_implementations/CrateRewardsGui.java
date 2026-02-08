@@ -60,7 +60,7 @@ public class CrateRewardsGui {
 
 
         gui.showPageInTitle(true);
-        gui.setTitle("Rewards of " + crate.getName());
+        gui.setTitle("Rewards of " + crate.getNameRaw());
 
         placeItems();
         writeRewardChances();

@@ -100,9 +100,22 @@ public class DropeventService {
     }
 
     public void update(Dropevent event) {
-        dao.saveDropeventAsync(event, null);
-        cache.put(event.getId(), event);
+        update(event, null);
     }
+
+    public void update(Dropevent event, Consumer<Integer> onCreated) {
+
+        cache.put(event.getId(), event);
+
+        Consumer<Integer> callback = e -> {
+            if(onCreated != null) onCreated.accept(e);
+        };
+
+        dao.saveDropeventAsync(event, callback);
+
+
+    }
+
 
     public void delete(int id) {
         dao.deleteDropeventByIdAsync(id);

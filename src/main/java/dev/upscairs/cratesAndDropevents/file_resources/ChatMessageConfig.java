@@ -79,6 +79,7 @@ public class ChatMessageConfig {
         defaultMessages.put("dropevent.info.sneak-for-use", "<dark_aqua>Sneak + right click to use this item.");
         defaultMessages.put("dropevent.info.type-command", "<dark_aqua>Type the desired command without <white>/<dark_aqua>. Type <white>.<dark_aqua> to clear the command. Use /cad cancel or the button to cancel<reset>");
         defaultMessages.put("dropevent.info.type-folder", "<dark_aqua>Type name of the folder. It can be a new folder name. Use '/' to separate subfolders. Type '.' to target the root folder. Use /cad cancel or the button to cancel<reset>");
+        defaultMessages.put("dropevent.info.type-name", "<dark_aqua>Type new name. Use /cad cancel or the button to cancel<reset>");
 
         defaultMessages.put("system.info.type-canceled", "<gray>Canceled<reset>");
 

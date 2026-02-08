@@ -47,7 +47,7 @@ public class CrateLootpoolGui {
         this.crate = crate;
 
         gui.showPageInTitle(true);
-        gui.setTitle("Lootpool of " + crate.getName());
+        gui.setTitle("Lootpool of " + crate.getNameRaw());
 
         gui.placeItems();
         writeRewardChances();

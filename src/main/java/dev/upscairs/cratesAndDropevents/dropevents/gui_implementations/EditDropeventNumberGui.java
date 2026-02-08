@@ -28,7 +28,7 @@ public class EditDropeventNumberGui {
         this.sender = sender;
 
         configureClickReaction();
-        gui.setTitle("Edit " + changedSetting + " for " + dropevent.getName());
+        gui.setTitle("Edit " + changedSetting + " for " + dropevent.getNameRaw());
     }
 
 

@@ -65,6 +65,8 @@ public class CrateEditGui {
 
         ItemMeta meta;
 
+        gui.setItem(17, GuiItemTemplate.ID.create("ID: " + crate.getId()));
+
         ItemStack giveItem = crate.getCrateItem().clone();
         giveItem.setAmount(64);
         meta = giveItem.getItemMeta();
@@ -89,11 +91,7 @@ public class CrateEditGui {
 
         gui.setItem(24, GuiItemTemplate.CLONE.create("Clone crate"));
 
-        ItemStack displayNameItem = new ItemStack(Material.NAME_TAG);
-        meta = displayNameItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Edit name", "#AAAAAA"));
-        displayNameItem.setItemMeta(meta);
-        gui.setItem(29, displayNameItem);
+        gui.setItem(29, GuiItemTemplate.EDIT_NAME.create());
 
         ItemStack pityItem = new ItemStack(Material.TOTEM_OF_UNDYING);
         meta = pityItem.getItemMeta();
@@ -157,6 +155,7 @@ public class CrateEditGui {
                     case 22:
                         // Update skull url
                         sender.sendMessage(messageConfig.getColored("crate.info.type-url").append(cancelComponent));
+                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
 
                         ChatMessageInputHandler.addListener(sender, (msg) -> {
                             crate.setCrateSkullUrl(msg);
