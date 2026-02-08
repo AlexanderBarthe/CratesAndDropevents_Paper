@@ -1,17 +1,23 @@
 package dev.upscairs.cratesAndDropevents;
 
 import dev.upscairs.cratesAndDropevents.cad_command.CaDCommand;
+import dev.upscairs.cratesAndDropevents.dropevents.management.DropeventItemHandler;
+import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.crates.commands.CratesCommand;
 import dev.upscairs.cratesAndDropevents.crates.management.CratePlaceHandler;
 import dev.upscairs.cratesAndDropevents.db.DatabaseManager;
 import dev.upscairs.cratesAndDropevents.db.services.DbServices;
 import dev.upscairs.cratesAndDropevents.dropevents.commands.DropeventCommand;
-import dev.upscairs.cratesAndDropevents.dropevents.management.DropeventItemHandler;
 import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.helper.EventDragonDropPreventListener;
+import dev.upscairs.cratesAndDropevents.hooks.shopguiplus.ShopGUIPlusHook;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,8 +30,11 @@ public final class CratesAndDropevents extends JavaPlugin {
 
     private static CratesAndDropevents instance;
 
-    private DatabaseManager dbManager;
+private DatabaseManager dbManager;
     private DbServices dbServices;
+
+    // Integrations
+    private ShopGUIPlusHook shopGUIPlusHook;
 
     @Override
     public void onEnable() {
@@ -42,6 +51,7 @@ public final class CratesAndDropevents extends JavaPlugin {
         McGuiFramework.initalize(this);
         McGuiFramework.playSounds(getConfig().getBoolean("gui.play-sounds"));
 
+        hookIntoShopGUIPlus();
     }
 
     @Override
@@ -143,6 +153,14 @@ public final class CratesAndDropevents extends JavaPlugin {
         return instance;
     }
 
+    private void hookIntoShopGUIPlus() {
+        if (Bukkit.getPluginManager().getPlugin("ShopGUIPlus") != null) {
+            this.shopGUIPlusHook = new ShopGUIPlusHook(this);
+            Bukkit.getPluginManager().registerEvents(shopGUIPlusHook, this);
+
+            this.getLogger().info("ShopGUI+ detected.");
+        }
+    }
     public DbServices getDbServices() {
         return dbServices;
     }

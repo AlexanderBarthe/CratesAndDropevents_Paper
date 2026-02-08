@@ -2,6 +2,7 @@ name: CratesAndDropevents
 version: ${project.version}
 main: dev.upscairs.cratesAndDropevents.CratesAndDropevents
 api-version: '1.21'
+softdepend: [ShopGUIPlus]
 commands:
   dropevent:
     ussage: /<command>

@@ -6,12 +6,12 @@ import dev.upscairs.cratesAndDropevents.helper.Serializer;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +85,31 @@ public class Dropevent extends FolderizableElement implements ListableGuiObject 
         return item;
     }
 
+    public ItemStack getDropStarterItem() {
+        //Set values
+        ItemStack dropStarterItem = item.clone();
+        dropStarterItem.setAmount(1);
+
+        //Flag item as dropevent starter
+        NamespacedKey key = Dropevent.EVENT_KEY;
+
+        ItemMeta meta = dropStarterItem.getItemMeta();
+        meta.getPersistentDataContainer().set(key, PersistentDataType.INTEGER, id);
+        List<Component> lore = meta.lore();
+
+        //Subtext
+        if(lore == null) lore = new ArrayList<>();
+
+        lore.add(InvGuiUtils.generateDefaultHeaderComponent("", "#000000"));
+        lore.add(InvGuiUtils.generateDefaultHeaderComponent("Dropevent", "#A40064"));
+        lore.add(InvGuiUtils.generateDefaultTextComponent("Shift + Right Click to start", "#AAAAAA"));
+
+        meta.lore(lore);
+        dropStarterItem.setItemMeta(meta);
+
+        return dropStarterItem;
+    }
+
     public void setItem(ItemStack item) {
         ItemStack newItem = item.clone();
 
@@ -100,6 +125,10 @@ public class Dropevent extends FolderizableElement implements ListableGuiObject 
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setId(int id) {
