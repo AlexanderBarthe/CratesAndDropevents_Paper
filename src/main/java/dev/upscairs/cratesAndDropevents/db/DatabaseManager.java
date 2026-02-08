@@ -11,9 +11,14 @@ import java.sql.SQLException;
 public class DatabaseManager {
     private final HikariDataSource ds;
 
+    private final boolean freshDatabase;
+
     public DatabaseManager(JavaPlugin plugin) {
         File dbFile = new File(plugin.getDataFolder(), "data.db");
         plugin.getDataFolder().mkdirs();
+
+        this.freshDatabase = !dbFile.exists();
+
         String jdbcUrl = "jdbc:sqlite:" + dbFile.getAbsolutePath();
 
         HikariConfig cfg = new HikariConfig();
@@ -28,6 +33,10 @@ public class DatabaseManager {
         );
 
         this.ds = new HikariDataSource(cfg);
+    }
+
+    public boolean isFreshDatabase() {
+        return freshDatabase;
     }
 
     public Connection getConnection() throws SQLException {
