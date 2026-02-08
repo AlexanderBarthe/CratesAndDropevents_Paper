@@ -1,21 +1,16 @@
 package dev.upscairs.cratesAndDropevents.dropevents.commands;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.helper.SubCommand;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.dropevents.commands.sub.*;
-import dev.upscairs.cratesAndDropevents.dropevents.management.DropEventManager;
-import dev.upscairs.cratesAndDropevents.resc.DropeventStorage;
-import org.bukkit.Material;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
+import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class DropeventCommand implements CommandExecutor, TabCompleter {
 
@@ -43,6 +38,7 @@ public class DropeventCommand implements CommandExecutor, TabCompleter {
         register(new DEStartNowSubCommand(c));
         register(new DEStopAllSubCommand(c));
         register(new DETpSubCommand(c));
+        register(new DEMoveSubCommand(c));
     }
 
     private void register(SubCommand cmd) {
@@ -63,6 +59,10 @@ public class DropeventCommand implements CommandExecutor, TabCompleter {
         SubCommand handler = subcommands.get(args[0]);
         if(handler == null) {
             sender.sendMessage(messageConfig.getColored("system.command.error.not-found"));
+            return true;
+        }
+        if(!handler.isSenderPermitted(sender)) {
+            sender.sendMessage(messageConfig.getColored("system.command.error.no-permission"));
             return true;
         }
 

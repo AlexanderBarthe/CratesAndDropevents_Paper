@@ -1,10 +1,10 @@
 package dev.upscairs.cratesAndDropevents.dropevents.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import dev.upscairs.cratesAndDropevents.dropevents.management.ActiveDropEvent;
 import dev.upscairs.cratesAndDropevents.dropevents.management.DropEventManager;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
+import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,7 +33,6 @@ public class DETpSubCommand implements SubCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(!isSenderPermitted(sender)) return true;
 
         if(!(sender instanceof Player p)) return true;
 
@@ -42,7 +41,7 @@ public class DETpSubCommand implements SubCommand {
         UUID id;
 
         if(args.length == 1) {
-            p.sendMessage(messageConfig.getColored("dropevent.error.missing-id"));
+            p.sendMessage(messageConfig.getColored("system.command.error.missing-id"));
             return true;
         }
 

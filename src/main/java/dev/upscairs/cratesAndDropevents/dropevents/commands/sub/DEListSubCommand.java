@@ -1,12 +1,11 @@
 package dev.upscairs.cratesAndDropevents.dropevents.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import dev.upscairs.cratesAndDropevents.dropevents.gui_implementations.DropeventListGui;
+import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 
@@ -32,10 +31,9 @@ public class DEListSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
 
-        if(!isSenderPermitted(sender)) return true;
         if(!(sender instanceof Player p)) return true;
 
-        DropeventListGui dropeventListGui = new DropeventListGui(sender, plugin);
+        DropeventListGui dropeventListGui = new DropeventListGui("", 0, sender, plugin);
         p.openInventory(dropeventListGui.getGui().getInventory());
         return true;
     }

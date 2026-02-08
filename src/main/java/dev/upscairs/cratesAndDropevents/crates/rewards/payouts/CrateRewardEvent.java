@@ -1,5 +1,6 @@
 package dev.upscairs.cratesAndDropevents.crates.rewards.payouts;
 
+import com.google.gson.JsonObject;
 import dev.upscairs.cratesAndDropevents.helper.EditMode;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import org.bukkit.Location;
@@ -14,5 +15,7 @@ public interface CrateRewardEvent extends ListableGuiObject {
     EditMode getAssociatedEditMode();
 
     CrateRewardEvent clone();
+
+    JsonObject toJson();
 
 }

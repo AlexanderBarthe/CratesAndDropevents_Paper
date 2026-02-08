@@ -1,21 +1,18 @@
-package dev.upscairs.cratesAndDropevents.crates.commands.sub;
+package dev.upscairs.cratesAndDropevents.cad_command.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class CrCancelSubCommand implements SubCommand {
+public class CancelSubCommand implements SubCommand {
 
     private final CratesAndDropevents plugin;
 
-    public CrCancelSubCommand(CratesAndDropevents plugin) {
+    public CancelSubCommand(CratesAndDropevents plugin) {
         this.plugin = plugin;
     }
 
@@ -32,15 +29,14 @@ public class CrCancelSubCommand implements SubCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(!isSenderPermitted(sender)) return true;
         ChatMessageInputHandler.removeListener(sender);
-        sender.sendMessage(plugin.getChatMessageConfig().getColored("crate.info.type-canceled"));
+        sender.sendMessage(plugin.getChatMessageConfig().getColored("system.info.type-canceled"));
         return true;
     }
 
     @Override
     public boolean isSenderPermitted(CommandSender sender) {
-        return sender.hasPermission("cad.crates.edit");
+        return sender.hasPermission("cad.crates.edit") || sender.hasPermission("cad.dropevents.edit");
     }
 
     @Override

@@ -27,7 +27,6 @@ public class ReloadSubCommand implements SubCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if (!isSenderPermitted(sender)) return true;
         sender.sendMessage("Reloading configs.");
         plugin.reloadConfigs();
         return true;

@@ -1,5 +1,6 @@
 package dev.upscairs.cratesAndDropevents.crates.rewards.payouts;
 
+import com.google.gson.JsonObject;
 import dev.upscairs.cratesAndDropevents.helper.EditMode;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import org.bukkit.Bukkit;
@@ -17,9 +18,31 @@ public class CommandRewardEvent implements CrateRewardEvent {
     private String command;
     private final Plugin plugin;
 
+    private static final CrateRewardType TYPE = CrateRewardType.COMMAND;
+
     public CommandRewardEvent(String command, Plugin plugin) {
         this.command = command;
         this.plugin = plugin;
+    }
+
+    public CommandRewardEvent(JsonObject json, Plugin plugin) {
+        this.plugin = plugin;
+
+        if (json == null) {
+            throw new IllegalArgumentException("json must not be null for CommandRewardEvent");
+        }
+
+        if (!json.has("command")) {
+            this.command = "";
+        }
+        else {
+            try {
+                this.command = json.get("command").getAsString();
+            } catch (Exception e) {
+                this.command = "";
+                plugin.getLogger().warning("Invalid 'command' value in CommandRewardEvent JSON");
+            }
+        }
     }
 
     public String getCommand() {
@@ -58,6 +81,14 @@ public class CommandRewardEvent implements CrateRewardEvent {
         meta.displayName(InvGuiUtils.generateDefaultTextComponent("/" + command, "#00AAAA"));
         item.setItemMeta(meta);
         return item;
+    }
+
+    @Override
+    public JsonObject toJson() {
+        JsonObject obj = new JsonObject();
+        obj.addProperty("type", TYPE.name());
+        obj.addProperty("command", command);
+        return obj;
     }
 
     public EditMode getAssociatedEditMode() {

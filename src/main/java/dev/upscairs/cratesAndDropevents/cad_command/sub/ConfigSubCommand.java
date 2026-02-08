@@ -30,7 +30,6 @@ public class ConfigSubCommand implements SubCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if (!isSenderPermitted(sender)) return true;
 
         Map<String, Object> config = filterLeafs(plugin.getConfig().getValues(true));
 

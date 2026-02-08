@@ -1,42 +1,71 @@
 package dev.upscairs.cratesAndDropevents.crates.rewards;
 
+import com.google.gson.*;
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.rewards.payouts.*;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-@SerializableAs("CrateReward")
-public class CrateReward implements ConfigurationSerializable, ListableGuiObject {
 
+@SerializableAs("CrateReward")
+public class CrateReward implements ListableGuiObject {
+
+    private int id;
+    private int crateId;
+    private int probability;
     private List<CrateRewardEvent> sequence;
 
-    private Set<OfflinePlayer> pittiedPlayers;
-
+    private static final Gson GSON = new GsonBuilder().create();
     private Plugin plugin;
 
-    public CrateReward(Plugin plugin) {
+    public CrateReward(List<CrateRewardEvent> sequence, Plugin plugin) {
+        this.sequence = sequence;
         this.plugin = plugin;
-        this.sequence = new ArrayList<>();
-        this.pittiedPlayers = new HashSet<>();
+        id = -1;
+        crateId = -1;
+        probability = -1;
     }
 
-    public CrateReward(List<CrateRewardEvent> sequence, Set<OfflinePlayer> pittiedPlayers, Plugin plugin) {
-        this.sequence = new ArrayList<>(sequence);
-        this.pittiedPlayers = new HashSet<>();
+    public CrateReward(Plugin plugin, int id, int crateId, int probability) {
+        this.plugin = plugin;
+        this.crateId = crateId;
+        this.probability = probability;
+        this.sequence = new ArrayList<>();
+    }
+
+    public CrateReward(int crateId, int probability, Plugin plugin) {
+        this.id = 0;
+        this.sequence = new ArrayList<>();
+        this.crateId = crateId;
+        this.probability = probability;
+        this.plugin = plugin;
+    }
+
+    public CrateReward(int id, int crateId, int probability, String rewardSequence, Plugin plugin) {
+        this.id = id;
+        this.crateId = crateId;
+        this.probability = probability;
+        this.plugin = plugin;
+        importSequenceFromString(rewardSequence);
+    }
+
+    public CrateReward(int id, int crateId, int probability, List<CrateRewardEvent> sequence, Plugin plugin) {
+        this.id = id;
+        this.crateId = crateId;
+        this.probability = probability;
+        this.sequence = sequence;
         this.plugin = plugin;
     }
 
@@ -60,22 +89,6 @@ public class CrateReward implements ConfigurationSerializable, ListableGuiObject
         sequence.add(event);
     }
 
-    public void addPittiedPlayer(OfflinePlayer player) {
-        pittiedPlayers.add(player);
-    }
-
-    public void removePittiedPlayer(OfflinePlayer player) {
-        pittiedPlayers.remove(player);
-    }
-
-    public Set<OfflinePlayer> getPittiedPlayers() {
-        return pittiedPlayers;
-    }
-
-    public boolean containsPittiedPlayer(OfflinePlayer player) {
-        return pittiedPlayers.contains(player);
-    }
-
     public CrateReward clone() {
 
         List<CrateRewardEvent> clonedSequence = new ArrayList<>();
@@ -83,49 +96,65 @@ public class CrateReward implements ConfigurationSerializable, ListableGuiObject
             clonedSequence.add(element.clone());
         }
 
-        Set<OfflinePlayer> clonedPittiedPlayers = new HashSet<>(pittiedPlayers);
 
-        return new CrateReward(clonedSequence, clonedPittiedPlayers, plugin);
+        return new CrateReward(0, crateId, probability, clonedSequence, plugin);
     }
 
-    @Override
-    public Map<String, Object> serialize() {
-        Map<String, Object> out = new LinkedHashMap<>();
-        List<Map<String, Object>> events = new ArrayList<>();
+    public String sequenceToString() {
+        JsonArray array = new JsonArray();
 
-        for (CrateRewardEvent evt : sequence) {
-            Map<String, Object> m = new LinkedHashMap<>();
-            if (evt instanceof CommandRewardEvent cre) {
-                m.put("type", "command");
-                m.put("command", cre.getCommand());
-            } else if (evt instanceof MessageRewardEvent mre) {
-                m.put("type", "message");
-                m.put("message", mre.getMessageRaw());
-            }
-            else if (evt instanceof DelayRewardEvent dre) {
-                m.put("type", "delay");
-                m.put("ticks", dre.getTicks());
-            } else if (evt instanceof ItemRewardEvent ire) {
-                m.put("type", "item");
-                m.put("item", ire.getItem());
-            } else if (evt instanceof SoundRewardEvent sre) {
-                m.put("type", "sound");
-                m.put("soundName", sre.getSoundName());
-                m.put("volume", sre.getVolume());
-                m.put("pitch", sre.getPitch());
-            }
-            events.add(m);
+        for (CrateRewardEvent e : sequence) {
+            array.add(e.toJson());
         }
-        out.put("events", events);
 
-        List<String> playerUuids = new ArrayList<>();
-        for (OfflinePlayer player : pittiedPlayers) {
-            playerUuids.add(player.getUniqueId().toString());
-        }
-        out.put("pittiedPlayers", playerUuids);
-
-        return out;
+        return GSON.toJson(array);
     }
+
+    public void importSequenceFromString(String json) {
+        List<CrateRewardEvent> sequenceList = new ArrayList<>();
+        if (json == null || json.isBlank()) {
+            this.sequence = sequenceList;
+            return;
+        }
+
+        try {
+            JsonArray array = JsonParser.parseString(json).getAsJsonArray();
+
+            for (JsonElement el : array) {
+                if (!el.isJsonObject()) continue;
+                JsonObject obj = el.getAsJsonObject();
+
+                if (!obj.has("type")) {
+                    plugin.getLogger().warning("Reward event missing 'type' field: " + obj);
+                    continue;
+                }
+
+                String typeStr = obj.get("type").getAsString();
+                CrateRewardType rewardType = CrateRewardType.fromString(typeStr);
+
+                if (rewardType == null) {
+                    plugin.getLogger().warning("Unknown reward type: " + typeStr);
+                    continue;
+                }
+
+                switch (rewardType) {
+                    case COMMAND -> sequenceList.add(new CommandRewardEvent(obj, plugin));
+                    case MESSAGE -> sequenceList.add(new MessageRewardEvent(obj, plugin));
+                    case DELAY -> sequenceList.add(new DelayRewardEvent(obj, plugin));
+                    case ITEM -> sequenceList.add(new ItemRewardEvent(obj, plugin));
+                    case SOUND -> sequenceList.add(new SoundRewardEvent(obj, plugin));
+                    default -> plugin.getLogger().warning("Unhandled reward type: " + rewardType);
+                }
+            }
+
+        } catch (JsonSyntaxException | IllegalStateException ex) {
+            plugin.getLogger().warning("Failed to parse reward sequence JSON");
+        }
+
+        this.sequence = sequenceList;
+    }
+
+
 
     public static CrateReward deserialize(Map<String, Object> map) {
 
@@ -163,20 +192,7 @@ public class CrateReward implements ConfigurationSerializable, ListableGuiObject
             }
         }
 
-        //Player pitty
-
-        Object pittiedPlayersObj = map.get("pittiedPlayers");
-
-        Set<OfflinePlayer> pittiedPlayers = new HashSet<>();
-
-        if((pittiedPlayersObj instanceof List<?> rawPittiedPlayers)) {
-            for (Object o : rawPittiedPlayers) {
-                if(!(o instanceof UUID) ) continue;
-                pittiedPlayers.add(Bukkit.getOfflinePlayer((UUID) o));
-            }
-        }
-
-        return new CrateReward(seq, pittiedPlayers, plugin);
+        return new CrateReward(seq, plugin);
     }
 
 
@@ -240,5 +256,29 @@ public class CrateReward implements ConfigurationSerializable, ListableGuiObject
         item.setItemMeta(meta);
         return item;
 
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getCrateId() {
+        return crateId;
+    }
+
+    public void setCrateId(int crateId) {
+        this.crateId = crateId;
+    }
+
+    public int getProbability() {
+        return probability;
+    }
+
+    public void setProbability(int probability) {
+        this.probability = probability;
     }
 }

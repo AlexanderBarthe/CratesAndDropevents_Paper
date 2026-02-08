@@ -6,9 +6,6 @@ import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -33,10 +30,9 @@ public class CrListSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
 
-        if(!isSenderPermitted(sender)) return true;
         if(!(sender instanceof Player p)) return true;
 
-        CrateListGui cratesListGui = new CrateListGui(sender, plugin);
+        CrateListGui cratesListGui = new CrateListGui("", 0, sender, plugin);
         p.openInventory(cratesListGui.getGui().getInventory());
         return true;
     }
