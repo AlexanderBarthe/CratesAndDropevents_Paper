@@ -9,7 +9,7 @@ With this plugin you can give out rewards using events and crates, with a focus 
 
 Crates are boxes with a custom style that can be opened to give a variety of rewards. You can create multiple crates, each with its own loot pool. You can configure how rare a reward is and what it should look like.
 
-Many things can be configured in the GUI. The base command is `/crate <subcommand>`. The list of subcommands is available via tab completion and should be self-explanatory.
+Many things can be configured in the GUI. The base command is `/crate <subcommand>`. The list of all commands is listed below under 'All commands'.
 To gain an overview `/crate list` is a good starting point.
 
 ### Rewards:
@@ -51,8 +51,7 @@ https://github.com/user-attachments/assets/7dcd7485-9c52-4eaa-a115-c947b7e3a998
 
 In a Dropevent, random rewards that you configure fall from the sky and players can compete to collect as many as they can. You can configure them to be private or public by choosing whether dropevents are announced in chat, whether players can teleport to them, and so on.
 
-The base command is `/dropevent <subcommand>` or `/de <subcommand>`. The list of subcommands is available via tab 
-completion and should be self-explanatory.
+The base command is `/dropevent <subcommand>` or `/de <subcommand>`. The list of all commands is listed below under 'All commands'.
 To gain an overview `/de list` is a good starting point.
 
 ### Settings:
@@ -169,5 +168,61 @@ The command that runs when a Dropevent starts supports the following replacement
 Commands in reward sequences of Crates have the following replacement codes:
 - `%p`: The name of the player who opened the Crate.
 - `%w`: The world key the Crate got opened.
-- `%l`: The location where the Crate was placed.
+- `%l`: The location where the Crate was placed
+
+# Integrations
+
+## Vault
+
+If you have an economy plugin and Vault installed, you are able to build in rewards, that give the player money.
+
+## ShopsGUIPlus
+
+Native DropEvent item support - easy implementation
+
+Example - How to use:
+```
+1:
+ type: item
+ item:
+  cad:
+   dropEvent: <id>
+  buyPrice: 10
+  slot: 1
+```
+
+Set the ID of the DropEvent item you want to use and it will automatically pull the newest and always up-to-date version from CAD.
+
+
+# All commands
+
+|                       Command Syntax | Explanation                                                                                                    |
+|-------------------------------------:|----------------------------------------------------------------------------------------------------------------|
+|     `/de clone <id> <name> <folder>` | Clones the dropevent. Name and folder of the clone are optional.                                               |
+|         `/de create <name> <folder>` | Creates a new dropevent. Name and folder of the event are optional.                                            |
+|        `/de edit <id> <key> <value>` | Updates a dropevents setting. Possible keys are listed in tab completion.                                      |
+|    `/de give <player> <id> <amount>` | Gives a dropevent starter item to a player. Amount is optional and 1 by default.                               |
+|                      `/de info <id>` | Shows the settings gui of a dropevent.                                                                         |
+|                           `/de list` | Shows a list of dropevents.                                                                                    |
+|             `/de move <id> <folder>` | Moves a dropevent to a different folder.                                                                       |
+|                    `/de remove <id>` | Removes a dropevent.                                                                                           |
+|          `/de start <id> <location>` | Starts a dropevent. Location is optional and used as the location name in messages.                            |
+|                 `/de start-now <id>` | Starts a dropevent without a countdown.                                                                        |
+|                        `/de stopall` | Stops all dropevents.                                                                                          |
+|                      `/de tp <code>` | Teleports to a dropevent taking place right now. Codes are shown in tab completion. Usable by regular players. |
+|  `/crate clone <id> <name> <folder>` | Clones a crate. Name and folder of the clone are optional.                                                     |
+|      `/crate create <name> <folder>` | Creates a new crate. Name and folder of the crate are optional.                                                |
+|                 `/crate delete <id>` | Deletes a crate.                                                                                               |
+| `/crate give <player> <id> <amount>` | Gives a crate to a player. Amount is optional and 1 by default.                                                |
+|                   `/crate info <id>` | Shows the settings gui of a crate.                                                                             |
+|                        `/crate list` | Shows a list of crates.                                                                                        |
+|                        `/crate loot` | Shows the loot pool of a crate held in hand (if allowed). Usable by regular players.                           |
+|          `/crate move <id> <folder>` | Moves a crate to a different folder.                                                                           |
+|                `/crate rewards <id>` | Shows the rewards setinngs page of a crate.                                                                    |
+|              `/crate url <id> <url>` | Sets the URL of the skull of a crate.                                                                          |
+|                        `/cad cancel` | Cancels the current input.                                                                                     |
+|                        `/cad config` | Shows the current config.                                                                                      |
+|          `/cad config <key> <value>` | Changes a config value.                                                                                        |
+|                        `/cad reload` | Reloads the config.                                                                                            |
+|                       `/cad version` | Shows the plugin version.                                                                                      |
 
