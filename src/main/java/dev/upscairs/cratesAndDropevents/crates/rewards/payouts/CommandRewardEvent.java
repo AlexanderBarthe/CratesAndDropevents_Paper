@@ -91,10 +91,12 @@ public class CommandRewardEvent implements CrateRewardEvent {
         return obj;
     }
 
+    @Override
     public EditMode getAssociatedEditMode() {
         return EditMode.EDIT_COMMAND_EVENT;
     }
 
+    @Override
     public CommandRewardEvent clone() {
         return new CommandRewardEvent(command, plugin);
     }

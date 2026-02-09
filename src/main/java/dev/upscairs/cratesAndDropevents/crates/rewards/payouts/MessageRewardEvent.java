@@ -66,6 +66,7 @@ public class MessageRewardEvent implements CrateRewardEvent {
         return obj;
     }
 
+    @Override
     public ItemStack getRenderItem() {
         ItemStack item = new ItemStack(Material.PAPER);
         ItemMeta meta = item.getItemMeta();
@@ -74,10 +75,12 @@ public class MessageRewardEvent implements CrateRewardEvent {
         return item;
     }
 
+    @Override
     public EditMode getAssociatedEditMode() {
         return EditMode.EDIT_MESSAGE_EVENT;
     }
 
+    @Override
     public MessageRewardEvent clone() {
         return new MessageRewardEvent(messageRaw);
     }

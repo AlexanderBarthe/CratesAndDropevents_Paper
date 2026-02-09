@@ -5,7 +5,8 @@ public enum CrateRewardType {
     SOUND( "sound"),
     MESSAGE( "message"),
     DELAY( "delay"),
-    COMMAND( "command");
+    COMMAND( "command"),
+    MONEY("money");
 
     private final String stringRepresentation;
 

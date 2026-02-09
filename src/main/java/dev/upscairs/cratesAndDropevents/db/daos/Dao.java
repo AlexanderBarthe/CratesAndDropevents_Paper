@@ -1,5 +1,6 @@
 package dev.upscairs.cratesAndDropevents.db.daos;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.db.DatabaseManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -9,10 +10,10 @@ import java.util.logging.Level;
 
 public abstract class Dao {
 
-    private final JavaPlugin plugin;
+    private final CratesAndDropevents plugin;
     private final DatabaseManager db;
 
-    public Dao(JavaPlugin plugin, DatabaseManager db) {
+    public Dao(CratesAndDropevents plugin, DatabaseManager db) {
         this.plugin = plugin;
         this.db = db;
     }
@@ -75,7 +76,7 @@ public abstract class Dao {
         return db;
     }
 
-    public JavaPlugin getPlugin() {
+    public CratesAndDropevents getPlugin() {
         return plugin;
     }
 

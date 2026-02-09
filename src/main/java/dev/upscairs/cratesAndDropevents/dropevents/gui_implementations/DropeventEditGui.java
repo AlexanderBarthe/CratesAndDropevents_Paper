@@ -198,6 +198,7 @@ public class DropeventEditGui {
                             if(sender instanceof Player p) {
                                 Bukkit.getScheduler().runTask(plugin, () -> {
                                     Bukkit.dispatchCommand(sender, "de move " + dropevent.getId() + " /" + msg);
+                                    McGuiFramework.getGuiSounds().playSuccessSound(p);
                                     p.openInventory(new DropeventEditGui(dropevent, false, sender, plugin).getGui().getInventory());
                                 });
                             }
@@ -266,6 +267,7 @@ public class DropeventEditGui {
                                 dropevent.setName(msg);
                                 dropeventService.update(dropevent, updated -> {
                                     Bukkit.getScheduler().runTask(plugin, () -> {
+                                        McGuiFramework.getGuiSounds().playSuccessSound(p);
                                         p.openInventory(new DropeventEditGui(dropevent, false, sender, plugin).getGui().getInventory());
                                     });
                                 });

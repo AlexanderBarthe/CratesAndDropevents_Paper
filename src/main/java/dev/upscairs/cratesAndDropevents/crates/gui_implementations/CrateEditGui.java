@@ -140,6 +140,7 @@ public class CrateEditGui {
                             if(sender instanceof Player p) {
                                 Bukkit.getScheduler().runTask(plugin, () -> {
                                     Bukkit.dispatchCommand(sender, "crates move " + crate.getId() + " /" + msg);
+                                    McGuiFramework.getGuiSounds().playSuccessSound(p);
                                     p.openInventory(new CrateEditGui(crate, false, sender, plugin).getGui().getInventory());
                                 });
                             }
@@ -164,6 +165,7 @@ public class CrateEditGui {
 
                             if (sender instanceof Player p) {
                                 Bukkit.getScheduler().runTask(plugin, () -> {
+                                    McGuiFramework.getGuiSounds().playSuccessSound(p);
                                     p.openInventory(
                                             new CrateEditGui(crate, false, sender, plugin)
                                                     .getGui().getInventory()
@@ -201,6 +203,7 @@ public class CrateEditGui {
                                 crateService.updateCrate(crate);
 
                                 Bukkit.getScheduler().runTask(plugin, () -> {
+                                    McGuiFramework.getGuiSounds().playSuccessSound(p);
                                     p.openInventory(new CrateEditGui(crate, false, sender, plugin).getGui().getInventory());
                                 });
                             }

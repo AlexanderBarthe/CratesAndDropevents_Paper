@@ -12,7 +12,9 @@ import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.EventDragonDropPreventListener;
 import dev.upscairs.cratesAndDropevents.hooks.shopguiplus.ShopGUIPlusHook;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -30,6 +32,7 @@ private DatabaseManager dbManager;
 
     // Integrations
     private ShopGUIPlusHook shopGUIPlusHook;
+    private Economy eco = null;
 
     @Override
     public void onEnable() {
@@ -46,7 +49,8 @@ private DatabaseManager dbManager;
         McGuiFramework.initalize(this);
         McGuiFramework.playSounds(getConfig().getBoolean("gui.play-sounds"));
 
-        hookIntoShopGUIPlus();
+        setupIntegrations();
+
     }
 
     @Override
@@ -123,6 +127,12 @@ private DatabaseManager dbManager;
         saveConfig();
     }
 
+    public void setupIntegrations() {
+        if(hookIntoShopGUIPlus()) getLogger().info("ShopGUI+ detected.");
+        if(setupEconomy()) getLogger().info("Vault integration successful.");
+    }
+
+
     private void setConfigDefaults() {
         getConfig().addDefault("crates.normal-players.view-lootpool", false);
         getConfig().addDefault("dropevents.simultaneous-limit.active", false);
@@ -148,17 +158,37 @@ private DatabaseManager dbManager;
         return instance;
     }
 
-    private void hookIntoShopGUIPlus() {
+    public DbServices getDbServices() {
+        return dbServices;
+    }
+
+    private boolean hookIntoShopGUIPlus() {
         if (Bukkit.getPluginManager().getPlugin("ShopGUIPlus") != null) {
             this.shopGUIPlusHook = new ShopGUIPlusHook(this);
             Bukkit.getPluginManager().registerEvents(shopGUIPlusHook, this);
 
-            this.getLogger().info("ShopGUI+ detected.");
+            return true;
         }
+        return false;
     }
-    public DbServices getDbServices() {
-        return dbServices;
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+
+        eco = rsp.getProvider();
+        return eco != null;
     }
+
+    public Economy getEconomy() {
+        return eco;
+    }
+
 
 
 }

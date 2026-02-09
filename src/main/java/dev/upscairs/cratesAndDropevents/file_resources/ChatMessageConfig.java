@@ -46,6 +46,7 @@ public class ChatMessageConfig {
         defaultMessages.put("crate.info.type-sound", "<dark_aqua>Type the path of the desired sound. If you want a different volume or pitch then 1, use the format <white><path> <volume> <pitch> (seperated by spaces. Use /cad cancel or the button to cancel<reset>");
         defaultMessages.put("crate.info.type-command", "<dark_aqua>Type the desired command without <white>/<dark_aqua>. Use /cad cancel or the button to cancel<reset>");
         defaultMessages.put("crate.info.type-message", "<dark_aqua>Type the desired message. Use /cad cancel or the button to cancel<reset>");
+        defaultMessages.put("crate.info.type-money", "<dark_aqua>Type the desired amount of money. E.g. '251.67'. Use /cad cancel or the button to cancel<reset>");
 
         defaultMessages.put("dropevent.broadcast.local.countdown", "<dark_purple>A dropevent starts here in %ts.<reset>");
         defaultMessages.put("dropevent.broadcast.local.start", "<dark_purple>The dropevent started.<reset>");

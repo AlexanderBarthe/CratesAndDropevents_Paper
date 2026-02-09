@@ -1,5 +1,6 @@
 package dev.upscairs.cratesAndDropevents.db.daos;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
 import dev.upscairs.cratesAndDropevents.db.DatabaseManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,7 +18,7 @@ import java.util.logging.Level;
 
 public class RewardDao extends Dao {
 
-    public RewardDao(JavaPlugin plugin, DatabaseManager db) {
+    public RewardDao(CratesAndDropevents plugin, DatabaseManager db) {
         super(plugin, db);
         createTableIfNotExists();
     }

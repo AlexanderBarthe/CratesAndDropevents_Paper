@@ -1,5 +1,6 @@
 package dev.upscairs.cratesAndDropevents.db.daos;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.db.DatabaseManager;
 import dev.upscairs.utility.Tuple;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,7 +16,7 @@ import java.util.logging.Level;
 
 public class PlayerPityDao extends Dao {
 
-    public PlayerPityDao(JavaPlugin plugin, DatabaseManager databaseManager) {
+    public PlayerPityDao(CratesAndDropevents plugin, DatabaseManager databaseManager) {
         super(plugin, databaseManager);
         createTableIfNotExists();
     }

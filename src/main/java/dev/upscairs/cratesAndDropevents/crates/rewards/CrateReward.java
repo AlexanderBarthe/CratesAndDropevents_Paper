@@ -28,9 +28,9 @@ public class CrateReward implements ListableGuiObject {
     private List<CrateRewardEvent> sequence;
 
     private static final Gson GSON = new GsonBuilder().create();
-    private Plugin plugin;
+    private CratesAndDropevents plugin;
 
-    public CrateReward(List<CrateRewardEvent> sequence, Plugin plugin) {
+    public CrateReward(List<CrateRewardEvent> sequence, CratesAndDropevents plugin) {
         this.sequence = sequence;
         this.plugin = plugin;
         id = -1;
@@ -38,14 +38,14 @@ public class CrateReward implements ListableGuiObject {
         probability = -1;
     }
 
-    public CrateReward(Plugin plugin, int id, int crateId, int probability) {
+    public CrateReward(CratesAndDropevents plugin, int id, int crateId, int probability) {
         this.plugin = plugin;
         this.crateId = crateId;
         this.probability = probability;
         this.sequence = new ArrayList<>();
     }
 
-    public CrateReward(int crateId, int probability, Plugin plugin) {
+    public CrateReward(int crateId, int probability, CratesAndDropevents plugin) {
         this.id = 0;
         this.sequence = new ArrayList<>();
         this.crateId = crateId;
@@ -53,7 +53,7 @@ public class CrateReward implements ListableGuiObject {
         this.plugin = plugin;
     }
 
-    public CrateReward(int id, int crateId, int probability, String rewardSequence, Plugin plugin) {
+    public CrateReward(int id, int crateId, int probability, String rewardSequence, CratesAndDropevents plugin) {
         this.id = id;
         this.crateId = crateId;
         this.probability = probability;
@@ -61,7 +61,7 @@ public class CrateReward implements ListableGuiObject {
         importSequenceFromString(rewardSequence);
     }
 
-    public CrateReward(int id, int crateId, int probability, List<CrateRewardEvent> sequence, Plugin plugin) {
+    public CrateReward(int id, int crateId, int probability, List<CrateRewardEvent> sequence, CratesAndDropevents plugin) {
         this.id = id;
         this.crateId = crateId;
         this.probability = probability;
@@ -143,6 +143,7 @@ public class CrateReward implements ListableGuiObject {
                     case DELAY -> sequenceList.add(new DelayRewardEvent(obj, plugin));
                     case ITEM -> sequenceList.add(new ItemRewardEvent(obj, plugin));
                     case SOUND -> sequenceList.add(new SoundRewardEvent(obj, plugin));
+                    case MONEY -> sequenceList.add(new MoneyRewardEvent(obj, plugin));
                     default -> plugin.getLogger().warning("Unhandled reward type: " + rewardType);
                 }
             }
@@ -154,48 +155,6 @@ public class CrateReward implements ListableGuiObject {
         this.sequence = sequenceList;
     }
 
-
-
-    public static CrateReward deserialize(Map<String, Object> map) {
-
-        Plugin plugin = CratesAndDropevents.getInstance();
-
-        Object eventsObj = map.get("events");
-        if (!(eventsObj instanceof List<?> rawEventsList)) {
-            throw new IllegalArgumentException("Missing or invalid 'events' for CrateReward");
-        }
-
-        List<CrateRewardEvent> seq = new ArrayList<>();
-        for (Object o : rawEventsList) {
-            if (!(o instanceof Map<?, ?> m)) continue;
-            String type = (String) m.get("type");
-            switch (type) {
-                case "command":
-                    seq.add(new CommandRewardEvent((String) m.get("command"), plugin));
-                    break;
-                case "message":
-                    seq.add(new MessageRewardEvent((String) m.get("message")));
-                    break;
-                case "delay":
-                    seq.add(new DelayRewardEvent(((Number) m.get("ticks")).intValue(), plugin));
-                    break;
-                case "item":
-                    seq.add(new ItemRewardEvent((ItemStack) m.get("item")));
-                    break;
-                case "sound":
-                    seq.add(new SoundRewardEvent(
-                            (String) m.get("soundName"),
-                            ((Number) m.get("volume")).floatValue(),
-                            ((Number) m.get("pitch")).floatValue()
-                    ));
-                    break;
-            }
-        }
-
-        return new CrateReward(seq, plugin);
-    }
-
-
     @Override
     public ItemStack getRenderItem() {
 
@@ -203,6 +162,7 @@ public class CrateReward implements ListableGuiObject {
         CommandRewardEvent crw = null;
         MessageRewardEvent mrw = null;
         SoundRewardEvent sre = null;
+        MoneyRewardEvent mre = null;
 
         int moreEvents = sequence.size() - 1;
 
@@ -219,6 +179,9 @@ public class CrateReward implements ListableGuiObject {
             else if(evt instanceof SoundRewardEvent) {
                 sre = (SoundRewardEvent) evt;
             }
+            else if(evt instanceof MoneyRewardEvent) {
+                mre = (MoneyRewardEvent) evt;
+            }
 
         }
 
@@ -228,6 +191,10 @@ public class CrateReward implements ListableGuiObject {
         if(irw != null) {
             item = irw.getItem().clone();
             name = "Drop " + irw.getItem().getI18NDisplayName();
+        }
+        else if(mre != null) {
+            item = new ItemStack(Material.GOLD_INGOT);
+            name = "Give money";
         }
         else if(crw != null) {
             item = new ItemStack(Material.COMMAND_BLOCK);
@@ -241,7 +208,6 @@ public class CrateReward implements ListableGuiObject {
             item = new ItemStack(Material.NOTE_BLOCK);
             name = "Play sound";
         }
-
 
         if(name.isEmpty()) {
             name = "Empty";

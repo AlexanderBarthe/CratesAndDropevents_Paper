@@ -70,6 +70,7 @@ public class DelayRewardEvent implements CrateRewardEvent {
         return obj;
     }
 
+    @Override
     public ItemStack getRenderItem() {
         ItemStack item = new ItemStack(Material.CLOCK);
         ItemMeta meta = item.getItemMeta();
@@ -78,10 +79,12 @@ public class DelayRewardEvent implements CrateRewardEvent {
         return item;
     }
 
+    @Override
     public EditMode getAssociatedEditMode() {
         return EditMode.EDIT_DELAY_EVENT;
     }
 
+    @Override
     public DelayRewardEvent clone() {
         return new DelayRewardEvent(ticks, plugin);
     }

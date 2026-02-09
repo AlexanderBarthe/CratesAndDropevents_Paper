@@ -115,10 +115,12 @@ public class SoundRewardEvent implements CrateRewardEvent {
         return obj;
     }
 
+    @Override
     public EditMode getAssociatedEditMode() {
         return EditMode.EDIT_SOUND_EVENT;
     }
 
+    @Override
     public SoundRewardEvent clone() {
         return new SoundRewardEvent(soundName, volume, pitch);
     }

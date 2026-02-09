@@ -1,5 +1,6 @@
 package dev.upscairs.cratesAndDropevents.db.daos;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.db.DatabaseManager;
 import dev.upscairs.cratesAndDropevents.helper.Serializer;
 import dev.upscairs.cratesAndDropevents.dropevents.Drop;
@@ -19,7 +20,7 @@ import java.util.logging.Level;
 
 public class DropDao extends Dao {
 
-    public DropDao(JavaPlugin plugin, DatabaseManager db) {
+    public DropDao(CratesAndDropevents plugin, DatabaseManager db) {
         super(plugin, db);
         createTableIfNotExists();
     }

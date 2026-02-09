@@ -27,21 +27,23 @@ public class ItemRewardEvent implements CrateRewardEvent {
         ItemStack parsed = null;
 
         if (json == null) {
-            plugin.getLogger().warning("ItemRewardEvent: json is null, using AIR item");
+            plugin.getLogger().warning("ItemRewardEvent: json is null, using stone item");
         }
         else if (!json.has("item") || json.get("item").isJsonNull()) {
-            plugin.getLogger().warning("ItemRewardEvent: missing 'item' field, using AIR item");
+            plugin.getLogger().warning("ItemRewardEvent: missing 'item' field, using stone item");
         }
         else {
             try {
                 String itemJson = json.get("item").getAsString();
                 parsed = Serializer.jsonToItemStack(itemJson);
             } catch (Exception e) {
-                plugin.getLogger().warning("ItemRewardEvent: failed to parse item JSON, using AIR item.");
+                plugin.getLogger().warning("ItemRewardEvent: failed to parse item JSON, using stone item.");
             }
         }
 
-        this.item = parsed != null ? parsed : new ItemStack(Material.AIR);
+        if(parsed == null || parsed.getType() == Material.AIR) parsed = new ItemStack(Material.STONE);
+
+        this.item = parsed;
     }
 
 
@@ -77,10 +79,12 @@ public class ItemRewardEvent implements CrateRewardEvent {
         return renderItem;
     }
 
+    @Override
     public EditMode getAssociatedEditMode() {
         return EditMode.EDIT_ITEM_EVENT;
     }
 
+    @Override
     public ItemRewardEvent clone() {
         return new ItemRewardEvent(item.clone());
     }
