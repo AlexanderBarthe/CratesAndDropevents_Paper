@@ -255,32 +255,6 @@ public class Dropevent extends FolderizableElement implements ListableGuiObject 
 
     }
 
-    public static Dropevent deserialize(Map<String, Object> map) {
-
-        String folder = (String) map.get("folder");
-        if(folder == null) folder = "";
-
-        Dropevent event = new Dropevent((String) map.get("name"), folder);
-        event.setItem((ItemStack) map.get("renderItem"));
-        event.setDropRange((int) map.get("dropRange"));
-        event.setEventTimeSec((int) map.get("eventTimeSec"));
-        event.setDropCount((int) map.get("dropCount"));
-        event.setCountdownSec((int) map.get("countdownSec"));
-        event.startupCommand = (String) map.get("startupCommand");
-
-        if (map.containsKey("broadcast")) {
-            event.setBroadcasting((boolean) map.get("broadcast"));
-        }
-        if (map.containsKey("teleportable")) {
-            event.setTeleportable((boolean) map.get("teleportable"));
-        }
-
-        if(map.containsKey("minPlayers")) event.setMinPlayers((int) map.get("minPlayers"));
-        else event.setMinPlayers(0);
-
-        return event;
-    }
-
     public Component getName() {
         return item.getItemMeta().displayName();
     }

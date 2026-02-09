@@ -128,46 +128,6 @@ public class Crate extends FolderizableElement implements ListableGuiObject {
         return new Crate(getFolder(), this.crateItem.clone(), pitySystemActive);
     }
 
-    public static Crate deserialize(Map<String, Object> map) {
-        Plugin plugin = CratesAndDropevents.getInstance();
-
-        String name = (String) map.get("name");
-
-        ItemStack crateItem = (ItemStack) map.get("crateItem");
-        if(crateItem == null) crateItem = new ItemStack(Material.PLAYER_HEAD);
-
-        Boolean pitySystem = (Boolean) map.get("pittySystem");
-        if(pitySystem == null) pitySystem = false;
-
-        String folder = (String) map.get("folder");
-        if(folder == null) folder = "";
-
-        Crate crate = new Crate(folder, crateItem, pitySystem);
-
-        Object obj = map.get("rewards");
-        if (obj instanceof List<?> list) {
-            for (Object element : list) {
-                if (!(element instanceof Map<?, ?> rewardMap)) continue;
-
-                Object rawReward = rewardMap.get("reward");
-                CrateReward reward;
-                if (rawReward instanceof CrateReward cr) {
-                    reward = cr;
-                } else if (rawReward instanceof Map<?, ?> serializedReward) {
-                    reward = (CrateReward) ConfigurationSerialization
-                            .deserializeObject((Map<String, Object>) serializedReward);
-                } else {
-                    continue;
-                }
-
-                Number chanceNum = (Number) rewardMap.get("chance");
-            }
-        }
-
-        return crate;
-    }
-
-
     @Override
     public ItemStack getRenderItem() {
         ItemStack renderItem = crateItem.clone();
