@@ -186,7 +186,7 @@ Example - How to use:
  type: item
  item:
   cad:
-   dropEvent: <id>
+   dropEventId: <id>
   buyPrice: 10
   slot: 1
 ```
