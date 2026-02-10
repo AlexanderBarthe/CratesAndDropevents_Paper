@@ -30,8 +30,6 @@ public class ChatMessageInputHandler implements Listener {
 
             listeners.get(sender).accept(plainMessage);
 
-            if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
-
             removeListener(sender);
 
         }

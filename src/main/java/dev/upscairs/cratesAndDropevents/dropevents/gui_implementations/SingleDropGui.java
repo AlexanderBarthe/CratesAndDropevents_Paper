@@ -1,10 +1,11 @@
 package dev.upscairs.cratesAndDropevents.dropevents.gui_implementations;
 
-import dev.upscairs.cratesAndDropevents.crates.gui_implementations.CrateRewardsGui;
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.db.services.DropService;
+import dev.upscairs.cratesAndDropevents.dropevents.Drop;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
 import dev.upscairs.cratesAndDropevents.helper.ConfirmationGui;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
-import dev.upscairs.cratesAndDropevents.resc.DropeventStorage;
+import dev.upscairs.cratesAndDropevents.helper.GuiItemTemplate;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
 import dev.upscairs.mcGuiFramework.base.InventoryGui;
 import dev.upscairs.mcGuiFramework.base.ItemDisplayGui;
@@ -17,43 +18,39 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
-
-import java.util.Map;
 
 public class SingleDropGui {
 
-    private Dropevent dropevent;
-    private ItemStack dropItem;
-    private boolean itemSelection;
-    private CommandSender sender;
-    private Plugin plugin;
-    private int unusedChance;
+    private final CratesAndDropevents plugin;
+    private final DropService dropService;
 
-    private int currentChance;
 
-    private InteractableGui gui;
+    private final Dropevent dropevent;
+    private final Drop drop;
+    private final boolean itemSelection;
+    private final CommandSender sender;
 
-    public SingleDropGui(Dropevent dropevent, ItemStack dropItem, boolean itemSelection, int unusedChance, CommandSender sender, Plugin plugin) {
+    private final int unusedChance;
+
+    private final int currentChance;
+
+    private final InteractableGui gui;
+
+    public SingleDropGui(Dropevent dropevent, Drop drop, boolean itemSelection, CommandSender sender, CratesAndDropevents plugin) {
+        this.plugin = plugin;
+        this.dropService = plugin.getDbServices().getDropService();
+        this.dropevent = dropevent;
+        this.drop = drop;
+        this.itemSelection = itemSelection;
+        this.sender = sender;
+        this.unusedChance = dropService.getRemainingChanceForEvent(dropevent.getId());
+        this.currentChance = drop.getProbability();
 
         gui = new InteractableGui(new ItemDisplayGui());
         configureClickReaction();
 
-        this.dropevent = dropevent;
-        this.dropItem = dropItem;
-        this.itemSelection = itemSelection;
-        this.sender = sender;
-        this.plugin = plugin;
-        this.unusedChance = unusedChance;
-
-        currentChance = dropevent.getDrops().entrySet().stream()
-                .filter(e -> e.getKey().isSimilar(dropItem))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElse(0);
-
         gui.setSize(54);
-        gui.setTitle("Configure Loot for " + dropevent.getName());
+        gui.setTitle("Configure Loot for " + dropevent.getNameRaw());
 
         placeItems();
         configureClickReaction();
@@ -61,29 +58,20 @@ public class SingleDropGui {
 
     public void placeItems() {
 
-        ItemMeta meta;
-
-        ItemStack backItem = new ItemStack(Material.ARROW);
-        meta = backItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("To the overview", "#AAAAAA").decoration(TextDecoration.BOLD, true));
-        backItem.setItemMeta(meta);
-        gui.setItem(45, backItem);
-
+        gui.setItem(45, GuiItemTemplate.BACK.create("To the overview"));
 
         gui.setItem(13, generateDropItem());
 
 
         ItemStack chanceItem = new ItemStack(Material.CHEST);
-        meta = chanceItem.getItemMeta();
+        ItemMeta meta = chanceItem.getItemMeta();
         meta.displayName(InvGuiUtils.generateDefaultTextComponent("Probability: " + currentChance/10 + "%", "#FFAA00").decoration(TextDecoration.BOLD, true));
         chanceItem.setItemMeta(meta);
         gui.setItem(29, chanceItem);
 
-        ItemStack deleteItem = new ItemStack(Material.LAVA_BUCKET);
-        meta = deleteItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("Delete Drop", "#FF5555").decoration(TextDecoration.BOLD, true));
-        deleteItem.setItemMeta(meta);
-        gui.setItem(33, deleteItem);
+        gui.setItem(31, GuiItemTemplate.CLONE.create("Clone drop"));
+
+        gui.setItem(33, GuiItemTemplate.DELETE.create("Delete drop"));
 
 
     }
@@ -101,7 +89,7 @@ public class SingleDropGui {
             dropItem.setItemMeta(meta);
         }
         else {
-            dropItem = this.dropItem.clone();
+            dropItem = drop.getItem().clone();
             meta = dropItem.getItemMeta();
             meta.displayName(InvGuiUtils.generateDefaultTextComponent("Click to configure drop", "#AA00AA").decoration(TextDecoration.BOLD, true));
             dropItem.setItemMeta(meta);
@@ -118,27 +106,33 @@ public class SingleDropGui {
                 switch (slot) {
                     case 13:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        return new SingleDropGui(dropevent, dropItem, !itemSelection, unusedChance, sender, plugin).getGui();
+                        return new SingleDropGui(dropevent, drop, !itemSelection, sender, plugin).getGui();
                     case 29:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        return new DropChanceSelectionGui(dropevent, dropItem, currentChance, unusedChance, sender, plugin).getGui();
+                        return new DropChanceSelectionGui(dropevent, drop, sender, plugin).getGui();
+                    case 31:
+                        int remainingChance = dropService.getRemainingChanceForEvent(dropevent.getId());
+                        Drop clone = drop.clone();
+                        clone.setProbability(Math.min(remainingChance, clone.getProbability()));
+
+                        dropService.createDrop(clone, created -> {
+                            if(sender instanceof Player p) {
+                                McGuiFramework.getGuiSounds().playSuccessSound(p);
+                                p.openInventory(new DropeventDropsGui(dropevent, sender, plugin).getGui().getInventory());
+                            }
+                        });
+
+                        return gui;
+
                     case 33:
-
-                        ItemStack deleteItem = new ItemStack(Material.LAVA_BUCKET);
-                        ItemMeta meta = deleteItem.getItemMeta();
-                        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Delete Drop", "#FF5555"));
-                        deleteItem.setItemMeta(meta);
-
-                        ItemStack backItem = new ItemStack(Material.ARROW);
-                        meta = backItem.getItemMeta();
-                        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Abort", "#AAAAAA"));
-                        backItem.setItemMeta(meta);
 
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
 
-                        return new ConfirmationGui("Delete Drop?", deleteItem, backItem, () -> {
-                            dropevent.removeDrop(dropItem);
-                            DropeventStorage.saveDropevent(dropevent);
+                        return new ConfirmationGui("Delete Drop?",
+                                GuiItemTemplate.DELETE.create("Delete Drop"),
+                                GuiItemTemplate.BACK.create("Abort"),
+                                () -> {
+                            dropService.deleteDropById(drop.getId());
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
                             return new DropeventDropsGui(dropevent, sender, plugin).getGui();
                         }, () -> {
@@ -155,13 +149,11 @@ public class SingleDropGui {
             }
             if(slot >= 54 && itemSelection) {
 
-                dropevent.removeDrop(dropItem);
-                dropevent.setItemDropChance(item, currentChance);
-
-                DropeventStorage.saveDropevent(dropevent);
+                drop.setItem(item);
+                dropService.updateDrop(drop);
 
                 if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                return new SingleDropGui(dropevent, item, false, unusedChance, sender, plugin).getGui();
+                return new SingleDropGui(dropevent, drop, false, sender, plugin).getGui();
             }
 
             return new PreventCloseGui();

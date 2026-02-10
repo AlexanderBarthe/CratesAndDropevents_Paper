@@ -1,13 +1,12 @@
 package dev.upscairs.cratesAndDropevents.dropevents.gui_implementations;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.crates.gui_implementations.CrateEditGui;
-import dev.upscairs.cratesAndDropevents.crates.gui_implementations.CrateListGui;
+import dev.upscairs.cratesAndDropevents.db.services.DropeventService;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
 import dev.upscairs.cratesAndDropevents.helper.ConfirmationGui;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
-import dev.upscairs.cratesAndDropevents.resc.DropeventStorage;
+import dev.upscairs.cratesAndDropevents.helper.GuiItemTemplate;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
 import dev.upscairs.mcGuiFramework.base.ItemDisplayGui;
 import dev.upscairs.mcGuiFramework.functionality.PreventCloseGui;
@@ -25,31 +24,33 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 
 public class DropeventEditGui {
 
-    private Dropevent dropevent;
-    private CommandSender sender;
-    private Plugin plugin;
-    private boolean renderItemSelection;
-    private ChatMessageConfig messageConfig;
+    private final CratesAndDropevents plugin;
+    private final ChatMessageConfig messageConfig;
+    private final DropeventService dropeventService;
 
-    private InteractableGui gui;
+    private final InteractableGui gui;
+    private final Dropevent dropevent;
+    private final CommandSender sender;
 
-    public DropeventEditGui(Dropevent dropevent, boolean renderItemSelection, CommandSender sender, Plugin plugin) {
+    private final boolean renderItemSelection;
+
+    public DropeventEditGui(Dropevent dropevent, boolean renderItemSelection, CommandSender sender, CratesAndDropevents plugin) {
         gui = new InteractableGui(new ItemDisplayGui());
         configureClickReaction();
 
         this.dropevent = dropevent;
         this.sender = sender;
         this.plugin = plugin;
+        this.dropeventService = plugin.getDbServices().getDropeventService();
         this.renderItemSelection = renderItemSelection;
-        messageConfig = ((CratesAndDropevents) plugin).getChatMessageConfig();
+        messageConfig = plugin.getChatMessageConfig();
 
-        gui.setTitle("Edit " + dropevent.getName());
+        gui.setTitle("Edit " + dropevent.getNameRaw());
         gui.setSize(54);
 
         placeItems();
@@ -59,24 +60,32 @@ public class DropeventEditGui {
 
         ItemMeta meta;
 
-        ItemStack backItem = new ItemStack(Material.ARROW);
-        meta = backItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("To the overview", "#AAAAAA").decoration(TextDecoration.BOLD, true));
-        backItem.setItemMeta(meta);
-        gui.setItem(45, backItem);
+        gui.setItem(44, GuiItemTemplate.ID.create("ID: " + dropevent.getId()));
+
+        gui.setItem(45, GuiItemTemplate.BACK.create("To the overview"));
+
+        ItemStack giveItem = dropevent.getItem().clone();
+        giveItem.setAmount(64);
+        meta = giveItem.getItemMeta();
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Give starter items", "#55FFFF"));
+        giveItem.setItemMeta(meta);
+        gui.setItem(4, giveItem);
 
         ItemStack rangeItem = new ItemStack(Material.COMPASS);
         meta = rangeItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("Range: " + dropevent.getDropRange(), "#55FFFF").decoration(TextDecoration.BOLD, true));
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Range: " + dropevent.getDropRange(), "#55FFFF"));
         rangeItem.setItemMeta(meta);
         gui.setItem(10, rangeItem);
 
         ItemStack timeItem = new ItemStack(Material.CLOCK);
         meta = timeItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("Duration: " + dropevent.getEventTimeSec() + "s", "#55FF55").decoration(TextDecoration.BOLD, true));
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Duration: " + dropevent.getEventTimeSec() + "s", "#55FF55"));
         timeItem.setItemMeta(meta);
         gui.setItem(12, timeItem);
 
+        gui.setItem(35, GuiItemTemplate.FOLDER_CONFIG.create());
+
+        gui.setItem(36, GuiItemTemplate.EDIT_NAME.create());
 
         ItemStack broadcastItem = new ItemStack(Material.BELL);
         meta = broadcastItem.getItemMeta();
@@ -86,34 +95,29 @@ public class DropeventEditGui {
                 : InvGuiUtils.generateDefaultTextComponent("off", "#FF5555");
 
         meta.displayName(InvGuiUtils
-                .generateDefaultTextComponent("Broadcasting: ", "#CCCCCC")
-                .append(broadcastBooleanComponent)
-                .decoration(TextDecoration.BOLD, true));
+                .generateDefaultHeaderComponent("Broadcasting: ", "#CCCCCC")
+                .append(broadcastBooleanComponent));
         meta.setEnchantmentGlintOverride(dropevent.isBroadcasting());
         broadcastItem.setItemMeta(meta);
         gui.setItem(19, broadcastItem);
 
         ItemStack minPlayerItem = new ItemStack(Material.PLAYER_HEAD);
         meta = minPlayerItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("Min players to start: " + dropevent.getMinPlayers(), "#AA0000").decoration(TextDecoration.BOLD, true));
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Min players to start: " + dropevent.getMinPlayers(), "#AA0000"));
         minPlayerItem.setItemMeta(meta);
-        gui.setItem(30, minPlayerItem);
+        gui.setItem(23, minPlayerItem);
 
-        ItemStack lootItem = new ItemStack(Material.CHEST);
-        meta = lootItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("Configure Loot Pool", "#FFAA00").decoration(TextDecoration.BOLD, true));
-        lootItem.setItemMeta(meta);
-        gui.setItem(32, lootItem);
+        gui.setItem(31, GuiItemTemplate.LOOTPOOL.create("Configure Loot pool"));
 
         ItemStack droppedItem = new ItemStack(Material.HOPPER);
         meta = droppedItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("Dropped Items: " + dropevent.getDropCount(), "#AA00AA").decoration(TextDecoration.BOLD, true));
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Dropped Items: " + dropevent.getDropCount(), "#AA00AA"));
         droppedItem.setItemMeta(meta);
         gui.setItem(14, droppedItem);
 
         ItemStack countdownItem = new ItemStack(Material.SPYGLASS);
         meta = countdownItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("Countdown: " + dropevent.getCountdownSec() + "s", "#AA0000").decoration(TextDecoration.BOLD, true));
+        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Countdown: " + dropevent.getCountdownSec() + "s", "#AA0000"));
         countdownItem.setItemMeta(meta);
         gui.setItem(16, countdownItem);
 
@@ -129,17 +133,9 @@ public class DropeventEditGui {
         startInstantlyItem.setItemMeta(meta);
         gui.setItem(48, startInstantlyItem);
 
-        ItemStack removeItem = new ItemStack(Material.LAVA_BUCKET);
-        meta = removeItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Delete Dropevent", "#FF5555"));
-        removeItem.setItemMeta(meta);
-        gui.setItem(53, removeItem);
+        gui.setItem(53, GuiItemTemplate.DELETE.create("Delete Dropevent"));
 
-        ItemStack cloneItem = new ItemStack(Material.EMERALD);
-        meta = cloneItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Clone Event", "#55FF55"));
-        cloneItem.setItemMeta(meta);
-        gui.setItem(51, cloneItem);
+        gui.setItem(51, GuiItemTemplate.CLONE.create("Clone Event"));
 
         ItemStack teleportItem = new ItemStack(Material.ENDER_PEARL);
         meta = teleportItem.getItemMeta();
@@ -148,9 +144,8 @@ public class DropeventEditGui {
                 : InvGuiUtils.generateDefaultTextComponent("no", "#FF5555");
 
         meta.displayName(InvGuiUtils
-                .generateDefaultTextComponent("Teleportable: ", "#009999")
-                .append(teleportBooleanComponent)
-                .decoration(TextDecoration.BOLD, true));
+                .generateDefaultHeaderComponent("Teleportable: ", "#009999")
+                .append(teleportBooleanComponent));
         meta.setEnchantmentGlintOverride(dropevent.isTeleportable());
         teleportItem.setItemMeta(meta);
         gui.setItem(21, teleportItem);
@@ -160,17 +155,17 @@ public class DropeventEditGui {
         if(renderItemSelection) {
             renderItem = new ItemStack(Material.SCAFFOLDING);
             meta = renderItem.getItemMeta();
-            meta.displayName(InvGuiUtils.generateDefaultTextComponent("Click on new item or click here to abort", "#AA00AA").decoration(TextDecoration.BOLD, true));
+            meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Click on new item or click here to abort", "#AA00AA"));
             meta.setEnchantmentGlintOverride(true);
             renderItem.setItemMeta(meta);
         }
         else {
-            renderItem = dropevent.getRenderItem().clone();
+            renderItem = new ItemStack(dropevent.getRenderItem().getType());
             meta = renderItem.getItemMeta();
-            meta.displayName(InvGuiUtils.generateDefaultTextComponent("Click to configure render item", "#AA00AA").decoration(TextDecoration.BOLD, true));
+            meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Click to configure render item", "#AA00AA"));
             renderItem.setItemMeta(meta);
         }
-        gui.setItem(23, renderItem);
+        gui.setItem(27, renderItem);
 
         ItemStack commandItem = new ItemStack(Material.COMMAND_BLOCK);
         meta = commandItem.getItemMeta();
@@ -187,12 +182,32 @@ public class DropeventEditGui {
         gui.onClick((slot, item, self) -> {
 
             Component cancelComponent = Component.text(" [Cancel]", NamedTextColor.RED)
-                    .clickEvent(ClickEvent.runCommand("/crates cancel"))
+                    .clickEvent(ClickEvent.runCommand("/cad cancel"))
                     .hoverEvent(HoverEvent.showText(Component.text("Click to Cancel", NamedTextColor.RED)))
                     .decorate(TextDecoration.BOLD);
 
             if(slot < 54) {
                 switch (slot) {
+                    case 4:
+                        Bukkit.dispatchCommand(sender, "de give " + sender.getName() + " " + dropevent.getId() + " 64");
+                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
+                        return new PreventCloseGui();
+                    case 35:
+                        sender.sendMessage(messageConfig.getColored("dropevent.info.type-folder").append(cancelComponent));
+                        ChatMessageInputHandler.addListener(sender, (msg) -> {
+                            if(sender instanceof Player p) {
+                                Bukkit.getScheduler().runTask(plugin, () -> {
+                                    Bukkit.dispatchCommand(sender, "de move " + dropevent.getId() + " /" + msg);
+                                    McGuiFramework.getGuiSounds().playSuccessSound(p);
+                                    p.openInventory(new DropeventEditGui(dropevent, false, sender, plugin).getGui().getInventory());
+                                });
+                            }
+                        });
+
+                        if (sender instanceof Player p) p.closeInventory();
+                        if (sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
+                        return null;
+
                     case 10:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new EditDropeventNumberGui(dropevent.getDropRange(), 0, 999, dropevent, "Range", sender).getGui();
@@ -205,25 +220,17 @@ public class DropeventEditGui {
                     case 16:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new EditDropeventNumberGui(dropevent.getCountdownSec(), 0, 999, dropevent, "Countdown", sender).getGui();
-                    case 30:
+                    case 19:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        return new EditDropeventNumberGui(dropevent.getMinPlayers(), 0, 2500, dropevent, "Minplayers", sender).getGui();
-                    case 32:
+                        dropevent.setBroadcasting(!dropevent.isBroadcasting());
+                        dropeventService.update(dropevent);
+                        return new DropeventEditGui(dropevent, renderItemSelection, sender, plugin).getGui();
+                    case 21:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        return new DropeventDropsGui(dropevent, sender, plugin).getGui();
-                    case 45:
-                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        Bukkit.dispatchCommand(sender, "dropevent list");
-                        return new PreventCloseGui();
-                    case 47:
-                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        Bukkit.dispatchCommand(sender, "dropevent start " + dropevent.getName());
-                        return null;
-                    case 48:
-                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        Bukkit.dispatchCommand(sender, "dropevent start-now " + dropevent.getName());
-                        return null;
-                    case 23:
+                        dropevent.setTeleportable(!dropevent.isTeleportable());
+                        dropeventService.update(dropevent);
+                        return new DropeventEditGui(dropevent, renderItemSelection, sender, plugin).getGui();
+                    case 27:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new DropeventEditGui(dropevent, !renderItemSelection, sender, plugin).getGui();
                     case 25:
@@ -232,7 +239,7 @@ public class DropeventEditGui {
                         ChatMessageInputHandler.addListener(sender, (msg) -> {
                             if(msg.isBlank() || msg.equalsIgnoreCase(".")) dropevent.setStartupCommand(null);
                             else dropevent.setStartupCommand(msg);
-                            DropeventStorage.saveDropevent(dropevent);
+                            dropeventService.update(dropevent);
 
                             if(sender instanceof Player p) {
                                 McGuiFramework.getGuiSounds().playSuccessSound(p);
@@ -245,66 +252,82 @@ public class DropeventEditGui {
                         if(sender instanceof Player p) p.closeInventory();
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return null;
+                    case 23:
+                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
+                        return new EditDropeventNumberGui(dropevent.getMinPlayers(), 0, 2500, dropevent, "Minplayers", sender).getGui();
+                    case 31:
+                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
+                        return new DropeventDropsGui(dropevent, sender, plugin).getGui();
+                    case 36:
+                        sender.sendMessage(messageConfig.getColored("dropevent.info.type-name").append(cancelComponent));
+                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
 
-                    case 19:
+                        ChatMessageInputHandler.addListener(sender, (msg) -> {
+                            if (sender instanceof Player p) {
+                                dropevent.setName(msg);
+                                dropeventService.update(dropevent, updated -> {
+                                    Bukkit.getScheduler().runTask(plugin, () -> {
+                                        McGuiFramework.getGuiSounds().playSuccessSound(p);
+                                        p.openInventory(new DropeventEditGui(dropevent, false, sender, plugin).getGui().getInventory());
+                                    });
+                                });
+
+                            }
+                        });
+                        if(sender instanceof Player p) p.closeInventory();
+                        return null;
+
+                    case 45:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        dropevent.setBroadcasting(!dropevent.isBroadcasting());
-                        DropeventStorage.saveDropevent(dropevent);
-                        return new DropeventEditGui(dropevent, renderItemSelection, sender, plugin).getGui();
-                    case 21:
+                        return new DropeventListGui(dropevent.getFolder(), 0, sender, plugin).getGui();
+                    case 47:
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        dropevent.setTeleportable(!dropevent.isTeleportable());
-                        DropeventStorage.saveDropevent(dropevent);
-                        return new DropeventEditGui(dropevent, renderItemSelection, sender, plugin).getGui();
+                        Bukkit.dispatchCommand(sender, "dropevent start " + dropevent.getId());
+                        return null;
+                    case 48:
+                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
+                        Bukkit.dispatchCommand(sender, "dropevent start-now " + dropevent.getId());
+                        return null;
+                    case 51:
+
+                        Dropevent clonedDropevent = dropevent.clone();
+
+                        dropeventService.create(clonedDropevent, created -> {
+                            if (sender instanceof Player p) {
+                                p.openInventory(new DropeventListGui(dropevent.getFolder(), 0, sender, plugin).getGui().getInventory());
+                                McGuiFramework.getGuiSounds().playSuccessSound(p);
+                            }
+                        });
+
+                        return gui;
                     case 53:
-                        ItemStack deleteItem = new ItemStack(Material.LAVA_BUCKET);
-                        ItemMeta meta = deleteItem.getItemMeta();
-                        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Delete Dropevent", "#FF5555"));
-                        deleteItem.setItemMeta(meta);
-
-                        ItemStack backItem = new ItemStack(Material.ARROW);
-                        meta = backItem.getItemMeta();
-                        meta.displayName(InvGuiUtils.generateDefaultHeaderComponent("Abort", "#AAAAAA"));
-                        backItem.setItemMeta(meta);
 
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
 
-                        return new ConfirmationGui("Delete Dropevent?", deleteItem, backItem, () -> {
-                            DropeventStorage.removeDropevent(dropevent);
+                        return new ConfirmationGui("Delete Dropevent?",
+                                GuiItemTemplate.DELETE.create("Delete Dropevent"),
+                                GuiItemTemplate.BACK.create("Abort"),
+                                () -> {
+                            dropeventService.delete(dropevent.getId());
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
-                            return new DropeventListGui(sender, plugin).getGui();
+                            return new DropeventListGui(dropevent.getFolder(), 0, sender, plugin).getGui();
                         }, () -> {
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                             return self;
                         }).getGui();
-                    case 51:
-                        sender.sendMessage(messageConfig.getColored("dropevent.info.type-name").append(cancelComponent));
-
-                        ChatMessageInputHandler.addListener(sender, (msg) -> {
-                            if (sender instanceof Player p) {
-                                Bukkit.getScheduler().runTask(plugin, () -> {
-                                    Bukkit.dispatchCommand(sender, "dropevent clone " + dropevent.getName() + " " + msg);
-                                    p.openInventory(new DropeventListGui(sender, plugin).getGui().getInventory());
-                                });
-                            }
-                        });
-
-                        if(sender instanceof Player p) p.closeInventory();
-                        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                        return null;
-
                     default:
                         return new PreventCloseGui();
+
                 }
             }
-            if(slot >= 54 && renderItemSelection) {
+            if(renderItemSelection) {
 
                 if(item.getType().isAir()) {
                     return new PreventCloseGui();
                 }
 
-                dropevent.setRenderItem(item);
-                DropeventStorage.saveDropevent(dropevent);
+                dropevent.setItem(item);
+                dropeventService.update(dropevent);
 
                 if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                 return new DropeventEditGui(dropevent, false, sender, plugin).getGui();

@@ -1,10 +1,10 @@
 package dev.upscairs.cratesAndDropevents.dropevents.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
+import dev.upscairs.cratesAndDropevents.db.services.DropeventService;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
-import dev.upscairs.cratesAndDropevents.resc.DropeventStorage;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
@@ -22,9 +22,13 @@ import java.util.stream.Collectors;
 
 public class DEGiveSubCommand implements SubCommand {
 
+    private final ChatMessageConfig messageConfig;
+    private final DropeventService dropeventService;
     private final CratesAndDropevents plugin;
 
     public DEGiveSubCommand(CratesAndDropevents plugin) {
+        this.messageConfig = plugin.getChatMessageConfig();
+        this.dropeventService = plugin.getDbServices().getDropeventService();
         this.plugin = plugin;
     }
 
@@ -41,10 +45,6 @@ public class DEGiveSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
 
-        if(!isSenderPermitted(sender)) return true;
-
-        ChatMessageConfig messageConfig = plugin.getChatMessageConfig();
-
         //Retrieve and check arguments
         Player target = plugin.getServer().getPlayer(args[1]);
         if(target == null) {
@@ -53,9 +53,9 @@ public class DEGiveSubCommand implements SubCommand {
         }
 
 
-        Dropevent dropevent = DropeventStorage.getDropeventByName(args[2]);
+        Dropevent dropevent = dropeventService.getById(args[2]);
         if(dropevent == null) {
-            sender.sendMessage(messageConfig.getColored("dropevent.error.name-not-found"));
+            sender.sendMessage(messageConfig.getColored("dropevent.error.invalid-id"));
             return true;
         }
 
@@ -74,25 +74,8 @@ public class DEGiveSubCommand implements SubCommand {
         }
 
         //Set values
-        ItemStack givenItem = dropevent.getRenderItem().clone();
+        ItemStack givenItem = dropevent.getDropStarterItem();
         givenItem.setAmount(count);
-
-        //Flag item as dropevent starter
-        NamespacedKey key = Dropevent.EVENT_KEY;
-
-        ItemMeta meta = givenItem.getItemMeta();
-        meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, dropevent.getName());
-        List<Component> lore = meta.lore();
-
-        //Subtext
-        if(lore == null) lore = new ArrayList<>();
-
-        lore.add(InvGuiUtils.generateDefaultHeaderComponent("", "#000000"));
-        lore.add(InvGuiUtils.generateDefaultHeaderComponent("Dropevent", "#A40064"));
-        lore.add(InvGuiUtils.generateDefaultTextComponent("Shift + Right Click to start", "#AAAAAA"));
-
-        meta.lore(lore);
-        givenItem.setItemMeta(meta);
 
         //Give
         target.getInventory().addItem(givenItem);
@@ -116,9 +99,6 @@ public class DEGiveSubCommand implements SubCommand {
             return plugin.getServer().getOnlinePlayers().stream()
                     .map(Player::getName)
                     .collect(Collectors.toList());
-        }
-        else if(args.length == 3) {
-            return DropeventStorage.getDropeventNames();
         }
 
         return Collections.emptyList();

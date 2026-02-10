@@ -1,7 +1,10 @@
 package dev.upscairs.cratesAndDropevents.dropevents.gui_implementations;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.db.services.DropService;
+import dev.upscairs.cratesAndDropevents.dropevents.Drop;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
-import dev.upscairs.cratesAndDropevents.resc.DropeventStorage;
+import dev.upscairs.cratesAndDropevents.helper.GuiItemTemplate;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
 import dev.upscairs.mcGuiFramework.base.InventoryGui;
 import dev.upscairs.mcGuiFramework.base.ItemDisplayGui;
@@ -9,7 +12,6 @@ import dev.upscairs.mcGuiFramework.functionality.PreventCloseGui;
 import dev.upscairs.mcGuiFramework.gui_wrappers.InteractableGui;
 import dev.upscairs.mcGuiFramework.gui_wrappers.PageGui;
 import dev.upscairs.mcGuiFramework.utility.InvGuiUtils;
-import dev.upscairs.mcGuiFramework.utility.ListableGuiObject;
 import dev.upscairs.mcGuiFramework.utility.ListableItemStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -18,39 +20,41 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 public class DropeventDropsGui {
 
-    private Dropevent dropevent;
-    private CommandSender sender;
-    private Plugin plugin;
+    private final CratesAndDropevents plugin;
+    private final DropService dropService;
+
+    private final Dropevent dropevent;
+    private final CommandSender sender;
+    private final PageGui gui;
 
     private int unusedChance;
 
-    private PageGui gui;
+    private final List<Drop> sortedDrops;
 
-    public DropeventDropsGui(Dropevent dropevent, CommandSender sender, Plugin plugin) {
-        gui = new PageGui(new InteractableGui(new ItemDisplayGui()),
-                dropevent.getDrops().entrySet().stream()
-                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                    .map(Map.Entry::getKey)
-                    .map(ListableItemStack::new)
-                    .toList(),
-                0);
-        configureClickReaction();
+    public DropeventDropsGui(Dropevent dropevent, CommandSender sender, CratesAndDropevents plugin) {
 
         this.dropevent = dropevent;
         this.sender = sender;
         this.plugin = plugin;
+        this.dropService = plugin.getDbServices().getDropService();
+        this.unusedChance = dropService.getRemainingChanceForEvent(dropevent.getId());
+
+        sortedDrops = new ArrayList<>(dropService.getDropsForDropevent(dropevent.getId()).stream().sorted(
+                Comparator.comparingInt(Drop::getProbability).reversed()).toList());
+
+
+        gui = new PageGui(new InteractableGui(new ItemDisplayGui()), sortedDrops, 0);
+        configureClickReaction();
 
         gui.showPageInTitle(true);
-        gui.setTitle("Loot Pool of " + dropevent.getName());
+        gui.setTitle("Loot Pool of " + dropevent.getNameRaw());
 
         placeItems();
         writeItemChances();
@@ -62,19 +66,9 @@ public class DropeventDropsGui {
 
         gui.placeItems();
 
-        ItemMeta meta;
+        gui.setItem(46, GuiItemTemplate.BACK.create("To edit window"));
 
-        ItemStack backItem = new ItemStack(Material.ARROW);
-        meta = backItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("To edit window", "#AAAAAA").decoration(TextDecoration.BOLD, true));
-        backItem.setItemMeta(meta);
-        gui.setItem(46, backItem);
-
-        ItemStack newDropItem = new ItemStack(Material.CHEST_MINECART);
-        meta = newDropItem.getItemMeta();
-        meta.displayName(InvGuiUtils.generateDefaultTextComponent("Add drop", "#FFAA00").decoration(TextDecoration.BOLD, true));
-        newDropItem.setItemMeta(meta);
-        gui.setItem(49, newDropItem);
+        gui.setItem(49, GuiItemTemplate.CREATE_NEW.create("Add drop"));
 
 
     }
@@ -86,18 +80,13 @@ public class DropeventDropsGui {
      *
      */
     private void writeItemChances() {
-        List<Map.Entry<ItemStack, Integer>> entries = new ArrayList<>(dropevent.getDrops().entrySet());
-        //Sort by probability
-        entries.sort(Map.Entry.<ItemStack, Integer>comparingByValue(Comparator.reverseOrder()));
 
         List<ListableItemStack> updated = new ArrayList<>();
-        int summedProbability = 0;
 
         //Write chances
-        for (Map.Entry<ItemStack, Integer> entry : entries) {
-            ItemStack originalItem = entry.getKey().clone();
-            int itemChance = entry.getValue();
-            summedProbability += itemChance;
+        for (Drop drop : sortedDrops) {
+            ItemStack originalItem = drop.getItem();
+            int itemChance = drop.getProbability();
 
             ItemStack item = originalItem.clone();
             List<Component> lore = List.of(
@@ -107,9 +96,6 @@ public class DropeventDropsGui {
 
             updated.add(new ListableItemStack(item));
         }
-
-        unusedChance = 1000 - summedProbability;
-
 
         //Create a "No drop" item if there is unused chance left.
         if (unusedChance > 0) {
@@ -138,23 +124,15 @@ public class DropeventDropsGui {
 
                 int lastAvailableIndex = gui.getListedObjects().size() - 1;
 
-                if(unusedChance > 0f) {
-                    lastAvailableIndex--;
-                }
+                if(unusedChance > 0f) lastAvailableIndex--;
 
-                if(lastAvailableIndex < selectedIndex) {
-                    return new PreventCloseGui();
-                }
+                if(lastAvailableIndex < selectedIndex) return new PreventCloseGui();
 
-                List<ItemStack> originals = dropevent.getDrops().entrySet().stream()
-                        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                        .map(Map.Entry::getKey)
-                        .toList();
 
-                ItemStack originalDrop = originals.get(selectedIndex).clone();
+                Drop drop = sortedDrops.get(selectedIndex).clone();
 
                 if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                return new SingleDropGui(dropevent, originalDrop, false, unusedChance, sender, plugin).getGui();
+                return new SingleDropGui(dropevent, drop, false, sender, plugin).getGui();
 
             }
 
@@ -169,22 +147,22 @@ public class DropeventDropsGui {
                 ItemStack newItem = new ItemStack(Material.STONE);
                 ItemMeta meta = newItem.getItemMeta();
                 meta.displayName(Component.text()
-                        .content("Stone " + (dropevent.getDrops().size()+1))
+                        .content("Stone " + (dropService.getDropsForDropevent(dropevent.getId()).size()+1))
                         .decoration(TextDecoration.ITALIC, false)
                         .build());
                 newItem.setItemMeta(meta);
 
-                if(unusedChance > 0f) {
-                    dropevent.setItemDropChance(newItem, unusedChance);
-                }
-                else {
-                    dropevent.setItemDropChance(newItem, 0);
-                }
+                int newChance = Math.max(0, unusedChance);
+                Drop drop = new Drop(0, dropevent.getId(), newChance, newItem);
 
-                DropeventStorage.saveDropevent(dropevent);
+                dropService.createDrop(drop, created -> {
+                    if(sender instanceof Player p) {
+                        McGuiFramework.getGuiSounds().playSuccessSound(p);
+                        p.openInventory(new DropeventDropsGui(dropevent, sender, plugin).getGui().getInventory());
+                    }
+                });
 
-                if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                return new DropeventDropsGui(dropevent, sender, plugin).getGui();
+                return gui;
             }
 
             return gui;

@@ -2,20 +2,19 @@ package dev.upscairs.cratesAndDropevents;
 
 import dev.upscairs.cratesAndDropevents.cad_command.CaDCommand;
 import dev.upscairs.cratesAndDropevents.dropevents.management.DropeventItemHandler;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.ChatMessageInputHandler;
-import dev.upscairs.cratesAndDropevents.crates.management.Crate;
 import dev.upscairs.cratesAndDropevents.crates.commands.CratesCommand;
 import dev.upscairs.cratesAndDropevents.crates.management.CratePlaceHandler;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
-import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
-import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
+import dev.upscairs.cratesAndDropevents.db.DatabaseManager;
+import dev.upscairs.cratesAndDropevents.db.services.DbServices;
 import dev.upscairs.cratesAndDropevents.dropevents.commands.DropeventCommand;
-import dev.upscairs.cratesAndDropevents.resc.DropeventStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.EventDragonDropPreventListener;
+import dev.upscairs.cratesAndDropevents.hooks.shopguiplus.ShopGUIPlusHook;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
-import org.bukkit.NamespacedKey;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -28,37 +27,54 @@ public final class CratesAndDropevents extends JavaPlugin {
 
     private static CratesAndDropevents instance;
 
+private DatabaseManager dbManager;
+    private DbServices dbServices;
+
+    // Integrations
+    private ShopGUIPlusHook shopGUIPlusHook;
+    private Economy eco = null;
+
     @Override
     public void onEnable() {
 
         instance = this;
 
-        ConfigurationSerialization.registerClass(CrateReward.class, "CrateReward" );
-        ConfigurationSerialization.registerClass(Dropevent.class, "Dropevent");
-        ConfigurationSerialization.registerClass(Crate.class, "Crate");
+        registerConfigs();
 
-        CrateStorage.init(this);
-        DropeventStorage.init(this);
+        initDb();
 
         registerCommands();
         registerEvents();
-        registerConfigs();
 
         McGuiFramework.initalize(this);
         McGuiFramework.playSounds(getConfig().getBoolean("gui.play-sounds"));
+
+        setupIntegrations();
 
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        if (dbManager != null) {
+            dbManager.close();
+        }
     }
+
 
     public void reloadConfigs() {
         reloadConfig();
         registerConfigs();
-        CrateStorage.init(this);
-        DropeventStorage.init(this);
+    }
+
+    private void initDb() {
+        try {
+            this.dbManager = new DatabaseManager(this);
+            this.dbServices = new DbServices(this, dbManager);
+
+        } catch (Exception e) {
+            getLogger().severe("Error while starting database");
+            setEnabled(false);
+        }
     }
 
     private void registerCommands() {
@@ -82,7 +98,7 @@ public final class CratesAndDropevents extends JavaPlugin {
     private void registerEvents() {
         getServer().getPluginManager().registerEvents(new EventDragonDropPreventListener(), this);
         getServer().getPluginManager().registerEvents(new DropeventItemHandler(this), this);
-        getServer().getPluginManager().registerEvents(new CratePlaceHandler(), this);
+        getServer().getPluginManager().registerEvents(new CratePlaceHandler(this), this);
         getServer().getPluginManager().registerEvents(new ChatMessageInputHandler(), this);
     }
 
@@ -111,13 +127,17 @@ public final class CratesAndDropevents extends JavaPlugin {
         saveConfig();
     }
 
+    public void setupIntegrations() {
+        if(hookIntoShopGUIPlus()) getLogger().info("ShopGUI+ detected.");
+        if(setupEconomy()) getLogger().info("Vault integration successful.");
+    }
+
+
     private void setConfigDefaults() {
         getConfig().addDefault("crates.normal-players.view-lootpool", false);
         getConfig().addDefault("dropevents.simultaneous-limit.active", false);
         getConfig().addDefault("dropevents.simultaneous-limit.count", 5);
         getConfig().addDefault("dropevents.normal-players.usable", false);
-        //Removed: getConfig().addDefault("dropevents.normal-players.start.online-player-condition", false);
-        //Removed: getConfig().addDefault("dropevents.normal-players.start.min-online-players", 10);
         getConfig().addDefault("dropevents.forbidden-worlds", List.of("minecraft:the_nether", "minecraft:the_end"));
         getConfig().addDefault("dropevents.hopper-prevention", false);
         getConfig().addDefault("dropevents.ops-override-restrictions", true);
@@ -137,5 +157,38 @@ public final class CratesAndDropevents extends JavaPlugin {
     public static CratesAndDropevents getInstance() {
         return instance;
     }
+
+    public DbServices getDbServices() {
+        return dbServices;
+    }
+
+    private boolean hookIntoShopGUIPlus() {
+        if (Bukkit.getPluginManager().getPlugin("ShopGUIPlus") != null) {
+            this.shopGUIPlusHook = new ShopGUIPlusHook(this);
+            Bukkit.getPluginManager().registerEvents(shopGUIPlusHook, this);
+
+            return true;
+        }
+        return false;
+    }
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+
+        eco = rsp.getProvider();
+        return eco != null;
+    }
+
+    public Economy getEconomy() {
+        return eco;
+    }
+
+
 
 }

@@ -1,20 +1,16 @@
 package dev.upscairs.cratesAndDropevents.crates.commands;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.crates.commands.sub.*;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class CratesCommand implements CommandExecutor, TabCompleter {
 
@@ -36,9 +32,9 @@ public class CratesCommand implements CommandExecutor, TabCompleter {
         register(new CrInfoSubCommand(p));
         register(new CrListSubCommand(p));
         register(new CrRewardsSubCommand(p));
-        register(new CrCancelSubCommand(p));
         register(new CrDeleteSubCommand(p));
         register(new CrLootSubCommand(p));
+        register(new CrMoveSubCommand(p));
     }
 
     public void register(SubCommand cmd) {
@@ -63,6 +59,10 @@ public class CratesCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if(!handler.isSenderPermitted(sender)) {
+            sender.sendMessage(messageConfig.getColored("system.command.error.no-permission"));
+            return true;
+        }
         return handler.execute(sender, args);
 
     }

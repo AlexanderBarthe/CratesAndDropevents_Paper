@@ -28,7 +28,7 @@ public class EditDropeventNumberGui {
         this.sender = sender;
 
         configureClickReaction();
-        gui.setTitle("Edit " + changedSetting + " for " + dropevent.getName());
+        gui.setTitle("Edit " + changedSetting + " for " + dropevent.getNameRaw());
     }
 
 
@@ -37,12 +37,13 @@ public class EditDropeventNumberGui {
         gui.onClick((slot, item, self) -> {
             if(slot == 30) {
                 if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
-                Bukkit.dispatchCommand(sender, "dropevent edit " + dropevent.getName() + " "  + changedSetting + " " + gui.getNumber());
-                Bukkit.dispatchCommand(sender, "dropevent info " + dropevent.getName());
+                //TODO possible race condition, fix this
+                Bukkit.dispatchCommand(sender, "dropevent edit " + dropevent.getId() + " "  + changedSetting + " " + gui.getNumber());
+                Bukkit.dispatchCommand(sender, "dropevent info " + dropevent.getId());
             }
             else if(slot == 32) {
                 if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                Bukkit.dispatchCommand(sender, "dropevent info " + dropevent.getName());
+                Bukkit.dispatchCommand(sender, "dropevent info " + dropevent.getId());
             }
 
             return new PreventCloseGui();

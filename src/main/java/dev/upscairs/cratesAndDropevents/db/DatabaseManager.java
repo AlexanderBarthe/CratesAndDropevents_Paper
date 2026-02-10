@@ -1,0 +1,49 @@
+package dev.upscairs.cratesAndDropevents.db;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+public class DatabaseManager {
+    private final HikariDataSource ds;
+
+    private final boolean freshDatabase;
+
+    public DatabaseManager(JavaPlugin plugin) {
+        File dbFile = new File(plugin.getDataFolder(), "data.db");
+        plugin.getDataFolder().mkdirs();
+
+        this.freshDatabase = !dbFile.exists();
+
+        String jdbcUrl = "jdbc:sqlite:" + dbFile.getAbsolutePath();
+
+        HikariConfig cfg = new HikariConfig();
+        cfg.setJdbcUrl(jdbcUrl);
+        cfg.setMaximumPoolSize(1);
+        cfg.setPoolName(plugin.getName() + "-HikariPool");
+        cfg.setConnectionInitSql(
+                "PRAGMA journal_mode=WAL; " +
+                        "PRAGMA foreign_keys=ON; " +
+                        "PRAGMA synchronous=NORMAL; " +
+                        "PRAGMA busy_timeout=5000;"
+        );
+
+        this.ds = new HikariDataSource(cfg);
+    }
+
+    public boolean isFreshDatabase() {
+        return freshDatabase;
+    }
+
+    public Connection getConnection() throws SQLException {
+        return ds.getConnection();
+    }
+
+    public void close() {
+        if (ds != null && !ds.isClosed()) ds.close();
+    }
+}

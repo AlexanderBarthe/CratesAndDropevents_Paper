@@ -1,60 +1,67 @@
 package dev.upscairs.cratesAndDropevents.crates.management;
 
+import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
 import dev.upscairs.cratesAndDropevents.crates.rewards.CrateReward;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
+import dev.upscairs.cratesAndDropevents.db.services.CrateRewardService;
+import dev.upscairs.cratesAndDropevents.db.services.PlayerPityService;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
-public abstract class CrateOpener {
+public class CrateOpener {
 
-    public static void openCrate(Crate crate, Player player, Location location) {
+    private final CrateRewardService rewardService;
+    private final PlayerPityService pityService;
 
-        List<Map.Entry<CrateReward, Integer>> rewards = new ArrayList<>(crate.getRewards().entrySet());
+    public CrateOpener(CratesAndDropevents plugin) {
+        this.rewardService = plugin.getDbServices().getCrateRewardService();
+        this.pityService = plugin.getDbServices().getPlayerPityService();
+    }
+
+
+    public void openCrate(Crate crate, Player player, Location location) {
+
+        List<CrateReward> rewards = new ArrayList<>(rewardService.getRewardsForCrate(crate.getId()));
 
         int pickedNumber = new Random().nextInt(1000);
 
-        for(Map.Entry<CrateReward, Integer> reward : rewards) {
+        for(CrateReward reward : rewards) {
 
-            CrateReward selectedReward = reward.getKey();
-
-            int weight = reward.getValue();
+            int weight = reward.getProbability();
 
             if (pickedNumber >= weight) {
                 pickedNumber -= weight;
                 continue;
             }
 
-            if(crate.pittySystemActive() && selectedReward.containsPittiedPlayer(player)) {
-                //Pitty system seeks alternative
-                CrateReward altReward = findAlternativeReward(crate, reward.getKey());
-                if(altReward != null) selectedReward = altReward;
+            if(crate.pitySystemActive() && pityService.isPitied(reward.getId(), player)) {
+                //Pity system seeks alternative
+                CrateReward altReward = findAlternativeReward(crate, reward);
+                if(altReward != null) reward = altReward;
             }
 
-            updatePittyEntries(crate, selectedReward, player);
-            CrateStorage.saveCrate(crate);
+            updatePityEntries(crate, reward, player);
 
-            selectedReward.execute(player, location);
+            reward.execute(player, location);
             return;
 
         }
     }
 
-    public static CrateReward findAlternativeReward(Crate crate, CrateReward reward) {
+    public CrateReward findAlternativeReward(Crate crate, CrateReward reward) {
 
-        Map<CrateReward, Integer> rewards = crate.getRewards();
+        List<CrateReward> rewards = rewardService.getRewardsForCrate(crate.getId());
 
-        int chance = rewards.get(reward);
+        int chance = reward.getProbability();
 
         List<CrateReward> alternatives = new ArrayList<>();
-        for(Map.Entry<CrateReward, Integer> entry : rewards.entrySet()) {
-            if(entry.getValue() == chance && entry.getKey() != reward) {
-                alternatives.add(entry.getKey());
+        for(CrateReward altCandidate : rewards) {
+            if(altCandidate.getProbability() == chance && altCandidate != reward) {
+                alternatives.add(altCandidate);
             }
         }
 
@@ -64,19 +71,19 @@ public abstract class CrateOpener {
 
     }
 
-    public static void updatePittyEntries(Crate crate, CrateReward reward, OfflinePlayer player) {
+    public void updatePityEntries(Crate crate, CrateReward newReward, OfflinePlayer player) {
 
-        Map<CrateReward, Integer> rewards = crate.getRewards();
+        List<CrateReward> rewards = rewardService.getRewardsForCrate(crate.getId());
 
-        int chance = rewards.get(reward);
+        int chance = newReward.getProbability();
 
-        for(Map.Entry<CrateReward, Integer> entry : rewards.entrySet()) {
-            if(entry.getValue() == chance && entry.getKey() != reward) {
-                entry.getKey().removePittiedPlayer(player);
+        for(CrateReward oldRewardCandidate : rewards) {
+            if(oldRewardCandidate.getProbability() == chance && oldRewardCandidate != newReward) {
+                pityService.removePlayerPity(oldRewardCandidate.getId(), player);
             }
         }
 
-        reward.addPittiedPlayer(player);
+        pityService.addPitiedPlayer(newReward.getId(), player);
 
     }
 

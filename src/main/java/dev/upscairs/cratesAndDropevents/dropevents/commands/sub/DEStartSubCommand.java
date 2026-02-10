@@ -1,11 +1,11 @@
 package dev.upscairs.cratesAndDropevents.dropevents.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
+import dev.upscairs.cratesAndDropevents.db.services.DropeventService;
 import dev.upscairs.cratesAndDropevents.dropevents.Dropevent;
-import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import dev.upscairs.cratesAndDropevents.dropevents.management.DropEventRunner;
-import dev.upscairs.cratesAndDropevents.resc.DropeventStorage;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
+import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -16,9 +16,13 @@ import java.util.List;
 
 public class DEStartSubCommand implements SubCommand {
 
+    private final DropeventService dropeventService;
+    private final ChatMessageConfig messageConfig;
     private final CratesAndDropevents plugin;
 
     public DEStartSubCommand(CratesAndDropevents plugin) {
+        this.dropeventService = plugin.getDbServices().getDropeventService();
+        this.messageConfig = plugin.getChatMessageConfig();
         this.plugin = plugin;
     }
 
@@ -36,22 +40,19 @@ public class DEStartSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
 
-        if(!isSenderPermitted(sender)) return true;
         if(!(sender instanceof Player p)) return true;
 
-        ChatMessageConfig messageConfig = plugin.getChatMessageConfig();
-
         if(args.length == 1) {
-            p.sendMessage(messageConfig.getColored("dropevent.error.missing-name"));
+            p.sendMessage(messageConfig.getColored("dropevent.error.missing-id"));
             return true;
         }
 
-        Dropevent event = DropeventStorage.getDropeventByName(args[1]);
+        Dropevent event = dropeventService.getById(args[1]);
 
         String locationName = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
 
         if (event == null) {
-            p.sendMessage(messageConfig.getColored("dropevent.error.name-not-found"));
+            p.sendMessage(messageConfig.getColored("dropevent.error.invalid-id"));
             return true;
         }
 
@@ -68,7 +69,6 @@ public class DEStartSubCommand implements SubCommand {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if(isSenderPermitted(sender) && args.length == 2) return DropeventStorage.getDropeventNames();
         return Collections.emptyList();
     }
 }

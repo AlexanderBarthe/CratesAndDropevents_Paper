@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dev.upscairs</groupId>
     <artifactId>CratesAndDropevents</artifactId>
-    <version>1.6.1</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
 
     <name>CratesAndDropevents</name>
@@ -47,6 +47,22 @@
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>${shaded.classifier}</shadedClassifierName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.zaxxer.hikari</pattern>
+                                    <shadedPattern>dev.upscairs.crates.libs.hikari</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.zaxxer.hikari</pattern>
+                                    <shadedPattern>dev.upscairs.crates.libs.hikari</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.sqlite</pattern>
+                                    <shadedPattern>dev.upscairs.crates.libs.sqlite</shadedPattern>
+                                </relocation>
+                            </relocations>
+
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -152,9 +168,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.Upscairs</groupId>
-            <artifactId>McGuiFramework</artifactId>
-            <version>v1.3.3</version>
+            <groupId>com.github.AlexanderBarthe</groupId>
+            <artifactId>McGuiFramework_Paper</artifactId>
+            <version>v1.3.4</version>
         </dependency>
 
         <dependency>
@@ -162,7 +178,36 @@
             <artifactId>adventure-api</artifactId>
             <version>4.21.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.brcdev-minecraft</groupId>
+            <artifactId>shopgui-api</artifactId>
+            <version>3.2.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.45.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
+
+
 
     <profiles>
         <profile>

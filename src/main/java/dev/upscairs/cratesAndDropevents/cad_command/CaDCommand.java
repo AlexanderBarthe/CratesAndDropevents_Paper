@@ -1,12 +1,12 @@
 package dev.upscairs.cratesAndDropevents.cad_command;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
+import dev.upscairs.cratesAndDropevents.cad_command.sub.CancelSubCommand;
 import dev.upscairs.cratesAndDropevents.cad_command.sub.ConfigSubCommand;
 import dev.upscairs.cratesAndDropevents.cad_command.sub.ReloadSubCommand;
-import dev.upscairs.cratesAndDropevents.cad_command.sub.UpgradeSubCommand;
 import dev.upscairs.cratesAndDropevents.cad_command.sub.VersionSubCommand;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -29,9 +29,9 @@ public class CaDCommand implements CommandExecutor, TabCompleter {
 
         CratesAndDropevents p = (CratesAndDropevents)  plugin;
 
+        register(new CancelSubCommand(p));
         register(new ReloadSubCommand(p));
         register(new VersionSubCommand(p));
-        register(new UpgradeSubCommand(p));
         register(new ConfigSubCommand(p));
 
     }
@@ -57,7 +57,10 @@ public class CaDCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(messageConfig.getColored("system.command.error.not-found"));
             return true;
         }
-
+        if(!handler.isSenderPermitted(sender)) {
+            sender.sendMessage(messageConfig.getColored("system.command.error.no-permission"));
+            return true;
+        }
         return handler.execute(sender, args);
 
     }

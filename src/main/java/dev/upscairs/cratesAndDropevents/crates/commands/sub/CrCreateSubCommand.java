@@ -1,27 +1,26 @@
 package dev.upscairs.cratesAndDropevents.crates.commands.sub;
 
 import dev.upscairs.cratesAndDropevents.CratesAndDropevents;
-import dev.upscairs.cratesAndDropevents.resc.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.crates.management.Crate;
-import dev.upscairs.cratesAndDropevents.resc.CrateStorage;
+import dev.upscairs.cratesAndDropevents.db.services.CrateService;
+import dev.upscairs.cratesAndDropevents.file_resources.ChatMessageConfig;
 import dev.upscairs.cratesAndDropevents.helper.SubCommand;
 import dev.upscairs.mcGuiFramework.McGuiFramework;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class CrCreateSubCommand implements SubCommand {
 
-    private final CratesAndDropevents plugin;
+    private final ChatMessageConfig messageConfig;
+    private final CrateService crateService;
 
     public CrCreateSubCommand(CratesAndDropevents plugin) {
-        this.plugin = plugin;
+        this.messageConfig = plugin.getChatMessageConfig();
+        this.crateService = plugin.getDbServices().getCrateService();
     }
-
 
     @Override
     public String name() {
@@ -36,31 +35,18 @@ public class CrCreateSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
 
-        if(!isSenderPermitted(sender)) return true;
+        String name = "Crate";
+        if(args.length > 1) name = args[1];
 
-        ChatMessageConfig messageConfig = plugin.getChatMessageConfig();
+        String folder = "";
+        if(args.length > 2) folder = args[2];
 
-        if(args.length <= 1) {
-            sender.sendMessage(messageConfig.getColored("crate.error.missing-name"));
-            return true;
-        }
+        Crate crate = new Crate(name, folder);
 
-        if (args.length > 2) {
-            if(sender instanceof Player p) McGuiFramework.getGuiSounds().playFailSound(p);
-            sender.sendMessage(messageConfig.getColored("dropevent.error.name-no-spaces"));
-            return true;
-        }
-
-        if(CrateStorage.getCrateById(args[1]) != null) {
-            sender.sendMessage(messageConfig.getColored("crate.error.already-exists"));
-            if(sender instanceof Player p) McGuiFramework.getGuiSounds().playFailSound(p);
-            return true;
-        }
-
-        Crate crate = new Crate(args[1]);
-        CrateStorage.saveCrate(crate);
+        crateService.createCrate(crate);
 
         sender.sendMessage(messageConfig.getColored("crate.success.created"));
+        if(sender instanceof Player p) McGuiFramework.getGuiSounds().playSuccessSound(p);
 
         return true;
     }
