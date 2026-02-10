@@ -99,7 +99,7 @@ public class DbServices {
                         new DelayRewardEvent(20, CratesAndDropevents.getInstance()),
                         new SoundRewardEvent("minecraft:block.portal.travel", 1, 2),
                         new CommandRewardEvent("particle totem_of_undying %l 0 0 0 0.2 20 normal", CratesAndDropevents.getInstance()),
-                        new CommandRewardEvent("say %p just pulled a the legendary reward: Beacon", CratesAndDropevents.getInstance()),
+                        new CommandRewardEvent("say %p just pulled a legendary reward: Beacon", CratesAndDropevents.getInstance()),
                         new ItemRewardEvent(new ItemStack(Material.BEACON))),
                 plugin);
 
