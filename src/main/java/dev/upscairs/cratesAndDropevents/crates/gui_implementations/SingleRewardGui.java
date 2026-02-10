@@ -67,6 +67,7 @@ public class SingleRewardGui {
 
 
         gui.setSize(54);
+        gui.showPageInTitle(false);
         gui.setTitle("Configure reward");
 
         placeItems();
@@ -320,7 +321,7 @@ public class SingleRewardGui {
                         if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
                         return new SingleRewardGui(crate, reward, null, NONE, sender, plugin).getGui();
                     }
-                    else if(slot >= 47 && slot <= 53) {
+                    else if(slot >= 47 && slot <= 52) {
 
                         CrateRewardEvent rewardEvent = switch (slot) {
                             case 47 -> new ItemRewardEvent(new ItemStack(Material.DIAMOND));
@@ -430,7 +431,7 @@ public class SingleRewardGui {
                             });
                             if(sender instanceof Player p) p.closeInventory();
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                            return null;
+                            return gui;
                         }
                         case EDIT_COMMAND_EVENT -> {
 
@@ -454,7 +455,7 @@ public class SingleRewardGui {
                             });
                             if(sender instanceof Player p) p.closeInventory();
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                            return null;
+                            return gui;
                         }
                         case EDIT_DELAY_EVENT -> {
                             if(selectedEvent instanceof DelayRewardEvent drw) {
@@ -484,7 +485,7 @@ public class SingleRewardGui {
                             });
                             if(sender instanceof Player p) p.closeInventory();
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                            return null;
+                            return gui;
                         }
                         case EDIT_MONEY_EVENT -> {
                             sender.sendMessage(messageConfig.getColored("crate.info.type-money").append(cancelComponent));
@@ -522,7 +523,7 @@ public class SingleRewardGui {
 
                             if(sender instanceof Player p) p.closeInventory();
                             if(sender instanceof Player p) McGuiFramework.getGuiSounds().playClickSound(p);
-                            return null;
+                            return gui;
 
                         }
 
@@ -542,7 +543,7 @@ public class SingleRewardGui {
             }
 
 
-            return null;
+            return gui;
 
         });
 

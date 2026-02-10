@@ -168,9 +168,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.Upscairs</groupId>
-            <artifactId>McGuiFramework</artifactId>
-            <version>v1.3.3</version>
+            <groupId>com.github.AlexanderBarthe</groupId>
+            <artifactId>McGuiFramework_Paper</artifactId>
+            <version>v1.3.4</version>
         </dependency>
 
         <dependency>
