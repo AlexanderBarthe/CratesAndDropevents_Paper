@@ -14,29 +14,30 @@ public class DropService {
     private final DropDao dao;
     private final CratesAndDropevents plugin;
 
-    private final Map<Integer, Drop> dropCache = new ConcurrentHashMap<>();
+    private final Map<Integer, Drop> cache = new ConcurrentHashMap<>();
 
     private static final long CACHE_REFRESH_DELAY = 20L * 60 * 5;
 
     public DropService(DropDao dao, CratesAndDropevents plugin) {
         this.dao = dao;
         this.plugin = plugin;
+        startAutoRefresh(CACHE_REFRESH_DELAY);
     }
 
     public boolean existsById(int id) {
-        return dropCache.containsKey(id);
+        return cache.containsKey(id);
     }
 
     public Drop getDropById(int id) {
-        return dropCache.get(id);
+        return cache.get(id);
     }
 
     public List<Drop> getAllDrops() {
-        return dropCache.values().stream().toList();
+        return cache.values().stream().toList();
     }
 
     public List<Drop> getDropsForDropevent(int dropeventId) {
-        return dropCache.values().stream()
+        return cache.values().stream()
                 .filter(d -> d.getDropeventId() == dropeventId)
                 .toList();
     }
@@ -50,7 +51,7 @@ public class DropService {
 
         Consumer<Integer> daoCallback = id -> {
             drop.setId(id);
-            dropCache.put(id, drop);
+            cache.put(id, drop);
 
             if (onCreated != null) {
                 try {
@@ -70,12 +71,12 @@ public class DropService {
 
     public void updateDrop(Drop drop) {
         dao.saveDropAsync(drop, null);
-        dropCache.put(drop.getId(), drop);
+        cache.put(drop.getId(), drop);
     }
 
     public void deleteDropById(int id) {
         dao.deleteDropByIdAsync(id);
-        dropCache.remove(id);
+        cache.remove(id);
     }
 
 
@@ -83,7 +84,23 @@ public class DropService {
         List<Drop> drops = getDropsForDropevent(dropeventId);
         for (Drop d : drops) {
             dao.deleteDropByIdAsync(d.getId());
-            dropCache.remove(d.getId());
+            cache.remove(d.getId());
         }
+    }
+
+    private void startAutoRefresh(long intervalTicks) {
+        plugin.getServer().getScheduler().runTaskTimerAsynchronously(
+                plugin,
+                this::refreshCacheAsync,
+                40,
+                intervalTicks
+        );
+    }
+
+    public void refreshCacheAsync() {
+        dao.getAllAsync(drops -> {
+            cache.clear();
+            drops.forEach(drop -> cache.put(drop.getId(), drop));
+        });
     }
 }

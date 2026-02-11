@@ -63,27 +63,51 @@ public class DbServices {
         Crate crate = new Crate("Sample Crate" , "");
         crate.setPitySystemActive(true);
 
-        crateService.createCrate(crate, this::generateSampleDropevent);
+        crateService.createCrate(crate, created -> {
+            generateSampleDropevent(created);
+            generateCrateRewards(created);
+        });
 
-        CrateReward dirtReward = new CrateReward(0, 1, 700,
+
+    }
+
+    private void generateSampleDropevent(Crate crate) {
+        Dropevent dropevent = new Dropevent("Sample Dropevent", "");
+        dropevent.setBroadcasting(true);
+        dropevent.setTeleportable(true);
+        dropevent.setCountdownSec(10);
+        dropevent.setDropCount(100);
+        dropevent.setEventTimeSec(20);
+        dropevent.setDropRange(25);
+        dropevent.setMinPlayers(0);
+
+        dropeventService.create(dropevent, created -> {
+            Drop drop = new Drop(0, created.getId(), 1000, crate.getCrateItem());
+            dropService.createDrop(drop);
+        });
+
+    }
+
+    private void generateCrateRewards(Crate crate) {
+        CrateReward dirtReward = new CrateReward(0, crate.getId(), 700,
                 List.of(
                         new SoundRewardEvent("minecraft:entity.cat.ambient", 1, 0.5f),
                         new ItemRewardEvent(new ItemStack(Material.DIRT))),
                 plugin);
 
-        CrateReward diamondReward = new CrateReward(0, 1, 100,
+        CrateReward diamondReward = new CrateReward(0, crate.getId(), 100,
                 List.of(
-                        new SoundRewardEvent("minecraft:entity.experience_orb.pickup", 1, 1),
+                        new SoundRewardEvent("minecraft:entity.experience_orb.pickup", crate.getId(), 1),
                         new ItemRewardEvent(new ItemStack(Material.DIAMOND))),
                 plugin);
 
-        CrateReward netheriteReward = new CrateReward(0, 1, 100,
+        CrateReward netheriteReward = new CrateReward(0, crate.getId(), 100,
                 List.of(
                         new SoundRewardEvent("minecraft:entity.experience_orb.pickup", 1, 1),
                         new ItemRewardEvent(new ItemStack(Material.NETHERITE_INGOT))),
                 plugin);
 
-        CrateReward beaconReward = new CrateReward(0, 1, 100,
+        CrateReward beaconReward = new CrateReward(0, crate.getId(), 100,
                 List.of(
                         new SoundRewardEvent("minecraft:entity.ender_dragon.ambient", 1, 1),
                         new MessageRewardEvent("<rainbow>Legendary Reward</rainbow>"),
@@ -107,23 +131,5 @@ public class DbServices {
         crateRewardService.createReward(diamondReward);
         crateRewardService.createReward(netheriteReward);
         crateRewardService.createReward(beaconReward);
-    }
-
-    private void generateSampleDropevent(Crate crate) {
-        Dropevent dropevent = new Dropevent("Sample Dropevent", "");
-        dropevent.setBroadcasting(true);
-        dropevent.setTeleportable(true);
-        dropevent.setCountdownSec(10);
-        dropevent.setDropCount(100);
-        dropevent.setEventTimeSec(20);
-        dropevent.setDropRange(25);
-        dropevent.setMinPlayers(0);
-
-        dropeventService.create(dropevent);
-
-        Drop drop = new Drop(0, 1, 1000, crate.getCrateItem());
-
-        dropService.createDrop(drop);
-
     }
 }
